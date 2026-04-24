@@ -110,12 +110,6 @@ ok "Node.js found"
 
 # ─── Step 2: Create the export script ─────────────────────
 
-# We use a temporary Node.js script with Playwright to:
-# 1. Start a local server (so fonts load correctly)
-# 2. Navigate to each slide
-# 3. Screenshot each slide at 1920x1080 (16:9 landscape)
-# 4. Combine into a single PDF
-
 TEMP_DIR=$(mktemp -d)
 TEMP_SCRIPT="$TEMP_DIR/export-slides.mjs"
 
@@ -125,13 +119,6 @@ HTML_FILENAME=$(basename "$INPUT_HTML")
 
 cat > "$TEMP_SCRIPT" << 'EXPORT_SCRIPT'
 // export-slides.mjs — Playwright script to export HTML slides to PDF
-//
-// How it works:
-// 1. Starts a local HTTP server (needed for fonts/assets to load)
-// 2. Opens the presentation in a headless browser at 1920x1080
-// 3. Counts the total number of slides
-// 4. Screenshots each slide one by one
-// 5. Generates a PDF with all slides as landscape pages
 
 import { chromium } from 'playwright';
 import { createServer } from 'http';
@@ -145,9 +132,6 @@ const OUTPUT_PDF = process.argv[4];
 const SCREENSHOT_DIR = process.argv[5];
 const VP_WIDTH = parseInt(process.argv[6]) || 1920;
 const VP_HEIGHT = parseInt(process.argv[7]) || 1080;
-
-// ─── Simple static file server ────────────────────────────
-// (We need HTTP so that Google Fonts and relative assets load correctly)
 
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -167,7 +151,6 @@ const MIME_TYPES = {
 };
 
 const server = createServer((req, res) => {
-  // Decode URL-encoded characters (e.g., %20 → space) so filenames with spaces resolve correctly
   const decodedUrl = decodeURIComponent(req.url);
   let filePath = join(SERVE_DIR, decodedUrl === '/' ? HTML_FILE : decodedUrl);
   try {
@@ -181,30 +164,21 @@ const server = createServer((req, res) => {
   }
 });
 
-// Find a free port
 const port = await new Promise((resolve) => {
   server.listen(0, () => resolve(server.address().port));
 });
 
 console.log(`  Local server on port ${port}`);
 
-// ─── Screenshot each slide ────────────────────────────────
-
 const browser = await chromium.launch();
 const page = await browser.newPage({
   viewport: { width: VP_WIDTH, height: VP_HEIGHT },
 });
 
-// Load the presentation
 await page.goto(`http://localhost:${port}/`, { waitUntil: 'networkidle' });
-
-// Wait for fonts to load
 await page.evaluate(() => document.fonts.ready);
-
-// Extra wait for animations to settle on the first slide
 await page.waitForTimeout(1500);
 
-// Count slides
 const slideCount = await page.evaluate(() => {
   return document.querySelectorAll('.slide').length;
 });
@@ -213,25 +187,17 @@ console.log(`  Found ${slideCount} slides`);
 
 if (slideCount === 0) {
   console.error('  ERROR: No .slide elements found in the presentation.');
-  console.error('  Make sure your HTML uses <div class="slide"> or <section class="slide">.');
   await browser.close();
   server.close();
   process.exit(1);
 }
 
-// Screenshot each slide
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
 const screenshotPaths = [];
 
 for (let i = 0; i < slideCount; i++) {
-  // Navigate to slide by simulating the presentation's navigation
-  // Most frontend-slides presentations use a currentSlide index and show/hide
   await page.evaluate((index) => {
     const slides = document.querySelectorAll('.slide');
-
-    // Try multiple navigation strategies used by frontend-slides:
-
-    // Strategy 1: Direct slide manipulation (most common in generated decks)
     slides.forEach((slide, idx) => {
       if (idx === index) {
         slide.style.display = '';
@@ -245,24 +211,15 @@ for (let i = 0; i < slideCount; i++) {
         slide.classList.remove('active');
       }
     });
-
-    // Strategy 2: If there's a SlidePresentation class instance, use it
     if (window.presentation && typeof window.presentation.goToSlide === 'function') {
       window.presentation.goToSlide(index);
     }
-
-    // Strategy 3: Scroll-based (some decks use scroll snapping)
     slides[index]?.scrollIntoView({ behavior: 'instant' });
   }, i);
 
-  // Wait for any slide transition animations to finish
   await page.waitForTimeout(300);
-
-  // Wait for intersection observer animations to trigger
   await page.waitForTimeout(200);
 
-  // Force all .reveal elements on the current slide to be visible
-  // (animations normally trigger on scroll/intersection, but we need them visible now)
   await page.evaluate((index) => {
     const slides = document.querySelectorAll('.slide');
     const currentSlide = slides[index];
@@ -275,6 +232,14 @@ for (let i = 0; i < slideCount; i++) {
     }
   }, i);
 
+  // Hide UI chrome that shouldn't appear in export
+  await page.evaluate(() => {
+    ['.edit-toast', '.edit-hotzone', '.edit-toggle', '.nav-dots', '.keyboard-hint'].forEach(sel => {
+      const el = document.querySelector(sel);
+      if (el) el.style.display = 'none';
+    });
+  });
+
   await page.waitForTimeout(100);
 
   const screenshotPath = join(SCREENSHOT_DIR, `slide-${String(i + 1).padStart(3, '0')}.png`);
@@ -286,15 +251,11 @@ for (let i = 0; i < slideCount; i++) {
 await browser.close();
 server.close();
 
-// ─── Combine screenshots into PDF ─────────────────────────
-// Use a second Playwright page to generate a PDF from the screenshots
-
 console.log('  Assembling PDF...');
 
 const browser2 = await chromium.launch();
 const pdfPage = await browser2.newPage();
 
-// Build an HTML page with all screenshots, one per page
 const imagesHtml = screenshotPaths.map((p) => {
   const imgData = readFileSync(p).toString('base64');
   return `<div class="page"><img src="data:image/png;base64,${imgData}" /></div>`;
@@ -335,15 +296,12 @@ await pdfPage.pdf({
 
 await browser2.close();
 
-// Clean up screenshots
 screenshotPaths.forEach(p => unlinkSync(p));
 
 console.log(`  ✓ PDF saved to: ${OUTPUT_PDF}`);
 EXPORT_SCRIPT
 
 # ─── Step 3: Install Playwright in temp directory ──────────
-# We install Playwright locally in the temp dir so the Node script can import it.
-# This avoids polluting global packages and ensures the script is self-contained.
 
 info "Setting up Playwright (headless browser for screenshots)..."
 info "This may take a moment on first run..."
@@ -351,23 +309,18 @@ echo ""
 
 cd "$TEMP_DIR"
 
-# Create a minimal package.json so npm install works
 cat > "$TEMP_DIR/package.json" << 'PKG'
 { "name": "slide-export", "private": true, "type": "module" }
 PKG
 
-# Install Playwright into the temp directory
 npm install playwright &>/dev/null || {
     err "Failed to install Playwright."
-    err "Try running: npm install playwright"
     rm -rf "$TEMP_DIR"
     exit 1
 }
 
-# Ensure Chromium browser binary is downloaded
 npx playwright install chromium 2>/dev/null || {
     err "Failed to install Chromium browser for Playwright."
-    err "Try running manually: npx playwright install chromium"
     rm -rf "$TEMP_DIR"
     exit 1
 }
@@ -381,7 +334,6 @@ SCREENSHOT_DIR="$TEMP_DIR/screenshots"
 info "Exporting slides to PDF..."
 echo ""
 
-# Run from the temp dir so Node can find the locally-installed playwright
 if [[ "$COMPACT" == "true" ]]; then
     info "Using compact mode (1280×720) for smaller file size"
 fi
@@ -410,7 +362,6 @@ echo "  Note: Animations are not preserved (it's a static export)."
 echo -e "${BOLD}════════════════════════════════════════${NC}"
 echo ""
 
-# Open the PDF automatically
 if command -v open &>/dev/null; then
     open "$OUTPUT_PDF"
 elif command -v xdg-open &>/dev/null; then

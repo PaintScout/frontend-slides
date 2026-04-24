@@ -63,6 +63,32 @@ These invariants apply to EVERY slide in EVERY presentation:
 
 ---
 
+## PaintScout Context Detection
+
+**Check for PaintScout context BEFORE anything else.** Trigger when any of these are true:
+
+- User asks for a "PaintScout" deck, presentation, or workshop
+- User mentions painting contractors, estimating, or painting-business topics in a PaintScout context
+- User uploads PaintScout-branded source material (existing decks, logos, screenshots)
+- User identifies themselves as working at or consulting for PaintScout
+- Conversation memory indicates PaintScout work context
+
+**When PaintScout context is detected:**
+
+1. **Read both files in full before doing anything else:**
+   - [`paintscout-brand.md`](paintscout-brand.md) — official brand rules, voice, color tokens, layout catalog
+   - [`paintscout-slide-library.html`](paintscout-slide-library.html) — the authoritative template with all 13 layouts
+
+2. **Follow the [`PROMPT.md`](PROMPT.md) workflow** — standard slide structure, brand tokens, build steps, and constraints are all defined there.
+
+3. **Skip Phase 2 (style discovery)** — the brand is already decided. Go straight to Phase 1 scope questions, then Phase 3 generation using `paintscout-slide-library.html` as the base template.
+
+4. **Never regenerate CSS or layouts from scratch** — clone the template and edit content only.
+
+> When a teammate installs this skill, `paintscout-brand.md`, `paintscout-slide-library.html`, and `PROMPT.md` are all included in the skill directory. No additional setup required.
+
+---
+
 ## Phase 0: Detect Mode
 
 Determine what the user wants:
@@ -311,12 +337,15 @@ This captures each slide as a screenshot and combines them into a PDF. Perfect f
 
 ## Supporting Files
 
-| File                                               | Purpose                                                              | When to Read              |
-| -------------------------------------------------- | -------------------------------------------------------------------- | ------------------------- |
-| [STYLE_PRESETS.md](STYLE_PRESETS.md)               | 12 curated visual presets with colors, fonts, and signature elements | Phase 2 (style selection) |
-| [viewport-base.css](viewport-base.css)             | Mandatory responsive CSS — copy into every presentation              | Phase 3 (generation)      |
-| [html-template.md](html-template.md)               | HTML structure, JS features, code quality standards                  | Phase 3 (generation)      |
-| [animation-patterns.md](animation-patterns.md)     | CSS/JS animation snippets and effect-to-feeling guide                | Phase 3 (generation)      |
-| [scripts/extract-pptx.py](scripts/extract-pptx.py) | Python script for PPT content extraction                             | Phase 4 (conversion)      |
-| [scripts/deploy.sh](scripts/deploy.sh)             | Deploy slides to Vercel for instant sharing                          | Phase 6 (sharing)         |
-| [scripts/export-pdf.sh](scripts/export-pdf.sh)     | Export slides to PDF                                                 | Phase 6 (sharing)         |
+| File                                               | Purpose                                                                        | When to Read                |
+| -------------------------------------------------- | ------------------------------------------------------------------------------ | --------------------------- |
+| [STYLE_PRESETS.md](STYLE_PRESETS.md)               | 12 curated visual presets with colors, fonts, and signature elements           | Phase 2 (style selection)   |
+| [viewport-base.css](viewport-base.css)             | Mandatory responsive CSS — copy into every presentation                        | Phase 3 (generation)        |
+| [html-template.md](html-template.md)               | HTML structure, JS features, code quality standards                            | Phase 3 (generation)        |
+| [animation-patterns.md](animation-patterns.md)     | CSS/JS animation snippets and effect-to-feeling guide                          | Phase 3 (generation)        |
+| [scripts/extract-pptx.py](scripts/extract-pptx.py) | Python script for PPT content extraction                                       | Phase 4 (conversion)        |
+| [scripts/deploy.sh](scripts/deploy.sh)             | Deploy slides to Vercel for instant sharing                                    | Phase 6 (sharing)           |
+| [scripts/export-pdf.sh](scripts/export-pdf.sh)     | Export slides to PDF                                                           | Phase 6 (sharing)           |
+| [paintscout-brand.md](paintscout-brand.md)         | PaintScout official brand rules — colors, typography, voice, layout catalog    | PaintScout context detected |
+| [paintscout-slide-library.html](paintscout-slide-library.html) | PaintScout master template with all 13 layouts, inline editing, logos | PaintScout context detected |
+| [PROMPT.md](PROMPT.md)                             | PaintScout workshop build workflow — slide structure, build steps, constraints | PaintScout context detected |
