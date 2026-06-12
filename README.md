@@ -157,7 +157,7 @@ Uses [Playwright](https://playwright.dev) to capture each slide at 2× device pi
 
 ## Credits
 
-Created by [@ColtonRhyason](https://github.com/ColtonRhyason) with Claude Code.
+Maintained by [@ColtonRhyason](https://github.com/ColtonRhyason). Originally created by [@zarazhangrui](https://github.com/zarazhangrui) with Claude Code.
 
 Inspired by the "Vibe Coding" philosophy — building beautiful things without being a traditional software engineer.
 
