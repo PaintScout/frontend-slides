@@ -20,37 +20,21 @@ https://github.com/user-attachments/assets/ef57333e-f879-432a-afb9-180388982478
 
 ## Installation
 
-### Via Plugin Marketplace (Recommended)
-
-Install directly from Claude Code in two commands:
+Clone directly into your Claude Code skills directory:
 
 ```bash
-/plugin marketplace add zarazhangrui/frontend-slides
-/plugin install frontend-slides@frontend-slides
+git clone https://github.com/ColtonRhyason/frontend-slides.git ~/.claude/skills/frontend-slides
 ```
 
 Then use it by typing `/frontend-slides` in Claude Code.
 
-### Manual Installation
+### Keeping It Up to Date
 
-Copy the skill files to your Claude Code skills directory:
-
-```bash
-# Create the skill directory
-mkdir -p ~/.claude/skills/frontend-slides/scripts
-
-# Copy all files (or clone this repo directly)
-cp SKILL.md STYLE_PRESETS.md viewport-base.css html-template.md animation-patterns.md ~/.claude/skills/frontend-slides/
-cp scripts/extract-pptx.py ~/.claude/skills/frontend-slides/scripts/
-```
-
-Or clone directly:
+Pull the latest changes at any time:
 
 ```bash
-git clone https://github.com/zarazhangrui/frontend-slides.git ~/.claude/skills/frontend-slides
+cd ~/.claude/skills/frontend-slides && git pull
 ```
-
-Then use it by typing `/frontend-slides` in Claude Code.
 
 ## Usage
 
@@ -162,7 +146,7 @@ bash scripts/export-pdf.sh ./my-deck/index.html
 bash scripts/export-pdf.sh ./presentation.html ./output.pdf
 ```
 
-Uses [Playwright](https://playwright.dev) to screenshot each slide at 1920×1080 and combine into a PDF. Installs automatically if needed. Animations are not preserved (it's a static snapshot).
+Uses [Playwright](https://playwright.dev) to capture each slide at 2× device pixel ratio (3840×2160 screenshots rendered into 1920×1080 PDF pages) for crisp, retina-quality output. Installs automatically if needed. Animations are not preserved (it's a static snapshot).
 
 ## Requirements
 
@@ -173,7 +157,7 @@ Uses [Playwright](https://playwright.dev) to screenshot each slide at 1920×1080
 
 ## Credits
 
-Created by [@zarazhangrui](https://github.com/zarazhangrui) with Claude Code.
+Created by [@ColtonRhyason](https://github.com/ColtonRhyason) with Claude Code.
 
 Inspired by the "Vibe Coding" philosophy — building beautiful things without being a traditional software engineer.
 
