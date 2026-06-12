@@ -42,7 +42,7 @@ Save to: `~/Downloads/paintscout-[workshop-slug].html`
 
 ### Step 4 — Export PDF
 Run: `bash ~/.claude/skills/frontend-slides/scripts/export-pdf.sh ~/Downloads/paintscout-[workshop-slug].html`
-PDF must be **1920×1080**. No other resolution is acceptable.
+PDF must be **1920×1080** page size. The script captures each slide at **2× device pixel ratio** (3840×2160 screenshots) rendered into 1920×1080 PDF pages — this ensures crisp, non-grainy output on all displays. Do not reduce the DPR.
 
 ---
 

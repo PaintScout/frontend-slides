@@ -33,8 +33,9 @@ err()   { echo -e "${RED}✗${NC} $*" >&2; }
 
 # ─── Parse flags ──────────────────────────────────────────
 
-# Default resolution: 1920x1080 (full HD, ~1-2MB per slide)
-# Compact resolution: 1280x720 (HD, ~50-70% smaller files)
+# Default resolution: 1920x1080 viewport captured at 2× DPR = 3840×2160 screenshots
+# rendered into 1920×1080 PDF pages — crisp on all displays (~2-4MB per deck).
+# Compact resolution: 1280x720 at 2× DPR = 2560×1440, ~50-70% smaller files.
 VIEWPORT_W=1920
 VIEWPORT_H=1080
 COMPACT=false
@@ -103,7 +104,7 @@ for _node_dir in \
     "/usr/local/bin" \
     "$HOME/.nvm/versions/node/$(ls "$HOME/.nvm/versions/node" 2>/dev/null | sort -V | tail -1)/bin" \
     "$HOME/.volta/bin" \
-    "$NVM_BIN"; do
+    "${NVM_BIN:-}"; do
     [[ -d "$_node_dir" && ":$PATH:" != *":$_node_dir:"* ]] && export PATH="$_node_dir:$PATH"
 done
 
@@ -142,6 +143,9 @@ const OUTPUT_PDF = process.argv[4];
 const SCREENSHOT_DIR = process.argv[5];
 const VP_WIDTH = parseInt(process.argv[6]) || 1920;
 const VP_HEIGHT = parseInt(process.argv[7]) || 1080;
+// 2× device pixel ratio: screenshots are captured at double resolution
+// (e.g. 3840×2160) then rendered into 1920×1080 PDF pages — sharp on all displays.
+const DEVICE_SCALE_FACTOR = 2;
 
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -183,6 +187,7 @@ console.log(`  Local server on port ${port}`);
 const browser = await chromium.launch();
 const page = await browser.newPage({
   viewport: { width: VP_WIDTH, height: VP_HEIGHT },
+  deviceScaleFactor: DEVICE_SCALE_FACTOR,
 });
 
 await page.goto(`http://localhost:${port}/`, { waitUntil: 'networkidle' });
@@ -255,7 +260,7 @@ for (let i = 0; i < slideCount; i++) {
   const screenshotPath = join(SCREENSHOT_DIR, `slide-${String(i + 1).padStart(3, '0')}.png`);
   await page.screenshot({ path: screenshotPath, fullPage: false });
   screenshotPaths.push(screenshotPath);
-  console.log(`  Captured slide ${i + 1}/${slideCount}`);
+  console.log(`  Captured slide ${i + 1}/${slideCount} @ ${VP_WIDTH * DEVICE_SCALE_FACTOR}×${VP_HEIGHT * DEVICE_SCALE_FACTOR}px`);
 }
 
 await browser.close();
