@@ -2171,8 +2171,11 @@
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = `${name}.html`;
+                // Must be in the DOM for the click to trigger a download in some browsers
+                document.body.appendChild(link);
                 link.click();
-                URL.revokeObjectURL(url);
+                link.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
 
                 this.showToast(`Exported ${name}.html ✓`);
             }
