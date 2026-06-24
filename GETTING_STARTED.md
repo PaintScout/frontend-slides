@@ -72,6 +72,16 @@ That file is completely self-contained — it works offline, on any computer, wi
 nothing else installed. You can email it, drop it in Slack, or present straight
 from your browser.
 
+### Prefer a shareable link?
+
+Instead of (or in addition to) downloading, just ask:
+
+> Can you give me a shareable link to this?
+
+Claude will publish the deck to a **private web page** and hand you a link you can
+open in any browser and send to teammates. It's private to you until you choose to
+share it — nothing is public by default.
+
 ### Step 5 — Present it
 
 - **Arrow keys** or **spacebar** move between slides.
