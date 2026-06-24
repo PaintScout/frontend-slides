@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worlds Made of Rock, Gas & Ice</title>
+
+    <!--
+    ============================================================================
+    WORLDS MADE OF ROCK, GAS & ICE
+    The eight planets of our solar system, sorted by what they're built from.
+    Built on the PaintScout brand slide library (Poppins + Inter, PS blue/navy).
+    ============================================================================
+    Navigation: → / Space / PageDown = next · ← / PageUp = previous · E = edit
+    ============================================================================
+    -->
+
+    <!-- Google Fonts: Poppins (PS documented fallback for Euclid Circular A) + Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" crossorigin="anonymous">
+
+    <!-- PPTX export: converts .slide elements to an editable .pptx, client-side -->
+    <script src="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/dom-to-pptx.bundle.js"></script>
+
+    <style>
+        /* ====================================================================
+           THEME — PAINTSCOUT BRAND TOKENS
+           Sourced from paintscout.com/internal/brand (Aug 2025).
+           ==================================================================== */
+        :root {
+            /* PaintScout Blues */
+            --ps-blue-50: #0559d2;
+            --ps-blue-55: #0766ee;   /* PRIMARY BLUE */
+            --ps-blue-60: #2377fd;
+            --ps-blue-65: #438aff;
+            --ps-blue-70: #639dfe;
+            --ps-blue-80: #98bffe;
+
+            /* PaintScout Neutrals */
+            --ps-n30: #1b2e4c;       /* DARKEST / NAVY */
+            --ps-n35: #283b5a;
+            --ps-n40: #2f4870;
+            --ps-n50: #4a648e;
+            --ps-n60: #6b81a5;
+            --ps-n70: #8e9fbb;
+            --ps-n80: #b3bfd2;
+            --ps-n90: #d8dee8;
+            --ps-n95: #ebeff5;       /* LIGHT BG */
+            --ps-n98: #f6f9fc;       /* LIGHTEST BG */
+            --ps-white: #ffffff;
+
+            /* Semantic aliases */
+            --bg-light: var(--ps-n98);
+            --bg-light-alt: var(--ps-n95);
+            --bg-dark: var(--ps-n30);
+            --bg-blue: var(--ps-blue-55);
+            --text-primary: var(--ps-n30);
+            --text-secondary: var(--ps-n50);
+            --text-on-dark: #ffffff;
+            --text-on-blue: #ffffff;
+            --text-muted-on-dark: var(--ps-blue-80);
+            --accent: var(--ps-blue-55);
+
+            /* Typography — PS hierarchy adapted to clamp() for viewport fitting */
+            --font-display: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+            --title-size: clamp(2rem, 6vw, 5.5rem);
+            --h1-size: clamp(2rem, 5.5vw, 4.5rem);
+            --h2-size: clamp(1.5rem, 4vw, 3rem);
+            --h3-size: clamp(1.25rem, 3vw, 2rem);
+            --body-size: clamp(0.875rem, 1.5vw, 1.125rem);
+            --body-large: clamp(1rem, 1.8vw, 1.25rem);
+            --small-size: clamp(0.7rem, 1vw, 0.875rem);
+
+            /* Spacing */
+            --slide-padding: clamp(1.5rem, 4vw, 4rem);
+            --content-gap: clamp(0.75rem, 2vw, 2rem);
+            --element-gap: clamp(0.5rem, 1vw, 1rem);
+
+            /* Motion */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+            --duration-fast: 0.25s;
+        }
+
+        /* ====================================================================
+           BASE RESET
+           ==================================================================== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-body);
+            font-size: var(--body-size);
+            line-height: 1.4;
+            color: var(--text-primary);
+            background: var(--bg-light);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ====================================================================
+           VIEWPORT-BASE.CSS (required by frontend-slides skill)
+           Every slide = exact viewport height, no scrolling within a slide.
+           ==================================================================== */
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+        }
+
+        /* Responsive scaling */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(1rem, 3vw, 2.5rem);
+                --content-gap: clamp(0.5rem, 1.5vw, 1.25rem);
+                --title-size: clamp(1.5rem, 5vw, 3.5rem);
+                --h1-size: clamp(1.5rem, 4.5vw, 3rem);
+                --h2-size: clamp(1.25rem, 3.5vw, 2.25rem);
+            }
+        }
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 2.5vw, 1.75rem);
+                --content-gap: clamp(0.4rem, 1.2vw, 1rem);
+                --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+                --body-size: clamp(0.75rem, 1.2vw, 1rem);
+            }
+            .nav-dots, .keyboard-hint, .decorative { display: none; }
+        }
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2vw, 1.25rem);
+                --title-size: clamp(1rem, 4vw, 2rem);
+                --body-size: clamp(0.7rem, 1vw, 0.875rem);
+            }
+        }
+        @media (max-width: 600px) {
+            :root { --title-size: clamp(1.5rem, 8vw, 3rem); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ====================================================================
+           SHARED COMPONENTS
+           ==================================================================== */
+        .dotted-grid {
+            background-image: radial-gradient(circle, var(--ps-n80) 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-position: 0 0;
+            opacity: 0.35;
+        }
+        .subtle-grid {
+            background-image:
+                linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+        .bg-pattern { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+
+        /* Starfield — subtle dots over dark/blue slides for a cosmic touch.
+           Built purely with layered radial-gradients (zero dependencies). */
+        .starfield {
+            background-image:
+                radial-gradient(1.5px 1.5px at 12% 22%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 28% 68%, rgba(255,255,255,0.55), transparent),
+                radial-gradient(1.5px 1.5px at 47% 14%, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 63% 82%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1.5px 1.5px at 78% 36%, rgba(255,255,255,0.75), transparent),
+                radial-gradient(1px 1px at 88% 60%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 8% 88%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 56% 48%, rgba(255,255,255,0.4), transparent);
+            opacity: 0.9;
+        }
+
+        /* Logo slots */
+        .ps-logo-corner {
+            position: absolute;
+            bottom: clamp(1rem, 2.5vh, 2rem);
+            left: clamp(1rem, 2.5vw, 2.5rem);
+            height: clamp(1.5rem, 2.4vw, 2rem);
+            width: auto;
+            z-index: 5;
+        }
+        .ps-logo-corner svg { height: 100%; width: auto; display: block; }
+
+        /* Topic pill tag */
+        .pill-tag {
+            position: absolute;
+            top: clamp(1rem, 2.5vh, 2rem);
+            right: clamp(1rem, 2.5vw, 2.5rem);
+            background: var(--ps-white);
+            color: var(--ps-n30);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: var(--small-size);
+            padding: clamp(0.5rem, 1vw, 0.75rem) clamp(0.85rem, 1.5vw, 1.25rem);
+            border-radius: 999px;
+            box-shadow: 0 2px 12px rgba(27, 46, 76, 0.08);
+            z-index: 5;
+            letter-spacing: 0.01em;
+        }
+        .pill-tag.on-dark {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--ps-white);
+            backdrop-filter: blur(6px);
+            box-shadow: none;
+        }
+
+        .blue-accent { color: var(--accent); }
+        .navy-accent { color: var(--ps-n30); }
+        .white-muted { color: var(--ps-blue-80); }
+
+        h1, h2, h3, h4, .display, .eyebrow {
+            font-family: var(--font-display);
+            font-weight: 600;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+        }
+        .display { font-size: var(--title-size); letter-spacing: -0.04em; }
+        h1 { font-size: var(--h1-size); }
+        h2 { font-size: var(--h2-size); }
+        h3 { font-size: var(--h3-size); }
+
+        .eyebrow {
+            font-size: var(--small-size);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+        }
+
+        p, li { font-family: var(--font-body); font-weight: 400; }
+
+        /* ====================================================================
+           REVEAL ANIMATIONS — staggered fade + slide up
+           ==================================================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition:
+                opacity var(--duration-normal) var(--ease-out-expo),
+                transform var(--duration-normal) var(--ease-out-expo);
+        }
+        .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+        .slide.visible .reveal:nth-child(1) { transition-delay: 0.05s; }
+        .slide.visible .reveal:nth-child(2) { transition-delay: 0.15s; }
+        .slide.visible .reveal:nth-child(3) { transition-delay: 0.25s; }
+        .slide.visible .reveal:nth-child(4) { transition-delay: 0.35s; }
+        .slide.visible .reveal:nth-child(5) { transition-delay: 0.45s; }
+        .slide.visible .reveal:nth-child(6) { transition-delay: 0.55s; }
+
+        /* ====================================================================
+           SLIDE 1 — COVER / TITLE
+           ==================================================================== */
+        .slide.cover { background: var(--bg-light); }
+        .cover-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: var(--slide-padding);
+            position: relative;
+            z-index: 1;
+        }
+        .cover-eyebrow { margin-bottom: var(--element-gap); }
+        .cover-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(2.25rem, 7vw, 6rem);
+            line-height: 1;
+            letter-spacing: -0.04em;
+            color: var(--ps-n30);
+            max-width: 90%;
+        }
+        .cover-subtitle {
+            margin-top: var(--content-gap);
+            font-size: var(--body-large);
+            color: var(--text-secondary);
+            max-width: 60ch;
+        }
+        .cover-date {
+            position: absolute;
+            bottom: clamp(1rem, 2.5vh, 2rem);
+            right: clamp(1rem, 2.5vw, 2.5rem);
+            font-family: var(--font-display);
+            font-weight: 500;
+            font-size: var(--small-size);
+            color: var(--ps-n60);
+            z-index: 5;
+        }
+
+        /* ====================================================================
+           SLIDE — SECTION DIVIDER (BLUE)
+           ==================================================================== */
+        .slide.section-divider-blue {
+            background: var(--bg-blue);
+            color: var(--text-on-blue);
+            align-items: center;
+            justify-content: center;
+        }
+        .divider-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: var(--slide-padding);
+            z-index: 1;
+        }
+        .divider-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: clamp(2.5rem, 5vw, 3.75rem);
+            height: clamp(2.5rem, 5vw, 3.75rem);
+            background: var(--ps-white);
+            color: var(--accent);
+            border-radius: 12px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(1.25rem, 2.5vw, 2rem);
+            margin-bottom: var(--content-gap);
+        }
+        .divider-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(2.5rem, 7vw, 5.5rem);
+            line-height: 1;
+            letter-spacing: -0.04em;
+        }
+        .divider-sub {
+            margin-top: var(--content-gap);
+            font-size: var(--body-large);
+            color: var(--ps-blue-80);
+            max-width: 50ch;
+        }
+
+        /* ====================================================================
+           SLIDE — SECTION DIVIDER (NAVY)
+           ==================================================================== */
+        .slide.section-divider-navy {
+            background: var(--bg-dark);
+            color: var(--text-on-dark);
+            align-items: center;
+            justify-content: center;
+        }
+        .slide.section-divider-navy .divider-number {
+            background: var(--accent);
+            color: var(--ps-white);
+        }
+        .slide.section-divider-navy .divider-sub { color: var(--ps-n70); }
+
+        /* ====================================================================
+           SLIDE — PURPOSE / KEY TAKEAWAY
+           ==================================================================== */
+        .slide.purpose { background: var(--bg-blue); color: var(--text-on-blue); }
+        .purpose-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: var(--slide-padding);
+            z-index: 1;
+            gap: var(--content-gap);
+        }
+        .purpose-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            line-height: 1;
+            letter-spacing: -0.04em;
+            text-align: center;
+        }
+        .purpose-card {
+            background: var(--bg-light);
+            color: var(--text-primary);
+            padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.75rem, 3.5vw, 3rem);
+            border-radius: clamp(0.75rem, 1.5vw, 1.25rem);
+            max-width: min(85vw, 900px);
+            text-align: center;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+        }
+        .purpose-card-label {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: var(--body-large);
+            color: var(--ps-n30);
+            margin-bottom: 0.5rem;
+        }
+        .purpose-card-text {
+            font-size: clamp(1.05rem, 2vw, 1.4rem);
+            color: var(--ps-n35);
+            line-height: 1.4;
+        }
+
+        /* ====================================================================
+           SLIDE — AGENDA (3 NUMBERED CARDS)
+           ==================================================================== */
+        .slide.agenda { background: var(--bg-blue); color: var(--text-on-blue); }
+        .agenda-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: var(--slide-padding);
+            gap: var(--content-gap);
+            z-index: 1;
+        }
+        .agenda-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(2rem, 5vw, 4rem);
+            letter-spacing: -0.04em;
+            text-align: center;
+            margin-bottom: var(--element-gap);
+        }
+        .agenda-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.75rem, 1.5vw, 1.5rem);
+            max-width: min(95vw, 1200px);
+            margin: 0 auto;
+            width: 100%;
+        }
+        .agenda-card {
+            background: var(--bg-light);
+            color: var(--text-primary);
+            padding: clamp(1.25rem, 2.5vw, 2rem);
+            border-radius: clamp(0.75rem, 1.5vw, 1.25rem);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.75rem, 1.5vw, 1.25rem);
+            min-height: clamp(14rem, 30vh, 20rem);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+        .agenda-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: clamp(2rem, 3.5vw, 2.75rem);
+            height: clamp(2rem, 3.5vw, 2.75rem);
+            background: var(--accent);
+            color: var(--ps-white);
+            border-radius: 8px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: var(--body-large);
+        }
+        .agenda-card h3 { font-size: clamp(1.25rem, 2.2vw, 1.875rem); color: var(--ps-n30); line-height: 1.1; }
+        .agenda-card p {
+            font-size: var(--body-size);
+            color: var(--ps-n50);
+            line-height: 1.4;
+        }
+        .agenda-card-tag {
+            margin-top: auto;
+            font-family: var(--font-display);
+            font-weight: 500;
+            font-size: var(--body-size);
+            color: var(--accent);
+        }
+        @media (max-width: 900px) {
+            .agenda-cards { grid-template-columns: 1fr; }
+            .agenda-card { min-height: auto; }
+        }
+
+        /* ====================================================================
+           SLIDE — BIG STATEMENT / IMPACT
+           ==================================================================== */
+        .slide.big-statement { background: var(--bg-light); justify-content: center; align-items: center; }
+        .big-statement-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: var(--slide-padding);
+            text-align: center;
+            z-index: 1;
+        }
+        .big-statement-text {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(3rem, 9vw, 8rem);
+            line-height: 0.95;
+            letter-spacing: -0.05em;
+            color: var(--ps-n30);
+            max-width: 95%;
+        }
+        .big-statement-sub {
+            margin-top: var(--content-gap);
+            font-size: var(--body-large);
+            color: var(--text-secondary);
+            max-width: 62ch;
+        }
+
+        /* ====================================================================
+           SLIDE — CONTENT + COMPOSITION READOUT
+           ==================================================================== */
+        .slide.content-mockup { background: var(--bg-light); }
+        .content-mockup-inner {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: clamp(1.5rem, 4vw, 4rem);
+            padding: var(--slide-padding);
+            align-items: center;
+            z-index: 1;
+        }
+        .content-mockup-text h2 { color: var(--ps-n30); margin-bottom: var(--element-gap); }
+        .content-mockup-text p { color: var(--text-secondary); font-size: var(--body-large); max-width: 42ch; }
+        .content-mockup-text ul {
+            margin-top: var(--content-gap);
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.5rem, 1vw, 0.75rem);
+        }
+        .content-mockup-text li {
+            position: relative;
+            padding-left: 1.5rem;
+            color: var(--ps-n35);
+            font-size: var(--body-size);
+        }
+        .content-mockup-text li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.55em;
+            width: 0.5rem;
+            height: 0.5rem;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        /* Composition readout card (styled like a PaintScout data panel) */
+        .mock-ui {
+            background: var(--ps-white);
+            border-radius: clamp(0.75rem, 1.5vw, 1.25rem);
+            box-shadow: 0 12px 48px rgba(27, 46, 76, 0.12);
+            padding: clamp(0.75rem, 1.5vw, 1.25rem);
+            max-height: 74vh;
+            overflow: hidden;
+            font-family: var(--font-body);
+        }
+        .mock-ui-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: var(--body-large);
+            color: var(--ps-n30);
+            padding: 0 0.25rem clamp(0.75rem, 1.5vw, 1rem);
+            border-bottom: 1px solid var(--ps-n90);
+        }
+        /* The little planet glyph beside the readout header */
+        .planet-dot {
+            width: clamp(1.5rem, 2.6vw, 2rem);
+            height: clamp(1.5rem, 2.6vw, 2rem);
+            border-radius: 50%;
+            flex-shrink: 0;
+            box-shadow: inset -4px -4px 8px rgba(0,0,0,0.25);
+        }
+        .mock-ui-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            padding: clamp(0.55rem, 1.1vw, 0.9rem) 0.25rem;
+            border-bottom: 1px solid var(--ps-n95);
+        }
+        .mock-ui-row:last-child { border-bottom: none; }
+        .mock-ui-label { font-family: var(--font-display); font-weight: 500; color: var(--ps-n30); font-size: var(--body-size); }
+        .mock-ui-meta { font-size: var(--small-size); color: var(--ps-n50); }
+        .mock-ui-badge {
+            background: var(--ps-blue-55);
+            color: var(--ps-white);
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            font-size: var(--small-size);
+            font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .mock-ui-badge.rock  { background: var(--ps-n40); }
+        .mock-ui-badge.metal { background: #b07b4f; }
+        .mock-ui-badge.gas   { background: #c98a2b; }
+        .mock-ui-badge.ice   { background: #2f9bd6; }
+        .mock-ui-badge.hot   { background: #d9534f; }
+        @media (max-width: 900px) { .content-mockup-inner { grid-template-columns: 1fr; } }
+
+        /* ====================================================================
+           SLIDE — NUMBERED LIST (DARK)
+           ==================================================================== */
+        .slide.numbered-list { background: var(--bg-dark); color: var(--text-on-dark); }
+        .numbered-list-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: var(--slide-padding);
+            gap: var(--content-gap);
+            z-index: 1;
+            max-width: min(90vw, 1100px);
+            margin: 0 auto;
+            width: 100%;
+        }
+        .numbered-list-inner h2 { color: var(--text-on-dark); margin-bottom: var(--element-gap); }
+        .numbered-list-inner .lead-sub { color: var(--ps-n70); font-size: var(--body-large); margin-top: calc(-1 * var(--element-gap)); margin-bottom: var(--element-gap); }
+        .numbered-list-items { display: flex; flex-direction: column; gap: clamp(0.75rem, 1.8vh, 1.5rem); }
+        .numbered-list-item {
+            display: flex;
+            align-items: baseline;
+            gap: clamp(0.75rem, 1.5vw, 1.5rem);
+            font-family: var(--font-display);
+            font-weight: 500;
+            font-size: clamp(1.05rem, 2.3vw, 1.85rem);
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+        }
+        .numbered-list-item .num { color: var(--ps-blue-70); font-weight: 600; min-width: clamp(2rem, 4vw, 3.5rem); }
+        .numbered-list-item strong { font-weight: 700; color: var(--ps-white); }
+
+        /* ====================================================================
+           SLIDE — STATS ROW (3-UP)
+           ==================================================================== */
+        .slide.stats { background: var(--bg-dark); color: var(--text-on-dark); }
+        .stats-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: var(--slide-padding);
+            gap: var(--content-gap);
+            z-index: 1;
+        }
+        .stats-header { text-align: center; max-width: 60ch; margin: 0 auto; }
+        .stats-header h2 { color: var(--text-on-dark); }
+        .stats-header p { margin-top: 0.5rem; color: var(--ps-n70); font-size: var(--body-size); }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.75rem, 1.5vw, 1.25rem);
+            max-width: min(95vw, 1100px);
+            margin: 0 auto;
+            width: 100%;
+        }
+        .stat-card {
+            padding: clamp(1.25rem, 2.5vw, 2rem);
+            border-radius: clamp(0.75rem, 1.5vw, 1.25rem);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.4rem, 0.8vw, 0.75rem);
+            min-height: clamp(10rem, 22vh, 14rem);
+        }
+        .stat-card.variant-light { background: var(--ps-n95); color: var(--ps-n30); }
+        .stat-card.variant-outline { background: transparent; border: 1px solid var(--ps-blue-80); color: var(--ps-blue-80); }
+        .stat-card.variant-filled { background: var(--accent); color: var(--ps-white); }
+        .stat-icon { width: clamp(1.25rem, 2vw, 1.75rem); height: clamp(1.25rem, 2vw, 1.75rem); opacity: 0.9; }
+        .stat-number {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(2.25rem, 6vw, 4.5rem);
+            line-height: 1;
+            letter-spacing: -0.04em;
+        }
+        .stat-card.variant-light .stat-number { color: var(--accent); }
+        .stat-label { font-family: var(--font-body); font-size: var(--body-size); opacity: 0.9; line-height: 1.3; }
+        @media (max-width: 900px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .stat-card { min-height: auto; }
+        }
+
+        /* ====================================================================
+           SLIDE — AUDIENCE PROMPT
+           ==================================================================== */
+        .slide.audience-prompt { background: var(--bg-blue); color: var(--text-on-blue); }
+        .prompt-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: var(--slide-padding);
+            text-align: center;
+            gap: var(--content-gap);
+            z-index: 1;
+        }
+        .prompt-question {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(2.25rem, 6.5vw, 5.5rem);
+            line-height: 1;
+            letter-spacing: -0.04em;
+            max-width: 90%;
+        }
+        .prompt-hint {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            padding: clamp(0.75rem, 1.5vw, 1rem) clamp(1.25rem, 2.5vw, 2rem);
+            border-radius: 999px;
+            font-family: var(--font-display);
+            font-weight: 500;
+            font-size: var(--body-size);
+            color: var(--ps-white);
+        }
+        .prompt-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: clamp(0.5rem, 1vw, 0.875rem);
+            margin-top: var(--element-gap);
+        }
+        .prompt-option {
+            background: var(--ps-white);
+            color: var(--accent);
+            padding: clamp(0.6rem, 1.2vw, 0.875rem) clamp(1rem, 2vw, 1.5rem);
+            border-radius: 999px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: var(--body-size);
+        }
+
+        /* ====================================================================
+           SLIDE — RECAP GRID (3-COL OUTLINE)
+           ==================================================================== */
+        .slide.recap { background: var(--bg-light); }
+        .recap-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: var(--slide-padding);
+            gap: var(--content-gap);
+            z-index: 1;
+        }
+        .recap-header { display: flex; flex-direction: column; gap: 0.5rem; }
+        .recap-header h2 { color: var(--ps-n30); }
+        .recap-header p { color: var(--text-secondary); font-size: var(--body-size); }
+        .recap-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.75rem, 1.5vw, 1.25rem);
+            max-width: min(100%, 1200px);
+        }
+        .recap-col {
+            background: var(--ps-white);
+            padding: clamp(1rem, 2vw, 1.5rem);
+            border-radius: clamp(0.75rem, 1.5vw, 1rem);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.5rem, 1vw, 0.875rem);
+            box-shadow: 0 4px 16px rgba(27, 46, 76, 0.06);
+            border: 1px solid var(--ps-n90);
+        }
+        .recap-col-header { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--ps-n95); }
+        .recap-col-badge {
+            width: clamp(1.5rem, 2.8vw, 2.25rem);
+            height: clamp(1.5rem, 2.8vw, 2.25rem);
+            background: var(--accent);
+            color: var(--ps-white);
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: var(--body-size);
+            flex-shrink: 0;
+        }
+        .recap-col-title { font-family: var(--font-display); font-weight: 600; font-size: clamp(0.95rem, 1.8vw, 1.25rem); color: var(--ps-n30); line-height: 1.1; }
+        .recap-col ul { list-style: none; display: flex; flex-direction: column; gap: clamp(0.35rem, 0.8vw, 0.5rem); }
+        .recap-col li {
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+            color: var(--ps-n40);
+            line-height: 1.35;
+            padding-left: 1rem;
+            position: relative;
+        }
+        .recap-col li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.55em;
+            width: 0.35rem;
+            height: 0.35rem;
+            background: var(--ps-blue-70);
+            border-radius: 50%;
+        }
+        @media (max-width: 900px) { .recap-grid { grid-template-columns: 1fr; } }
+
+        /* ====================================================================
+           SLIDE — CLOSING / THANKS
+           ==================================================================== */
+        .slide.closing { background: var(--bg-dark); color: var(--text-on-dark); }
+        .closing-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: var(--slide-padding);
+            gap: var(--content-gap);
+            text-align: center;
+            z-index: 1;
+        }
+        .closing-logomark { height: clamp(3rem, 6vw, 5rem); width: auto; }
+        .closing-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(2.5rem, 7vw, 6rem);
+            line-height: 1;
+            letter-spacing: -0.04em;
+        }
+        .closing-subtitle { font-size: var(--body-large); color: var(--ps-n70); max-width: 60ch; }
+        .closing-contact { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(1rem, 2vw, 2rem); margin-top: var(--element-gap); }
+        .closing-contact-item { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+        .closing-contact-label { font-size: var(--small-size); color: var(--ps-blue-70); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; }
+        .closing-contact-value { font-family: var(--font-display); font-weight: 500; color: var(--ps-white); font-size: var(--body-large); }
+
+        /* ====================================================================
+           NAV DOTS + PROGRESS BAR
+           ==================================================================== */
+        .nav-dots { position: fixed; right: clamp(0.75rem, 1.5vw, 1.5rem); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.5rem; z-index: 100; }
+        .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ps-n80); border: none; cursor: pointer; transition: all 0.2s ease; padding: 0; }
+        .nav-dot:hover { background: var(--ps-blue-55); transform: scale(1.2); }
+        .nav-dot.active { background: var(--ps-blue-55); transform: scale(1.4); }
+
+        .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); z-index: 100; transition: width 0.2s ease; width: 0%; }
+
+        /* ====================================================================
+           EDIT MODE — hotzone + toggle + toast
+           ==================================================================== */
+        .edit-hotzone { position: fixed; top: 0; left: 0; width: 80px; height: 80px; z-index: 10000; cursor: pointer; }
+        .edit-toggle {
+            position: fixed;
+            top: clamp(0.75rem, 1.5vw, 1.25rem);
+            left: clamp(0.75rem, 1.5vw, 1.25rem);
+            width: clamp(2.5rem, 4vw, 3rem);
+            height: clamp(2.5rem, 4vw, 3rem);
+            border-radius: 50%;
+            background: var(--ps-white);
+            border: 1px solid var(--ps-n90);
+            box-shadow: 0 4px 16px rgba(27, 46, 76, 0.15);
+            cursor: pointer;
+            z-index: 10001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.2s ease;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+        .edit-toggle.active { background: var(--accent); color: var(--ps-white); border-color: var(--accent); }
+        .edit-toggle:hover { transform: scale(1.08); }
+
+        body.edit-mode [data-editable] { outline: 2px dashed var(--accent); outline-offset: 4px; cursor: text; border-radius: 4px; transition: outline-color 0.2s ease; }
+        body.edit-mode [data-editable]:hover { outline-color: var(--ps-blue-50); background: rgba(7, 102, 238, 0.04); }
+        body.edit-mode [data-editable]:focus { outline-color: var(--ps-blue-50); outline-style: solid; background: rgba(7, 102, 238, 0.06); }
+
+        .edit-toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--ps-n30);
+            color: var(--ps-white);
+            padding: 0.75rem 1.25rem;
+            border-radius: 999px;
+            font-family: var(--font-display);
+            font-weight: 500;
+            font-size: var(--small-size);
+            z-index: 10002;
+            transition: transform 0.3s var(--ease-out-expo);
+            pointer-events: none;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        .edit-toast.show { transform: translateX(-50%) translateY(0); }
+
+        .keyboard-hint { position: absolute; bottom: clamp(1rem, 2vh, 1.5rem); right: clamp(1rem, 2.5vw, 2.5rem); font-size: var(--small-size); color: var(--ps-n60); font-family: var(--font-body); opacity: 0.8; }
+        .keyboard-hint kbd { background: var(--ps-n95); border: 1px solid var(--ps-n90); border-radius: 4px; padding: 2px 6px; font-family: inherit; font-size: 0.9em; color: var(--ps-n40); }
+    </style>
+</head>
+<body>
+    <!-- Progress bar -->
+    <div class="progress-bar"></div>
+
+    <!-- Edit mode controls (JS-toggled visibility) -->
+    <div class="edit-hotzone" title="Hover to reveal edit toggle"></div>
+    <button class="edit-toggle" id="editToggle" title="Edit mode (E)" aria-label="Toggle edit mode">✏️</button>
+    <div class="edit-toast" id="editToast">Edit mode on — click any text</div>
+
+    <!-- ========================================================================
+         SLIDE 1 — COVER / TITLE
+         ======================================================================== -->
+    <section class="slide cover">
+        <div class="bg-pattern dotted-grid"></div>
+
+        <div class="cover-inner">
+            <div class="eyebrow cover-eyebrow reveal" data-editable>A Tour of the Solar System</div>
+            <h1 class="cover-title reveal" data-editable>Worlds Made of <span class="blue-accent">Rock, Gas &amp; Ice</span>.</h1>
+            <p class="cover-subtitle reveal" data-editable>Eight planets, sorted by what they are actually built from. From iron-cored Mercury to the deep-blue ice giants on the far edge.</p>
+        </div>
+
+        <span class="cover-date" data-editable>June 2026</span>
+
+        <!-- PaintScout wordmark, bottom-left -->
+        <div class="ps-logo-corner" aria-label="PaintScout logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2117.59 432">
+                <g fill="#2c384d"><path d="M614.74,174.24c0,48.66-37.84,86.14-89.75,86.14h-32.8v83.62h-52.26V88.1h85.06c51.9,0,89.75,37.48,89.75,86.14ZM563.92,174.24c0-20.9-15.86-37.12-39.65-37.12h-32.08v74.25h32.08c23.79,0,39.65-16.22,39.65-37.12Z"/><path d="M694.93,159.82c24.87,0,43.97,12.62,51.9,24.15v-20.18h49.38v180.21h-49.38v-20.18c-7.93,11.53-27.03,24.15-51.9,24.15-47.94,0-84.7-42.89-84.7-94.07s36.76-94.07,84.7-94.07ZM705.39,204.88c-27.03,0-45.41,20.9-45.41,49.02s18.38,49.02,45.41,49.02,45.41-20.9,45.41-49.02-18.38-49.02-45.41-49.02Z"/><path d="M845.23,134.23c-16.94,0-31.36-14.06-31.36-31.36s14.42-31.36,31.36-31.36,31.72,14.06,31.72,31.36-14.06,31.36-31.72,31.36ZM820.72,163.79h49.38v180.21h-49.38v-180.21Z"/><path d="M894.25,163.79h49.38v20.54c9.37-14.42,28.11-24.51,51.54-24.51,43.61,0,69.56,31.72,69.56,78.57v105.61h-49.38v-97.32c0-25.95-11.17-41.81-31.72-41.81-22.71,0-40.01,16.58-40.01,51.18v87.94h-49.38v-180.21Z"/><path d="M1173.32,346.16c-38.21,0-68.84-21.26-68.84-65.24v-73.89h-36.4v-43.25h36.4v-50.1h49.38v50.1h50.82v43.25h-50.82v64.16c0,21.99,9.37,30.64,30.64,30.64,7.93,0,14.42-1.08,20.18-3.24v43.61c-7.93,2.52-17.66,3.96-31.36,3.96Z"/><path d="M1263.43,264.71c3.6,23.07,23.43,35.32,46.13,35.32,20.91,0,36.4-9.73,36.4-25.95,0-13.7-9.73-24.15-34.24-31l-27.03-7.93c-40.37-11.53-66.68-36.76-67.04-75.69-.36-47.22,34.6-75.69,85.78-75.69,55.15,0,87.94,39.65,89.75,77.85h-51.9c-5.77-21.62-22.71-29.55-37.84-29.55-18.38,0-32.8,8.65-33.16,23.79-.36,15.86,11.17,24.51,32.08,30.64l29.92,8.29c41.45,11.53,66.32,37.84,66.32,77.49,0,43.61-35.32,76.05-89.03,76.05-61.27,0-96.23-41.45-98.4-83.62h52.26Z"/><path d="M1503.83,347.96c-54.79,0-94.79-41.81-94.79-94.07s40.01-94.07,94.79-94.07c49.74,0,82.54,31.36,92.27,72.81h-51.18c-6.85-16.22-20.18-28.11-41.09-28.11-25.95,0-45.05,19.46-45.05,49.38s19.1,49.38,45.05,49.38c20.91,0,34.24-11.89,41.09-28.11h51.18c-9.73,41.45-42.53,72.81-92.27,72.81Z"/><path d="M1700.97,347.96c-52.26,0-94.79-41.45-94.79-94.07s42.53-94.07,94.79-94.07,94.79,41.45,94.79,94.07-42.53,94.07-94.79,94.07ZM1700.97,301.83c25.95,0,44.69-20.18,44.69-47.94s-18.74-47.94-44.69-47.94-45.05,20.18-45.05,47.94,19.1,47.94,45.05,47.94Z"/><path d="M2117.59,207.04v-43.25h-50.82v-50.1h-49.38v50.1h-91.87v87.94c0,34.96-15.14,51.18-37.12,51.18s-30.64-15.86-30.64-42.89v-96.23h-49.38v104.52c0,47.94,24.15,79.65,67.76,79.65,23.07,0,40.01-10.09,49.38-24.51v20.54h49.38v-136.96h42.49v73.89c0,43.97,30.64,65.24,68.84,65.24,13.7,0,23.43-1.44,31.36-3.96v-43.61c-5.77,2.16-12.25,3.24-20.18,3.24-21.26,0-30.64-8.65-30.64-30.64v-64.16h50.82Z"/></g>
+                <g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g>
+            </svg>
+        </div>
+
+        <div class="keyboard-hint decorative"><kbd>→</kbd> next · <kbd>E</kbd> edit</div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 2 — PURPOSE / THE BIG IDEA
+         ======================================================================== -->
+    <section class="slide purpose">
+        <div class="bg-pattern starfield"></div>
+        <span class="pill-tag on-dark" data-editable>The big idea</span>
+
+        <div class="purpose-inner">
+            <h2 class="purpose-title reveal" data-editable>Composition is destiny</h2>
+            <div class="purpose-card reveal">
+                <div class="purpose-card-label" data-editable>The big idea:</div>
+                <p class="purpose-card-text" data-editable>What a planet is made of does not just fill it in. It decides everything. The surface, the color, the weather, even whether there is any solid ground to stand on.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 3 — BIG STATEMENT
+         ======================================================================== -->
+    <section class="slide big-statement">
+        <div class="bg-pattern dotted-grid"></div>
+        <span class="pill-tag" data-editable>Rock is rare</span>
+
+        <div class="big-statement-inner">
+            <div class="big-statement-text reveal" data-editable>Only <span class="blue-accent">4 of 8</span> are made of rock.</div>
+            <p class="big-statement-sub reveal" data-editable>The other four are mostly gas and ice. In our solar system, solid ground is the exception, not the rule.</p>
+        </div>
+
+        <div class="ps-logo-corner" aria-label="PaintScout">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2117.59 432">
+                <g fill="#2c384d"><path d="M614.74,174.24c0,48.66-37.84,86.14-89.75,86.14h-32.8v83.62h-52.26V88.1h85.06c51.9,0,89.75,37.48,89.75,86.14ZM563.92,174.24c0-20.9-15.86-37.12-39.65-37.12h-32.08v74.25h32.08c23.79,0,39.65-16.22,39.65-37.12Z"/><path d="M694.93,159.82c24.87,0,43.97,12.62,51.9,24.15v-20.18h49.38v180.21h-49.38v-20.18c-7.93,11.53-27.03,24.15-51.9,24.15-47.94,0-84.7-42.89-84.7-94.07s36.76-94.07,84.7-94.07ZM705.39,204.88c-27.03,0-45.41,20.9-45.41,49.02s18.38,49.02,45.41,49.02,45.41-20.9,45.41-49.02-18.38-49.02-45.41-49.02Z"/><path d="M845.23,134.23c-16.94,0-31.36-14.06-31.36-31.36s14.42-31.36,31.36-31.36,31.72,14.06,31.72,31.36-14.06,31.36-31.72,31.36ZM820.72,163.79h49.38v180.21h-49.38v-180.21Z"/><path d="M894.25,163.79h49.38v20.54c9.37-14.42,28.11-24.51,51.54-24.51,43.61,0,69.56,31.72,69.56,78.57v105.61h-49.38v-97.32c0-25.95-11.17-41.81-31.72-41.81-22.71,0-40.01,16.58-40.01,51.18v87.94h-49.38v-180.21Z"/><path d="M1173.32,346.16c-38.21,0-68.84-21.26-68.84-65.24v-73.89h-36.4v-43.25h36.4v-50.1h49.38v50.1h50.82v43.25h-50.82v64.16c0,21.99,9.37,30.64,30.64,30.64,7.93,0,14.42-1.08,20.18-3.24v43.61c-7.93,2.52-17.66,3.96-31.36,3.96Z"/><path d="M1263.43,264.71c3.6,23.07,23.43,35.32,46.13,35.32,20.91,0,36.4-9.73,36.4-25.95,0-13.7-9.73-24.15-34.24-31l-27.03-7.93c-40.37-11.53-66.68-36.76-67.04-75.69-.36-47.22,34.6-75.69,85.78-75.69,55.15,0,87.94,39.65,89.75,77.85h-51.9c-5.77-21.62-22.71-29.55-37.84-29.55-18.38,0-32.8,8.65-33.16,23.79-.36,15.86,11.17,24.51,32.08,30.64l29.92,8.29c41.45,11.53,66.32,37.84,66.32,77.49,0,43.61-35.32,76.05-89.03,76.05-61.27,0-96.23-41.45-98.4-83.62h52.26Z"/><path d="M1503.83,347.96c-54.79,0-94.79-41.81-94.79-94.07s40.01-94.07,94.79-94.07c49.74,0,82.54,31.36,92.27,72.81h-51.18c-6.85-16.22-20.18-28.11-41.09-28.11-25.95,0-45.05,19.46-45.05,49.38s19.1,49.38,45.05,49.38c20.91,0,34.24-11.89,41.09-28.11h51.18c-9.73,41.45-42.53,72.81-92.27,72.81Z"/><path d="M1700.97,347.96c-52.26,0-94.79-41.45-94.79-94.07s42.53-94.07,94.79-94.07,94.79,41.45,94.79,94.07-42.53,94.07-94.79,94.07ZM1700.97,301.83c25.95,0,44.69-20.18,44.69-47.94s-18.74-47.94-44.69-47.94-45.05,20.18-45.05,47.94,19.1,47.94,45.05,47.94Z"/><path d="M2117.59,207.04v-43.25h-50.82v-50.1h-49.38v50.1h-91.87v87.94c0,34.96-15.14,51.18-37.12,51.18s-30.64-15.86-30.64-42.89v-96.23h-49.38v104.52c0,47.94,24.15,79.65,67.76,79.65,23.07,0,40.01-10.09,49.38-24.51v20.54h49.38v-136.96h42.49v73.89c0,43.97,30.64,65.24,68.84,65.24,13.7,0,23.43-1.44,31.36-3.96v-43.61c-5.77,2.16-12.25,3.24-20.18,3.24-21.26,0-30.64-8.65-30.64-30.64v-64.16h50.82Z"/></g>
+                <g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 4 — AGENDA / THE THREE FAMILIES
+         ======================================================================== -->
+    <section class="slide agenda">
+        <div class="bg-pattern starfield"></div>
+        <span class="pill-tag on-dark" data-editable>Three families</span>
+
+        <div class="agenda-inner">
+            <h2 class="agenda-title reveal" data-editable>Three Kinds of World</h2>
+            <div class="agenda-cards reveal">
+                <div class="agenda-card">
+                    <div class="agenda-badge" data-editable>1</div>
+                    <h3 data-editable>Rocky Worlds</h3>
+                    <p data-editable>Small, dense planets with solid silicate-and-metal surfaces you could stand on.</p>
+                    <span class="agenda-card-tag" data-editable>Silicate &amp; metal</span>
+                </div>
+                <div class="agenda-card">
+                    <div class="agenda-badge" data-editable>2</div>
+                    <h3 data-editable>Gas Giants</h3>
+                    <p data-editable>Enormous balls of hydrogen and helium with no real surface at all.</p>
+                    <span class="agenda-card-tag" data-editable>Hydrogen &amp; helium</span>
+                </div>
+                <div class="agenda-card">
+                    <div class="agenda-badge" data-editable>3</div>
+                    <h3 data-editable>Ice Giants</h3>
+                    <p data-editable>Cold worlds of water, ammonia and methane ice wrapped around a rocky core.</p>
+                    <span class="agenda-card-tag" data-editable>Water &amp; methane ice</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 5 — SECTION DIVIDER (BLUE) — 01 ROCKY WORLDS
+         ======================================================================== -->
+    <section class="slide section-divider-blue">
+        <div class="bg-pattern starfield"></div>
+        <div class="divider-inner">
+            <div class="divider-number reveal" data-editable>01</div>
+            <h1 class="divider-title reveal" data-editable>The Rocky Worlds</h1>
+            <p class="divider-sub reveal" data-editable>Mercury, Venus, Earth and Mars. Built from silicate rock and metal, with surfaces forged by lava, impacts and rust.</p>
+        </div>
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 6 — MERCURY (content + composition readout)
+         ======================================================================== -->
+    <section class="slide content-mockup">
+        <div class="bg-pattern dotted-grid"></div>
+        <span class="pill-tag" data-editable>Mercury</span>
+
+        <div class="content-mockup-inner">
+            <div class="content-mockup-text">
+                <h2 class="reveal" data-editable>An iron heart in a <span class="blue-accent">thin stone shell.</span></h2>
+                <p class="reveal" data-editable>Mercury is mostly metal. A giant iron core fills about 85% of its radius, wrapped in a thin, ancient crust of silicate rock.</p>
+                <ul class="reveal">
+                    <li data-editable>Iron core takes up roughly 85% of the planet</li>
+                    <li data-editable>Crust of basalt and pale anorthosite rock</li>
+                    <li data-editable>Heavily cratered surface, billions of years old</li>
+                </ul>
+            </div>
+
+            <div class="mock-ui reveal" aria-hidden="true">
+                <div class="mock-ui-header">
+                    <span class="planet-dot" style="background: radial-gradient(circle at 32% 30%, #b9b2a8, #6f6a63 60%, #3c3833);"></span>
+                    <span data-editable>Mercury · composition</span>
+                </div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Core</div><div class="mock-ui-meta" data-editable>Iron, ~85% of radius</div></div><span class="mock-ui-badge metal" data-editable>Metal</span></div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Crust</div><div class="mock-ui-meta" data-editable>Silicate basalt &amp; anorthosite</div></div><span class="mock-ui-badge rock" data-editable>Rock</span></div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Smooth plains</div><div class="mock-ui-meta" data-editable>Ancient solidified lava</div></div><span class="mock-ui-badge" data-editable>Volcanic</span></div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Density</div><div class="mock-ui-meta" data-editable>5.43 g/cm³</div></div><span class="mock-ui-badge rock" data-editable>2nd densest</span></div>
+            </div>
+        </div>
+
+        <div class="ps-logo-corner" aria-label="PaintScout">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2117.59 432"><g fill="#2c384d"><path d="M614.74,174.24c0,48.66-37.84,86.14-89.75,86.14h-32.8v83.62h-52.26V88.1h85.06c51.9,0,89.75,37.48,89.75,86.14ZM563.92,174.24c0-20.9-15.86-37.12-39.65-37.12h-32.08v74.25h32.08c23.79,0,39.65-16.22,39.65-37.12Z"/><path d="M694.93,159.82c24.87,0,43.97,12.62,51.9,24.15v-20.18h49.38v180.21h-49.38v-20.18c-7.93,11.53-27.03,24.15-51.9,24.15-47.94,0-84.7-42.89-84.7-94.07s36.76-94.07,84.7-94.07ZM705.39,204.88c-27.03,0-45.41,20.9-45.41,49.02s18.38,49.02,45.41,49.02,45.41-20.9,45.41-49.02-18.38-49.02-45.41-49.02Z"/><path d="M845.23,134.23c-16.94,0-31.36-14.06-31.36-31.36s14.42-31.36,31.36-31.36,31.72,14.06,31.72,31.36-14.06,31.36-31.72,31.36ZM820.72,163.79h49.38v180.21h-49.38v-180.21Z"/><path d="M894.25,163.79h49.38v20.54c9.37-14.42,28.11-24.51,51.54-24.51,43.61,0,69.56,31.72,69.56,78.57v105.61h-49.38v-97.32c0-25.95-11.17-41.81-31.72-41.81-22.71,0-40.01,16.58-40.01,51.18v87.94h-49.38v-180.21Z"/><path d="M1173.32,346.16c-38.21,0-68.84-21.26-68.84-65.24v-73.89h-36.4v-43.25h36.4v-50.1h49.38v50.1h50.82v43.25h-50.82v64.16c0,21.99,9.37,30.64,30.64,30.64,7.93,0,14.42-1.08,20.18-3.24v43.61c-7.93,2.52-17.66,3.96-31.36,3.96Z"/><path d="M1263.43,264.71c3.6,23.07,23.43,35.32,46.13,35.32,20.91,0,36.4-9.73,36.4-25.95,0-13.7-9.73-24.15-34.24-31l-27.03-7.93c-40.37-11.53-66.68-36.76-67.04-75.69-.36-47.22,34.6-75.69,85.78-75.69,55.15,0,87.94,39.65,89.75,77.85h-51.9c-5.77-21.62-22.71-29.55-37.84-29.55-18.38,0-32.8,8.65-33.16,23.79-.36,15.86,11.17,24.51,32.08,30.64l29.92,8.29c41.45,11.53,66.32,37.84,66.32,77.49,0,43.61-35.32,76.05-89.03,76.05-61.27,0-96.23-41.45-98.4-83.62h52.26Z"/><path d="M1503.83,347.96c-54.79,0-94.79-41.81-94.79-94.07s40.01-94.07,94.79-94.07c49.74,0,82.54,31.36,92.27,72.81h-51.18c-6.85-16.22-20.18-28.11-41.09-28.11-25.95,0-45.05,19.46-45.05,49.38s19.1,49.38,45.05,49.38c20.91,0,34.24-11.89,41.09-28.11h51.18c-9.73,41.45-42.53,72.81-92.27,72.81Z"/><path d="M1700.97,347.96c-52.26,0-94.79-41.45-94.79-94.07s42.53-94.07,94.79-94.07,94.79,41.45,94.79,94.07-42.53,94.07-94.79,94.07ZM1700.97,301.83c25.95,0,44.69-20.18,44.69-47.94s-18.74-47.94-44.69-47.94-45.05,20.18-45.05,47.94,19.1,47.94,45.05,47.94Z"/><path d="M2117.59,207.04v-43.25h-50.82v-50.1h-49.38v50.1h-91.87v87.94c0,34.96-15.14,51.18-37.12,51.18s-30.64-15.86-30.64-42.89v-96.23h-49.38v104.52c0,47.94,24.15,79.65,67.76,79.65,23.07,0,40.01-10.09,49.38-24.51v20.54h49.38v-136.96h42.49v73.89c0,43.97,30.64,65.24,68.84,65.24,13.7,0,23.43-1.44,31.36-3.96v-43.61c-5.77,2.16-12.25,3.24-20.18,3.24-21.26,0-30.64-8.65-30.64-30.64v-64.16h50.82Z"/></g><g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 7 — VENUS (content + composition readout)
+         ======================================================================== -->
+    <section class="slide content-mockup">
+        <div class="bg-pattern dotted-grid"></div>
+        <span class="pill-tag" data-editable>Venus</span>
+
+        <div class="content-mockup-inner">
+            <div class="content-mockup-text">
+                <h2 class="reveal" data-editable>A whole planet <span class="blue-accent">paved in basalt.</span></h2>
+                <p class="reveal" data-editable>Venus is wrapped almost entirely in volcanic rock. Beneath a crushing carbon-dioxide sky, basalt plains and shield volcanoes cover most of the surface.</p>
+                <ul class="reveal">
+                    <li data-editable>Over 80% of the surface is volcanic basalt</li>
+                    <li data-editable>Hundreds of shield volcanoes, some likely active</li>
+                    <li data-editable>Surface near 465°C, hot enough to melt lead</li>
+                </ul>
+            </div>
+
+            <div class="mock-ui reveal" aria-hidden="true">
+                <div class="mock-ui-header">
+                    <span class="planet-dot" style="background: radial-gradient(circle at 32% 30%, #f3e4b8, #d8a24a 60%, #9c6a1e);"></span>
+                    <span data-editable>Venus · composition</span>
+                </div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Volcanic plains</div><div class="mock-ui-meta" data-editable>Basalt lava flows</div></div><span class="mock-ui-badge" data-editable>80%+</span></div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Shield volcanoes</div><div class="mock-ui-meta" data-editable>Basaltic, broad domes</div></div><span class="mock-ui-badge rock" data-editable>1000s</span></div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Surface temp</div><div class="mock-ui-meta" data-editable>~465°C, the hottest planet</div></div><span class="mock-ui-badge hot" data-editable>Molten-hot</span></div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Atmosphere</div><div class="mock-ui-meta" data-editable>96% carbon dioxide</div></div><span class="mock-ui-badge gas" data-editable>Crushing</span></div>
+            </div>
+        </div>
+
+        <div class="ps-logo-corner" aria-label="PaintScout">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2117.59 432"><g fill="#2c384d"><path d="M614.74,174.24c0,48.66-37.84,86.14-89.75,86.14h-32.8v83.62h-52.26V88.1h85.06c51.9,0,89.75,37.48,89.75,86.14ZM563.92,174.24c0-20.9-15.86-37.12-39.65-37.12h-32.08v74.25h32.08c23.79,0,39.65-16.22,39.65-37.12Z"/><path d="M694.93,159.82c24.87,0,43.97,12.62,51.9,24.15v-20.18h49.38v180.21h-49.38v-20.18c-7.93,11.53-27.03,24.15-51.9,24.15-47.94,0-84.7-42.89-84.7-94.07s36.76-94.07,84.7-94.07ZM705.39,204.88c-27.03,0-45.41,20.9-45.41,49.02s18.38,49.02,45.41,49.02,45.41-20.9,45.41-49.02-18.38-49.02-45.41-49.02Z"/><path d="M845.23,134.23c-16.94,0-31.36-14.06-31.36-31.36s14.42-31.36,31.36-31.36,31.72,14.06,31.72,31.36-14.06,31.36-31.72,31.36ZM820.72,163.79h49.38v180.21h-49.38v-180.21Z"/><path d="M894.25,163.79h49.38v20.54c9.37-14.42,28.11-24.51,51.54-24.51,43.61,0,69.56,31.72,69.56,78.57v105.61h-49.38v-97.32c0-25.95-11.17-41.81-31.72-41.81-22.71,0-40.01,16.58-40.01,51.18v87.94h-49.38v-180.21Z"/><path d="M1173.32,346.16c-38.21,0-68.84-21.26-68.84-65.24v-73.89h-36.4v-43.25h36.4v-50.1h49.38v50.1h50.82v43.25h-50.82v64.16c0,21.99,9.37,30.64,30.64,30.64,7.93,0,14.42-1.08,20.18-3.24v43.61c-7.93,2.52-17.66,3.96-31.36,3.96Z"/><path d="M1263.43,264.71c3.6,23.07,23.43,35.32,46.13,35.32,20.91,0,36.4-9.73,36.4-25.95,0-13.7-9.73-24.15-34.24-31l-27.03-7.93c-40.37-11.53-66.68-36.76-67.04-75.69-.36-47.22,34.6-75.69,85.78-75.69,55.15,0,87.94,39.65,89.75,77.85h-51.9c-5.77-21.62-22.71-29.55-37.84-29.55-18.38,0-32.8,8.65-33.16,23.79-.36,15.86,11.17,24.51,32.08,30.64l29.92,8.29c41.45,11.53,66.32,37.84,66.32,77.49,0,43.61-35.32,76.05-89.03,76.05-61.27,0-96.23-41.45-98.4-83.62h52.26Z"/><path d="M1503.83,347.96c-54.79,0-94.79-41.81-94.79-94.07s40.01-94.07,94.79-94.07c49.74,0,82.54,31.36,92.27,72.81h-51.18c-6.85-16.22-20.18-28.11-41.09-28.11-25.95,0-45.05,19.46-45.05,49.38s19.1,49.38,45.05,49.38c20.91,0,34.24-11.89,41.09-28.11h51.18c-9.73,41.45-42.53,72.81-92.27,72.81Z"/><path d="M1700.97,347.96c-52.26,0-94.79-41.45-94.79-94.07s42.53-94.07,94.79-94.07,94.79,41.45,94.79,94.07-42.53,94.07-94.79,94.07ZM1700.97,301.83c25.95,0,44.69-20.18,44.69-47.94s-18.74-47.94-44.69-47.94-45.05,20.18-45.05,47.94,19.1,47.94,45.05,47.94Z"/><path d="M2117.59,207.04v-43.25h-50.82v-50.1h-49.38v50.1h-91.87v87.94c0,34.96-15.14,51.18-37.12,51.18s-30.64-15.86-30.64-42.89v-96.23h-49.38v104.52c0,47.94,24.15,79.65,67.76,79.65,23.07,0,40.01-10.09,49.38-24.51v20.54h49.38v-136.96h42.49v73.89c0,43.97,30.64,65.24,68.84,65.24,13.7,0,23.43-1.44,31.36-3.96v-43.61c-5.77,2.16-12.25,3.24-20.18,3.24-21.26,0-30.64-8.65-30.64-30.64v-64.16h50.82Z"/></g><g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 8 — EARTH (big statement)
+         ======================================================================== -->
+    <section class="slide big-statement">
+        <div class="bg-pattern dotted-grid"></div>
+        <span class="pill-tag" data-editable>Earth</span>
+
+        <div class="big-statement-inner">
+            <div class="big-statement-text reveal" data-editable>Earth is the only world with <span class="blue-accent">granite.</span></div>
+            <p class="big-statement-sub reveal" data-editable>Continents are granite, the ocean floor is basalt. No other planet we know of makes both. It is the fingerprint of plate tectonics and liquid water working together.</p>
+        </div>
+
+        <div class="ps-logo-corner" aria-label="PaintScout">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2117.59 432"><g fill="#2c384d"><path d="M614.74,174.24c0,48.66-37.84,86.14-89.75,86.14h-32.8v83.62h-52.26V88.1h85.06c51.9,0,89.75,37.48,89.75,86.14ZM563.92,174.24c0-20.9-15.86-37.12-39.65-37.12h-32.08v74.25h32.08c23.79,0,39.65-16.22,39.65-37.12Z"/><path d="M694.93,159.82c24.87,0,43.97,12.62,51.9,24.15v-20.18h49.38v180.21h-49.38v-20.18c-7.93,11.53-27.03,24.15-51.9,24.15-47.94,0-84.7-42.89-84.7-94.07s36.76-94.07,84.7-94.07ZM705.39,204.88c-27.03,0-45.41,20.9-45.41,49.02s18.38,49.02,45.41,49.02,45.41-20.9,45.41-49.02-18.38-49.02-45.41-49.02Z"/><path d="M845.23,134.23c-16.94,0-31.36-14.06-31.36-31.36s14.42-31.36,31.36-31.36,31.72,14.06,31.72,31.36-14.06,31.36-31.72,31.36ZM820.72,163.79h49.38v180.21h-49.38v-180.21Z"/><path d="M894.25,163.79h49.38v20.54c9.37-14.42,28.11-24.51,51.54-24.51,43.61,0,69.56,31.72,69.56,78.57v105.61h-49.38v-97.32c0-25.95-11.17-41.81-31.72-41.81-22.71,0-40.01,16.58-40.01,51.18v87.94h-49.38v-180.21Z"/><path d="M1173.32,346.16c-38.21,0-68.84-21.26-68.84-65.24v-73.89h-36.4v-43.25h36.4v-50.1h49.38v50.1h50.82v43.25h-50.82v64.16c0,21.99,9.37,30.64,30.64,30.64,7.93,0,14.42-1.08,20.18-3.24v43.61c-7.93,2.52-17.66,3.96-31.36,3.96Z"/><path d="M1263.43,264.71c3.6,23.07,23.43,35.32,46.13,35.32,20.91,0,36.4-9.73,36.4-25.95,0-13.7-9.73-24.15-34.24-31l-27.03-7.93c-40.37-11.53-66.68-36.76-67.04-75.69-.36-47.22,34.6-75.69,85.78-75.69,55.15,0,87.94,39.65,89.75,77.85h-51.9c-5.77-21.62-22.71-29.55-37.84-29.55-18.38,0-32.8,8.65-33.16,23.79-.36,15.86,11.17,24.51,32.08,30.64l29.92,8.29c41.45,11.53,66.32,37.84,66.32,77.49,0,43.61-35.32,76.05-89.03,76.05-61.27,0-96.23-41.45-98.4-83.62h52.26Z"/><path d="M1503.83,347.96c-54.79,0-94.79-41.81-94.79-94.07s40.01-94.07,94.79-94.07c49.74,0,82.54,31.36,92.27,72.81h-51.18c-6.85-16.22-20.18-28.11-41.09-28.11-25.95,0-45.05,19.46-45.05,49.38s19.1,49.38,45.05,49.38c20.91,0,34.24-11.89,41.09-28.11h51.18c-9.73,41.45-42.53,72.81-92.27,72.81Z"/><path d="M1700.97,347.96c-52.26,0-94.79-41.45-94.79-94.07s42.53-94.07,94.79-94.07,94.79,41.45,94.79,94.07-42.53,94.07-94.79,94.07ZM1700.97,301.83c25.95,0,44.69-20.18,44.69-47.94s-18.74-47.94-44.69-47.94-45.05,20.18-45.05,47.94,19.1,47.94,45.05,47.94Z"/><path d="M2117.59,207.04v-43.25h-50.82v-50.1h-49.38v50.1h-91.87v87.94c0,34.96-15.14,51.18-37.12,51.18s-30.64-15.86-30.64-42.89v-96.23h-49.38v104.52c0,47.94,24.15,79.65,67.76,79.65,23.07,0,40.01-10.09,49.38-24.51v20.54h49.38v-136.96h42.49v73.89c0,43.97,30.64,65.24,68.84,65.24,13.7,0,23.43-1.44,31.36-3.96v-43.61c-5.77,2.16-12.25,3.24-20.18,3.24-21.26,0-30.64-8.65-30.64-30.64v-64.16h50.82Z"/></g><g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 9 — MARS (content + composition readout)
+         ======================================================================== -->
+    <section class="slide content-mockup">
+        <div class="bg-pattern dotted-grid"></div>
+        <span class="pill-tag" data-editable>Mars</span>
+
+        <div class="content-mockup-inner">
+            <div class="content-mockup-text">
+                <h2 class="reveal" data-editable>Basalt that has <span class="blue-accent">literally rusted.</span></h2>
+                <p class="reveal" data-editable>Mars is built from basalt, like Venus, but its iron-rich dust has oxidized over billions of years. That rust is what makes the planet red.</p>
+                <ul class="reveal">
+                    <li data-editable>Basaltic crust under a coat of iron-oxide dust</li>
+                    <li data-editable>Olympus Mons, a basalt volcano about 22 km tall</li>
+                    <li data-editable>Dry riverbeds hint at a warmer, wetter past</li>
+                </ul>
+            </div>
+
+            <div class="mock-ui reveal" aria-hidden="true">
+                <div class="mock-ui-header">
+                    <span class="planet-dot" style="background: radial-gradient(circle at 32% 30%, #d98b5a, #b1542c 60%, #6e3017);"></span>
+                    <span data-editable>Mars · composition</span>
+                </div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Crust</div><div class="mock-ui-meta" data-editable>Volcanic basalt</div></div><span class="mock-ui-badge rock" data-editable>Rock</span></div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Red dust</div><div class="mock-ui-meta" data-editable>Iron oxide, i.e. rust</div></div><span class="mock-ui-badge metal" data-editable>Rust</span></div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Olympus Mons</div><div class="mock-ui-meta" data-editable>Tallest volcano in the system</div></div><span class="mock-ui-badge" data-editable>~22 km</span></div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Polar caps</div><div class="mock-ui-meta" data-editable>Water ice &amp; frozen CO₂</div></div><span class="mock-ui-badge ice" data-editable>Ice</span></div>
+            </div>
+        </div>
+
+        <div class="ps-logo-corner" aria-label="PaintScout">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2117.59 432"><g fill="#2c384d"><path d="M614.74,174.24c0,48.66-37.84,86.14-89.75,86.14h-32.8v83.62h-52.26V88.1h85.06c51.9,0,89.75,37.48,89.75,86.14ZM563.92,174.24c0-20.9-15.86-37.12-39.65-37.12h-32.08v74.25h32.08c23.79,0,39.65-16.22,39.65-37.12Z"/><path d="M694.93,159.82c24.87,0,43.97,12.62,51.9,24.15v-20.18h49.38v180.21h-49.38v-20.18c-7.93,11.53-27.03,24.15-51.9,24.15-47.94,0-84.7-42.89-84.7-94.07s36.76-94.07,84.7-94.07ZM705.39,204.88c-27.03,0-45.41,20.9-45.41,49.02s18.38,49.02,45.41,49.02,45.41-20.9,45.41-49.02-18.38-49.02-45.41-49.02Z"/><path d="M845.23,134.23c-16.94,0-31.36-14.06-31.36-31.36s14.42-31.36,31.36-31.36,31.72,14.06,31.72,31.36-14.06,31.36-31.72,31.36ZM820.72,163.79h49.38v180.21h-49.38v-180.21Z"/><path d="M894.25,163.79h49.38v20.54c9.37-14.42,28.11-24.51,51.54-24.51,43.61,0,69.56,31.72,69.56,78.57v105.61h-49.38v-97.32c0-25.95-11.17-41.81-31.72-41.81-22.71,0-40.01,16.58-40.01,51.18v87.94h-49.38v-180.21Z"/><path d="M1173.32,346.16c-38.21,0-68.84-21.26-68.84-65.24v-73.89h-36.4v-43.25h36.4v-50.1h49.38v50.1h50.82v43.25h-50.82v64.16c0,21.99,9.37,30.64,30.64,30.64,7.93,0,14.42-1.08,20.18-3.24v43.61c-7.93,2.52-17.66,3.96-31.36,3.96Z"/><path d="M1263.43,264.71c3.6,23.07,23.43,35.32,46.13,35.32,20.91,0,36.4-9.73,36.4-25.95,0-13.7-9.73-24.15-34.24-31l-27.03-7.93c-40.37-11.53-66.68-36.76-67.04-75.69-.36-47.22,34.6-75.69,85.78-75.69,55.15,0,87.94,39.65,89.75,77.85h-51.9c-5.77-21.62-22.71-29.55-37.84-29.55-18.38,0-32.8,8.65-33.16,23.79-.36,15.86,11.17,24.51,32.08,30.64l29.92,8.29c41.45,11.53,66.32,37.84,66.32,77.49,0,43.61-35.32,76.05-89.03,76.05-61.27,0-96.23-41.45-98.4-83.62h52.26Z"/><path d="M1503.83,347.96c-54.79,0-94.79-41.81-94.79-94.07s40.01-94.07,94.79-94.07c49.74,0,82.54,31.36,92.27,72.81h-51.18c-6.85-16.22-20.18-28.11-41.09-28.11-25.95,0-45.05,19.46-45.05,49.38s19.1,49.38,45.05,49.38c20.91,0,34.24-11.89,41.09-28.11h51.18c-9.73,41.45-42.53,72.81-92.27,72.81Z"/><path d="M1700.97,347.96c-52.26,0-94.79-41.45-94.79-94.07s42.53-94.07,94.79-94.07,94.79,41.45,94.79,94.07-42.53,94.07-94.79,94.07ZM1700.97,301.83c25.95,0,44.69-20.18,44.69-47.94s-18.74-47.94-44.69-47.94-45.05,20.18-45.05,47.94,19.1,47.94,45.05,47.94Z"/><path d="M2117.59,207.04v-43.25h-50.82v-50.1h-49.38v50.1h-91.87v87.94c0,34.96-15.14,51.18-37.12,51.18s-30.64-15.86-30.64-42.89v-96.23h-49.38v104.52c0,47.94,24.15,79.65,67.76,79.65,23.07,0,40.01-10.09,49.38-24.51v20.54h49.38v-136.96h42.49v73.89c0,43.97,30.64,65.24,68.84,65.24,13.7,0,23.43-1.44,31.36-3.96v-43.61c-5.77,2.16-12.25,3.24-20.18,3.24-21.26,0-30.64-8.65-30.64-30.64v-64.16h50.82Z"/></g><g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 10 — SECTION DIVIDER (NAVY) — 02 GAS GIANTS
+         ======================================================================== -->
+    <section class="slide section-divider-navy">
+        <div class="bg-pattern starfield"></div>
+        <div class="divider-inner">
+            <div class="divider-number reveal" data-editable>02</div>
+            <h1 class="divider-title reveal" data-editable>The Gas Giants</h1>
+            <p class="divider-sub reveal" data-editable>Jupiter and Saturn. Vast worlds of hydrogen and helium with no solid surface to land on, hiding a rocky core far below.</p>
+        </div>
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 11 — JUPITER & SATURN (numbered list, dark)
+         ======================================================================== -->
+    <section class="slide numbered-list">
+        <div class="bg-pattern starfield"></div>
+        <span class="pill-tag on-dark" data-editable>Jupiter &amp; Saturn</span>
+
+        <div class="numbered-list-inner">
+            <h2 class="reveal" data-editable>There is no surface to stand on.</h2>
+            <p class="lead-sub reveal" data-editable>Dive into a gas giant and you would never hit ground. Gas just thickens into liquid, then into something stranger.</p>
+            <div class="numbered-list-items">
+                <div class="numbered-list-item reveal">
+                    <span class="num" data-editable>01</span>
+                    <span><strong data-editable>Gas &amp; liquid</strong> — <span data-editable>mostly hydrogen and helium, the same stuff as the Sun.</span></span>
+                </div>
+                <div class="numbered-list-item reveal">
+                    <span class="num" data-editable>02</span>
+                    <span><strong data-editable>Metallic hydrogen</strong> — <span data-editable>crushing pressure turns hydrogen into a liquid metal deep inside.</span></span>
+                </div>
+                <div class="numbered-list-item reveal">
+                    <span class="num" data-editable>03</span>
+                    <span><strong data-editable>A buried core</strong> — <span data-editable>rock and ice worth perhaps 10 to 20 Earths sits at the center.</span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 12 — AUDIENCE PROMPT / POLL
+         ======================================================================== -->
+    <section class="slide audience-prompt">
+        <div class="bg-pattern starfield"></div>
+
+        <div class="prompt-inner">
+            <span class="prompt-hint reveal" data-editable>🪐 Quick poll</span>
+            <h1 class="prompt-question reveal" data-editable>Which planet could float in water?</h1>
+            <div class="prompt-options reveal">
+                <span class="prompt-option" data-editable>Mercury</span>
+                <span class="prompt-option" data-editable>Jupiter</span>
+                <span class="prompt-option" data-editable>Saturn</span>
+                <span class="prompt-option" data-editable>None of them</span>
+            </div>
+            <span class="prompt-hint reveal" data-editable>Hint: it is so light it is less dense than water (0.69 g/cm³).</span>
+        </div>
+
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 13 — SECTION DIVIDER (BLUE) — 03 ICE GIANTS
+         ======================================================================== -->
+    <section class="slide section-divider-blue">
+        <div class="bg-pattern starfield"></div>
+        <div class="divider-inner">
+            <div class="divider-number reveal" data-editable>03</div>
+            <h1 class="divider-title reveal" data-editable>The Ice Giants</h1>
+            <p class="divider-sub reveal" data-editable>Uranus and Neptune. Worlds of water, ammonia and methane ice over a rocky core, painted blue by the methane in their skies.</p>
+        </div>
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 14 — URANUS & NEPTUNE (content + composition readout)
+         ======================================================================== -->
+    <section class="slide content-mockup">
+        <div class="bg-pattern dotted-grid"></div>
+        <span class="pill-tag" data-editable>Uranus &amp; Neptune</span>
+
+        <div class="content-mockup-inner">
+            <div class="content-mockup-text">
+                <h2 class="reveal" data-editable>Not gas, not rock, but <span class="blue-accent">ice.</span></h2>
+                <p class="reveal" data-editable>Astronomers call them ices: water, ammonia and methane squeezed into a hot, slushy mantle around a rocky core. Methane in the air absorbs red light and turns them blue.</p>
+                <ul class="reveal">
+                    <li data-editable>Mantle of hot water, ammonia and methane ice</li>
+                    <li data-editable>Rock-and-iron core roughly the mass of Earth</li>
+                    <li data-editable>Neptune has the fastest winds in the solar system</li>
+                </ul>
+            </div>
+
+            <div class="mock-ui reveal" aria-hidden="true">
+                <div class="mock-ui-header">
+                    <span class="planet-dot" style="background: radial-gradient(circle at 32% 30%, #6fc4e8, #2f7fc9 60%, #14407a);"></span>
+                    <span data-editable>Ice giants · composition</span>
+                </div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Atmosphere</div><div class="mock-ui-meta" data-editable>Hydrogen, helium, methane</div></div><span class="mock-ui-badge ice" data-editable>Blue</span></div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Mantle</div><div class="mock-ui-meta" data-editable>Water, ammonia &amp; methane ice</div></div><span class="mock-ui-badge ice" data-editable>Ice</span></div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Core</div><div class="mock-ui-meta" data-editable>Rock and iron, ~1 Earth mass</div></div><span class="mock-ui-badge rock" data-editable>Rock</span></div>
+                <div class="mock-ui-row"><div><div class="mock-ui-label" data-editable>Neptune winds</div><div class="mock-ui-meta" data-editable>Up to ~2,100 km/h</div></div><span class="mock-ui-badge gas" data-editable>Fastest</span></div>
+            </div>
+        </div>
+
+        <div class="ps-logo-corner" aria-label="PaintScout">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2117.59 432"><g fill="#2c384d"><path d="M614.74,174.24c0,48.66-37.84,86.14-89.75,86.14h-32.8v83.62h-52.26V88.1h85.06c51.9,0,89.75,37.48,89.75,86.14ZM563.92,174.24c0-20.9-15.86-37.12-39.65-37.12h-32.08v74.25h32.08c23.79,0,39.65-16.22,39.65-37.12Z"/><path d="M694.93,159.82c24.87,0,43.97,12.62,51.9,24.15v-20.18h49.38v180.21h-49.38v-20.18c-7.93,11.53-27.03,24.15-51.9,24.15-47.94,0-84.7-42.89-84.7-94.07s36.76-94.07,84.7-94.07ZM705.39,204.88c-27.03,0-45.41,20.9-45.41,49.02s18.38,49.02,45.41,49.02,45.41-20.9,45.41-49.02-18.38-49.02-45.41-49.02Z"/><path d="M845.23,134.23c-16.94,0-31.36-14.06-31.36-31.36s14.42-31.36,31.36-31.36,31.72,14.06,31.72,31.36-14.06,31.36-31.72,31.36ZM820.72,163.79h49.38v180.21h-49.38v-180.21Z"/><path d="M894.25,163.79h49.38v20.54c9.37-14.42,28.11-24.51,51.54-24.51,43.61,0,69.56,31.72,69.56,78.57v105.61h-49.38v-97.32c0-25.95-11.17-41.81-31.72-41.81-22.71,0-40.01,16.58-40.01,51.18v87.94h-49.38v-180.21Z"/><path d="M1173.32,346.16c-38.21,0-68.84-21.26-68.84-65.24v-73.89h-36.4v-43.25h36.4v-50.1h49.38v50.1h50.82v43.25h-50.82v64.16c0,21.99,9.37,30.64,30.64,30.64,7.93,0,14.42-1.08,20.18-3.24v43.61c-7.93,2.52-17.66,3.96-31.36,3.96Z"/><path d="M1263.43,264.71c3.6,23.07,23.43,35.32,46.13,35.32,20.91,0,36.4-9.73,36.4-25.95,0-13.7-9.73-24.15-34.24-31l-27.03-7.93c-40.37-11.53-66.68-36.76-67.04-75.69-.36-47.22,34.6-75.69,85.78-75.69,55.15,0,87.94,39.65,89.75,77.85h-51.9c-5.77-21.62-22.71-29.55-37.84-29.55-18.38,0-32.8,8.65-33.16,23.79-.36,15.86,11.17,24.51,32.08,30.64l29.92,8.29c41.45,11.53,66.32,37.84,66.32,77.49,0,43.61-35.32,76.05-89.03,76.05-61.27,0-96.23-41.45-98.4-83.62h52.26Z"/><path d="M1503.83,347.96c-54.79,0-94.79-41.81-94.79-94.07s40.01-94.07,94.79-94.07c49.74,0,82.54,31.36,92.27,72.81h-51.18c-6.85-16.22-20.18-28.11-41.09-28.11-25.95,0-45.05,19.46-45.05,49.38s19.1,49.38,45.05,49.38c20.91,0,34.24-11.89,41.09-28.11h51.18c-9.73,41.45-42.53,72.81-92.27,72.81Z"/><path d="M1700.97,347.96c-52.26,0-94.79-41.45-94.79-94.07s42.53-94.07,94.79-94.07,94.79,41.45,94.79,94.07-42.53,94.07-94.79,94.07ZM1700.97,301.83c25.95,0,44.69-20.18,44.69-47.94s-18.74-47.94-44.69-47.94-45.05,20.18-45.05,47.94,19.1,47.94,45.05,47.94Z"/><path d="M2117.59,207.04v-43.25h-50.82v-50.1h-49.38v50.1h-91.87v87.94c0,34.96-15.14,51.18-37.12,51.18s-30.64-15.86-30.64-42.89v-96.23h-49.38v104.52c0,47.94,24.15,79.65,67.76,79.65,23.07,0,40.01-10.09,49.38-24.51v20.54h49.38v-136.96h42.49v73.89c0,43.97,30.64,65.24,68.84,65.24,13.7,0,23.43-1.44,31.36-3.96v-43.61c-5.77,2.16-12.25,3.24-20.18,3.24-21.26,0-30.64-8.65-30.64-30.64v-64.16h50.82Z"/></g><g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 15 — STATS / BY THE NUMBERS
+         ======================================================================== -->
+    <section class="slide stats">
+        <div class="bg-pattern starfield"></div>
+        <span class="pill-tag on-dark" data-editable>By the numbers</span>
+
+        <div class="stats-inner">
+            <div class="stats-header reveal">
+                <h2 data-editable>Eight worlds, <span class="white-muted">three recipes.</span></h2>
+                <p data-editable>Every planet in our solar system falls into one of three composition families.</p>
+            </div>
+            <div class="stats-grid reveal">
+                <div class="stat-card variant-light">
+                    <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 19h20L12 2zm0 4.5L18.5 17h-13L12 6.5z"/></svg>
+                    <div class="stat-number" data-editable>4</div>
+                    <div class="stat-label" data-editable>Rocky planets, made mostly of silicate rock and metal</div>
+                </div>
+                <div class="stat-card variant-outline">
+                    <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16z"/></svg>
+                    <div class="stat-number" data-editable>2</div>
+                    <div class="stat-label" data-editable>Gas giants of hydrogen and helium, with no solid surface</div>
+                </div>
+                <div class="stat-card variant-filled">
+                    <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M11 2v20l-4-4-4 4V2h12zm10 5h-6v2h6V7zm0 4h-6v2h6v-2zm0 4h-6v2h6v-2z"/></svg>
+                    <div class="stat-number" data-editable>2</div>
+                    <div class="stat-label" data-editable>Ice giants of water, ammonia and methane over rock</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 16 — RECAP GRID
+         ======================================================================== -->
+    <section class="slide recap">
+        <div class="bg-pattern dotted-grid"></div>
+        <span class="pill-tag" data-editable>Recap</span>
+
+        <div class="recap-inner">
+            <div class="recap-header reveal">
+                <h2 data-editable>The three families, side by side</h2>
+                <p data-editable>What each kind of world is built from, and the one thing to remember about it.</p>
+            </div>
+            <div class="recap-grid reveal">
+                <div class="recap-col">
+                    <div class="recap-col-header">
+                        <div class="recap-col-badge" data-editable>1</div>
+                        <div class="recap-col-title" data-editable>Rocky Worlds</div>
+                    </div>
+                    <ul>
+                        <li data-editable>Mercury, Venus, Earth, Mars</li>
+                        <li data-editable>Silicate rock and metal cores</li>
+                        <li data-editable>Basalt is the common surface rock</li>
+                        <li data-editable>Only Earth makes granite</li>
+                    </ul>
+                </div>
+                <div class="recap-col">
+                    <div class="recap-col-header">
+                        <div class="recap-col-badge" data-editable>2</div>
+                        <div class="recap-col-title" data-editable>Gas Giants</div>
+                    </div>
+                    <ul>
+                        <li data-editable>Jupiter and Saturn</li>
+                        <li data-editable>Mostly hydrogen and helium</li>
+                        <li data-editable>No surface to land on</li>
+                        <li data-editable>Rocky cores buried deep inside</li>
+                    </ul>
+                </div>
+                <div class="recap-col">
+                    <div class="recap-col-header">
+                        <div class="recap-col-badge" data-editable>3</div>
+                        <div class="recap-col-title" data-editable>Ice Giants</div>
+                    </div>
+                    <ul>
+                        <li data-editable>Uranus and Neptune</li>
+                        <li data-editable>Water, ammonia and methane ice</li>
+                        <li data-editable>Rock-and-iron cores</li>
+                        <li data-editable>Methane paints them blue</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="ps-logo-corner" aria-label="PaintScout">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2117.59 432"><g fill="#2c384d"><path d="M614.74,174.24c0,48.66-37.84,86.14-89.75,86.14h-32.8v83.62h-52.26V88.1h85.06c51.9,0,89.75,37.48,89.75,86.14ZM563.92,174.24c0-20.9-15.86-37.12-39.65-37.12h-32.08v74.25h32.08c23.79,0,39.65-16.22,39.65-37.12Z"/><path d="M694.93,159.82c24.87,0,43.97,12.62,51.9,24.15v-20.18h49.38v180.21h-49.38v-20.18c-7.93,11.53-27.03,24.15-51.9,24.15-47.94,0-84.7-42.89-84.7-94.07s36.76-94.07,84.7-94.07ZM705.39,204.88c-27.03,0-45.41,20.9-45.41,49.02s18.38,49.02,45.41,49.02,45.41-20.9,45.41-49.02-18.38-49.02-45.41-49.02Z"/><path d="M845.23,134.23c-16.94,0-31.36-14.06-31.36-31.36s14.42-31.36,31.36-31.36,31.72,14.06,31.72,31.36-14.06,31.36-31.72,31.36ZM820.72,163.79h49.38v180.21h-49.38v-180.21Z"/><path d="M894.25,163.79h49.38v20.54c9.37-14.42,28.11-24.51,51.54-24.51,43.61,0,69.56,31.72,69.56,78.57v105.61h-49.38v-97.32c0-25.95-11.17-41.81-31.72-41.81-22.71,0-40.01,16.58-40.01,51.18v87.94h-49.38v-180.21Z"/><path d="M1173.32,346.16c-38.21,0-68.84-21.26-68.84-65.24v-73.89h-36.4v-43.25h36.4v-50.1h49.38v50.1h50.82v43.25h-50.82v64.16c0,21.99,9.37,30.64,30.64,30.64,7.93,0,14.42-1.08,20.18-3.24v43.61c-7.93,2.52-17.66,3.96-31.36,3.96Z"/><path d="M1263.43,264.71c3.6,23.07,23.43,35.32,46.13,35.32,20.91,0,36.4-9.73,36.4-25.95,0-13.7-9.73-24.15-34.24-31l-27.03-7.93c-40.37-11.53-66.68-36.76-67.04-75.69-.36-47.22,34.6-75.69,85.78-75.69,55.15,0,87.94,39.65,89.75,77.85h-51.9c-5.77-21.62-22.71-29.55-37.84-29.55-18.38,0-32.8,8.65-33.16,23.79-.36,15.86,11.17,24.51,32.08,30.64l29.92,8.29c41.45,11.53,66.32,37.84,66.32,77.49,0,43.61-35.32,76.05-89.03,76.05-61.27,0-96.23-41.45-98.4-83.62h52.26Z"/><path d="M1503.83,347.96c-54.79,0-94.79-41.81-94.79-94.07s40.01-94.07,94.79-94.07c49.74,0,82.54,31.36,92.27,72.81h-51.18c-6.85-16.22-20.18-28.11-41.09-28.11-25.95,0-45.05,19.46-45.05,49.38s19.1,49.38,45.05,49.38c20.91,0,34.24-11.89,41.09-28.11h51.18c-9.73,41.45-42.53,72.81-92.27,72.81Z"/><path d="M1700.97,347.96c-52.26,0-94.79-41.45-94.79-94.07s42.53-94.07,94.79-94.07,94.79,41.45,94.79,94.07-42.53,94.07-94.79,94.07ZM1700.97,301.83c25.95,0,44.69-20.18,44.69-47.94s-18.74-47.94-44.69-47.94-45.05,20.18-45.05,47.94,19.1,47.94,45.05,47.94Z"/><path d="M2117.59,207.04v-43.25h-50.82v-50.1h-49.38v50.1h-91.87v87.94c0,34.96-15.14,51.18-37.12,51.18s-30.64-15.86-30.64-42.89v-96.23h-49.38v104.52c0,47.94,24.15,79.65,67.76,79.65,23.07,0,40.01-10.09,49.38-24.51v20.54h49.38v-136.96h42.49v73.89c0,43.97,30.64,65.24,68.84,65.24,13.7,0,23.43-1.44,31.36-3.96v-43.61c-5.77,2.16-12.25,3.24-20.18,3.24-21.26,0-30.64-8.65-30.64-30.64v-64.16h50.82Z"/></g><g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         SLIDE 17 — CLOSING / THANKS
+         ======================================================================== -->
+    <section class="slide closing">
+        <div class="bg-pattern starfield"></div>
+
+        <div class="closing-inner">
+            <svg class="closing-logomark reveal" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+            <h1 class="closing-title reveal" data-editable>Keep looking up.</h1>
+            <p class="closing-subtitle reveal" data-editable>Same star, eight wildly different worlds, each one decided by what it is made of.</p>
+
+            <div class="closing-contact reveal">
+                <div class="closing-contact-item">
+                    <span class="closing-contact-label">Rocky</span>
+                    <span class="closing-contact-value" data-editable>4 worlds</span>
+                </div>
+                <div class="closing-contact-item">
+                    <span class="closing-contact-label">Gaseous</span>
+                    <span class="closing-contact-value" data-editable>2 worlds</span>
+                </div>
+                <div class="closing-contact-item">
+                    <span class="closing-contact-label">Icy</span>
+                    <span class="closing-contact-value" data-editable>2 worlds</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nav dots — generated by JS -->
+    <nav class="nav-dots" aria-label="Slide navigation"></nav>
+
+    <!-- PPTX export button -->
+    <button id="pptx-export" title="Export to PowerPoint" style="
+        position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 9999;
+        width: 2.25rem; height: 2.25rem; border-radius: 50%;
+        background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+        color: rgba(255,255,255,0.7); font-size: 0.85rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        backdrop-filter: blur(4px); transition: background 0.2s, color 0.2s;
+    " onmouseover="this.style.background='rgba(255,255,255,0.3)';this.style.color='#fff'"
+       onmouseout="this.style.background='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.7)'"
+       onclick="domToPptx.exportToPptx(Array.from(document.querySelectorAll('.slide')),{fileName:'planets-by-composition.pptx',svgAsVector:true})">
+        ⬇
+    </button>
+
+    <script>
+        /* ========================================================================
+           SLIDE PRESENTATION CONTROLLER
+           ======================================================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = Array.from(document.querySelectorAll('.slide'));
+                this.currentSlide = 0;
+                this.progressBar = document.querySelector('.progress-bar');
+                this.navDotsContainer = document.querySelector('.nav-dots');
+
+                this.setupNavDots();
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupScrollTracking();
+            }
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = this.slides.indexOf(entry.target);
+                            if (idx !== -1) {
+                                this.currentSlide = idx;
+                                this.updateNavDots();
+                            }
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                this.slides.forEach((slide) => observer.observe(slide));
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.target.getAttribute('contenteditable') === 'true') return;
+                    switch (e.key) {
+                        case 'ArrowDown':
+                        case 'ArrowRight':
+                        case ' ':
+                        case 'PageDown':
+                            e.preventDefault();
+                            this.goToSlide(this.currentSlide + 1);
+                            break;
+                        case 'ArrowUp':
+                        case 'ArrowLeft':
+                        case 'PageUp':
+                            e.preventDefault();
+                            this.goToSlide(this.currentSlide - 1);
+                            break;
+                        case 'Home':
+                            e.preventDefault();
+                            this.goToSlide(0);
+                            break;
+                        case 'End':
+                            e.preventDefault();
+                            this.goToSlide(this.slides.length - 1);
+                            break;
+                    }
+                });
+            }
+
+            setupTouchNav() {
+                let touchStartY = 0;
+                let touchEndY = 0;
+                document.addEventListener('touchstart', (e) => {
+                    touchStartY = e.changedTouches[0].screenY;
+                }, { passive: true });
+                document.addEventListener('touchend', (e) => {
+                    touchEndY = e.changedTouches[0].screenY;
+                    const swipeDistance = touchStartY - touchEndY;
+                    if (Math.abs(swipeDistance) < 50) return;
+                    if (swipeDistance > 0) this.goToSlide(this.currentSlide + 1);
+                    else this.goToSlide(this.currentSlide - 1);
+                }, { passive: true });
+            }
+
+            setupScrollTracking() {
+                window.addEventListener('scroll', () => {
+                    const scrollPos = window.scrollY;
+                    const maxScroll = document.body.scrollHeight - window.innerHeight;
+                    const pct = maxScroll > 0 ? (scrollPos / maxScroll) * 100 : 0;
+                    this.progressBar.style.width = pct + '%';
+                }, { passive: true });
+            }
+
+            setupNavDots() {
+                this.slides.forEach((_, idx) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot';
+                    dot.setAttribute('aria-label', `Go to slide ${idx + 1}`);
+                    dot.addEventListener('click', () => this.goToSlide(idx));
+                    this.navDotsContainer.appendChild(dot);
+                });
+                this.updateNavDots();
+            }
+
+            updateNavDots() {
+                const dots = this.navDotsContainer.querySelectorAll('.nav-dot');
+                dots.forEach((dot, idx) => {
+                    dot.classList.toggle('active', idx === this.currentSlide);
+                });
+            }
+
+            goToSlide(idx) {
+                idx = Math.max(0, Math.min(idx, this.slides.length - 1));
+                this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        /* ========================================================================
+           INLINE EDITOR — press E or hover top-left to edit text, Ctrl+S to export
+           ======================================================================== */
+        class InlineEditor {
+            constructor() {
+                this.isActive = false;
+                this.editableElements = document.querySelectorAll('[data-editable]');
+                this.toggleBtn = document.getElementById('editToggle');
+                this.hotzone = document.querySelector('.edit-hotzone');
+                this.toast = document.getElementById('editToast');
+                this.hideTimeout = null;
+                this.storageKey = 'planets-by-composition-edits';
+
+                this.setupToggle();
+                this.setupHotzone();
+                this.setupKeyboard();
+                this.setupEditing();
+                this.loadSavedEdits();
+            }
+
+            setupToggle() {
+                this.toggleBtn.addEventListener('click', () => this.toggleEditMode());
+            }
+
+            setupHotzone() {
+                this.hotzone.addEventListener('mouseenter', () => {
+                    clearTimeout(this.hideTimeout);
+                    this.toggleBtn.classList.add('show');
+                });
+                this.hotzone.addEventListener('mouseleave', () => {
+                    this.hideTimeout = setTimeout(() => {
+                        if (!this.isActive) this.toggleBtn.classList.remove('show');
+                    }, 400);
+                });
+                this.toggleBtn.addEventListener('mouseenter', () => {
+                    clearTimeout(this.hideTimeout);
+                });
+                this.toggleBtn.addEventListener('mouseleave', () => {
+                    this.hideTimeout = setTimeout(() => {
+                        if (!this.isActive) this.toggleBtn.classList.remove('show');
+                    }, 400);
+                });
+                this.hotzone.addEventListener('click', () => this.toggleEditMode());
+            }
+
+            setupKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    if ((e.key === 'e' || e.key === 'E') && !e.target.getAttribute('contenteditable')) {
+                        this.toggleEditMode();
+                    }
+                    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                        e.preventDefault();
+                        this.exportFile();
+                    }
+                });
+            }
+
+            setupEditing() {
+                this.editableElements.forEach((el, idx) => {
+                    el.dataset.editId = idx;
+                    el.addEventListener('blur', () => {
+                        this.saveEdit(idx, el.innerHTML);
+                    });
+                    el.addEventListener('keydown', (e) => {
+                        e.stopPropagation();
+                    });
+                });
+            }
+
+            toggleEditMode() {
+                this.isActive = !this.isActive;
+                document.body.classList.toggle('edit-mode', this.isActive);
+                this.toggleBtn.classList.toggle('active', this.isActive);
+
+                this.editableElements.forEach((el) => {
+                    el.setAttribute('contenteditable', this.isActive);
+                });
+
+                if (this.isActive) {
+                    this.showToast('Edit mode on — click any text. Ctrl+S to export.');
+                } else {
+                    this.showToast('Edit mode off — changes saved locally');
+                    this.toggleBtn.classList.remove('show');
+                }
+            }
+
+            saveEdit(idx, html) {
+                try {
+                    const saved = JSON.parse(localStorage.getItem(this.storageKey) || '{}');
+                    saved[idx] = html;
+                    localStorage.setItem(this.storageKey, JSON.stringify(saved));
+                } catch (e) {
+                    console.warn('Could not save to localStorage:', e);
+                }
+            }
+
+            loadSavedEdits() {
+                try {
+                    const saved = JSON.parse(localStorage.getItem(this.storageKey) || '{}');
+                    this.editableElements.forEach((el, idx) => {
+                        if (saved[idx] !== undefined) el.innerHTML = saved[idx];
+                    });
+                } catch (e) {
+                    console.warn('Could not load from localStorage:', e);
+                }
+            }
+
+            showToast(message) {
+                this.toast.textContent = message;
+                this.toast.classList.add('show');
+                setTimeout(() => this.toast.classList.remove('show'), 2500);
+            }
+
+            exportFile() {
+                const doctype = '<!DOCTYPE html>\n';
+                const htmlClone = document.documentElement.cloneNode(true);
+                const bodyClone = htmlClone.querySelector('body');
+                bodyClone.classList.remove('edit-mode');
+                htmlClone.querySelectorAll('[contenteditable]').forEach(el => {
+                    el.removeAttribute('contenteditable');
+                });
+                const firstTitle = document.querySelector('.cover-title');
+                const name = (firstTitle?.textContent || 'planets-by-composition')
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-|-$/g, '')
+                    .slice(0, 50) || 'planets-by-composition';
+                const blob = new Blob([doctype + htmlClone.outerHTML], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${name}.html`;
+                link.click();
+                URL.revokeObjectURL(url);
+                this.showToast(`Exported ${name}.html ✓`);
+            }
+        }
+
+        // Boot
+        document.addEventListener('DOMContentLoaded', () => {
+            new SlidePresentation();
+            new InlineEditor();
+        });
+        if (document.readyState !== 'loading') {
+            new SlidePresentation();
+            new InlineEditor();
+        }
+    </script>
+</body>
+</html>
