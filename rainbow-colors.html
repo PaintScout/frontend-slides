@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Colors of the Rainbow</title>
+
+    <!-- === FONTS: Fraunces (distinctive editorial serif) + Work Sans (clean body) === -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,400;1,9..144,600&family=Work+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+
+    <!-- === PPTX export (client-side, no server) === -->
+    <script src="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/dom-to-pptx.bundle.js"></script>
+
+    <style>
+      /* ===========================================
+         CSS CUSTOM PROPERTIES (THEME)
+         "Vintage Editorial" — naturalist's notebook.
+         Change these to retune the whole look.
+         =========================================== */
+      :root {
+        /* Palette — warm cream paper + ink, with spectral accents */
+        --bg-cream: #f4efe4;
+        --bg-cream-2: #efe8d8;
+        --text-primary: #211d18;
+        --text-secondary: #6a6053;
+        --rule: #cdc3ad;
+        --accent-warm: #e8d4c0;
+
+        /* The seven spectral hues — tuned to sit on cream */
+        --c-red: #c0392b;
+        --c-orange: #d97824;
+        --c-yellow: #e3b23c;
+        --c-green: #4f8a52;
+        --c-blue: #2f6fae;
+        --c-indigo: #3d4596;
+        --c-violet: #7d4aa0;
+
+        /* Typography — MUST use clamp() */
+        --font-display: "Fraunces", Georgia, serif;
+        --font-body: "Work Sans", system-ui, sans-serif;
+        --title-size: clamp(2.4rem, 8vw, 6rem);
+        --subtitle-size: clamp(0.9rem, 2vw, 1.35rem);
+        --body-size: clamp(0.8rem, 1.4vw, 1.05rem);
+
+        /* Spacing — MUST use clamp() */
+        --slide-padding: clamp(1.5rem, 5vw, 5rem);
+        --content-gap: clamp(0.75rem, 2vw, 1.75rem);
+        --element-gap: clamp(0.4rem, 1vw, 1rem);
+
+        /* Motion */
+        --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        --duration-normal: 0.7s;
+      }
+
+      /* ===========================================
+         BASE
+         =========================================== */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--font-body);
+        color: var(--text-primary);
+        background: var(--bg-cream);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* --- viewport-base.css (MANDATORY, included in full) --- */
+      html, body {
+        height: 100%;
+        overflow-x: hidden;
+      }
+      html {
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+      }
+      .slide {
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+      .slide-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-height: 100%;
+        overflow: hidden;
+        padding: var(--slide-padding);
+      }
+      .card, .container, .content-box {
+        max-width: min(90vw, 1000px);
+        max-height: min(80vh, 700px);
+      }
+      .feature-list, .bullet-list {
+        gap: clamp(0.4rem, 1vh, 1rem);
+      }
+      .feature-list li, .bullet-list li {
+        font-size: var(--body-size);
+        line-height: 1.4;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+        gap: clamp(0.5rem, 1.5vw, 1rem);
+      }
+      img, .image-container {
+        max-width: 100%;
+        max-height: min(50vh, 400px);
+        object-fit: contain;
+      }
+      @media (max-height: 700px) {
+        :root {
+          --slide-padding: clamp(0.75rem, 3vw, 2rem);
+          --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+          --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+        }
+      }
+      @media (max-height: 600px) {
+        :root {
+          --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+          --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+          --title-size: clamp(1.1rem, 4vw, 2rem);
+          --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+        }
+        .nav-dots, .keyboard-hint, .decorative {
+          display: none;
+        }
+      }
+      @media (max-height: 500px) {
+        :root {
+          --slide-padding: clamp(0.4rem, 2vw, 1rem);
+          --title-size: clamp(1rem, 3.5vw, 1.5rem);
+          --body-size: clamp(0.65rem, 1vw, 0.85rem);
+        }
+      }
+      @media (max-width: 600px) {
+        :root {
+          --title-size: clamp(1.25rem, 7vw, 2.5rem);
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.2s !important;
+        }
+        html {
+          scroll-behavior: auto;
+        }
+      }
+      /* --- end viewport-base.css --- */
+
+      /* ===========================================
+         PAPER TEXTURE + SUBTLE GRAIN
+         Layered gradients give the cream depth.
+         =========================================== */
+      .slide {
+        background:
+          radial-gradient(ellipse at 15% 10%, rgba(255, 255, 255, 0.5) 0%, transparent 45%),
+          radial-gradient(ellipse at 90% 95%, rgba(205, 195, 173, 0.35) 0%, transparent 50%),
+          linear-gradient(160deg, var(--bg-cream) 0%, var(--bg-cream-2) 100%);
+      }
+      /* Faint horizontal "ruled notebook" lines, very subtle */
+      .slide::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image: repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent calc(2.4rem - 1px),
+          rgba(61, 69, 150, 0.04) calc(2.4rem - 1px),
+          rgba(61, 69, 150, 0.04) 2.4rem
+        );
+        opacity: 0.7;
+      }
+
+      /* ===========================================
+         REVEAL ANIMATIONS (editorial staggered)
+         =========================================== */
+      .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition:
+          opacity var(--duration-normal) var(--ease-out-expo),
+          transform var(--duration-normal) var(--ease-out-expo);
+      }
+      .slide.visible .reveal {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .reveal:nth-child(1) { transition-delay: 0.08s; }
+      .reveal:nth-child(2) { transition-delay: 0.18s; }
+      .reveal:nth-child(3) { transition-delay: 0.28s; }
+      .reveal:nth-child(4) { transition-delay: 0.38s; }
+      .reveal:nth-child(5) { transition-delay: 0.48s; }
+      .reveal:nth-child(6) { transition-delay: 0.58s; }
+
+      /* ===========================================
+         SHARED EDITORIAL ELEMENTS
+         =========================================== */
+      .kicker {
+        font-family: var(--font-body);
+        font-weight: 600;
+        font-size: var(--subtitle-size);
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        font-size: clamp(0.62rem, 1.3vw, 0.85rem);
+      }
+      h1, h2, h3 {
+        font-family: var(--font-display);
+        font-weight: 900;
+        line-height: 1.02;
+        letter-spacing: -0.015em;
+      }
+      h2 {
+        font-size: clamp(1.8rem, 5vw, 3.5rem);
+      }
+      .lead {
+        font-size: clamp(0.95rem, 1.9vw, 1.4rem);
+        color: var(--text-secondary);
+        line-height: 1.5;
+        font-weight: 300;
+        max-width: 56ch;
+      }
+      .body-text {
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+        line-height: 1.55;
+        max-width: 60ch;
+      }
+      .rule {
+        width: clamp(48px, 8vw, 110px);
+        height: 3px;
+        background: var(--text-primary);
+        border-radius: 2px;
+      }
+      .slide-no {
+        position: absolute;
+        top: var(--slide-padding);
+        right: var(--slide-padding);
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: clamp(0.9rem, 2vw, 1.4rem);
+        color: var(--text-secondary);
+        z-index: 5;
+      }
+      .footer-mark {
+        position: absolute;
+        bottom: var(--slide-padding);
+        left: var(--slide-padding);
+        font-size: clamp(0.55rem, 1.1vw, 0.72rem);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        opacity: 0.7;
+        z-index: 5;
+      }
+
+      /* ===========================================
+         SIGNATURE: CSS RAINBOW ARC (abstract, no illustration)
+         Seven concentric half-rings drawn with borders.
+         =========================================== */
+      .rainbow-arc {
+        position: relative;
+        width: clamp(220px, 42vw, 460px);
+        aspect-ratio: 2 / 1.08;
+        margin-inline: auto;
+      }
+      .rainbow-arc .band {
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        transform: translateX(-50%);
+        border-style: solid;
+        border-bottom: none;
+        border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+        transform-origin: bottom center;
+      }
+      /* Draw-in animation for the arc on title slide */
+      @keyframes arcRise {
+        from { opacity: 0; transform: translateX(-50%) translateY(24px) scale(0.92); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+      }
+      .slide.visible .rainbow-arc .band {
+        animation: arcRise 0.9s var(--ease-out-expo) both;
+      }
+
+      /* ===========================================
+         TITLE SLIDE
+         =========================================== */
+      .title-slide .slide-content {
+        align-items: center;
+        text-align: center;
+        justify-content: center;
+        gap: var(--content-gap);
+      }
+      .title-slide .arc-wrap {
+        margin-bottom: clamp(0.5rem, 2vh, 1.5rem);
+      }
+      .title-slide h1 {
+        font-size: var(--title-size);
+        font-style: italic;
+        font-weight: 400;
+      }
+      .title-slide h1 .accent {
+        font-style: normal;
+        font-weight: 900;
+        display: block;
+        background: linear-gradient(
+          90deg,
+          var(--c-red), var(--c-orange), var(--c-yellow),
+          var(--c-green), var(--c-blue), var(--c-indigo), var(--c-violet)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .title-slide .lead {
+        margin-inline: auto;
+      }
+
+      /* ===========================================
+         GENERIC TWO-PART LAYOUT
+         =========================================== */
+      .stack {
+        display: flex;
+        flex-direction: column;
+        gap: var(--content-gap);
+        max-width: min(92vw, 1040px);
+      }
+      .split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(1.5rem, 5vw, 4rem);
+        align-items: center;
+        width: 100%;
+        max-width: min(94vw, 1120px);
+      }
+      @media (max-width: 760px) {
+        .split { grid-template-columns: 1fr; gap: var(--content-gap); }
+      }
+
+      /* ===========================================
+         SPECTRUM STRIP (slide 3)
+         =========================================== */
+      .spectrum-strip {
+        display: flex;
+        width: min(92vw, 980px);
+        height: clamp(120px, 26vh, 240px);
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 14px 40px rgba(33, 29, 24, 0.22);
+        border: 1px solid var(--rule);
+      }
+      .spectrum-strip .seg {
+        flex: 1;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding-bottom: clamp(0.4rem, 1.2vh, 0.9rem);
+        color: rgba(255, 255, 255, 0.96);
+        font-weight: 600;
+        font-size: clamp(0.55rem, 1.3vw, 0.95rem);
+        letter-spacing: 0.04em;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+      }
+      .mnemonic {
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: clamp(1rem, 2.6vw, 1.7rem);
+        color: var(--text-primary);
+        text-align: center;
+      }
+      .mnemonic b { font-weight: 900; font-style: normal; }
+
+      /* ===========================================
+         SWATCH CARDS (color detail slides)
+         =========================================== */
+      .swatch-grid {
+        display: grid;
+        gap: clamp(0.6rem, 1.6vw, 1.1rem);
+        width: 100%;
+        max-width: min(94vw, 1080px);
+      }
+      .swatch-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+      .swatch-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+      @media (max-width: 760px) {
+        .swatch-grid.cols-3, .swatch-grid.cols-4 { grid-template-columns: 1fr 1fr; }
+      }
+      .swatch {
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        padding: clamp(0.6rem, 1.4vw, 1.1rem);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.3rem, 0.8vw, 0.55rem);
+        box-shadow: 0 6px 18px rgba(33, 29, 24, 0.08);
+      }
+      .swatch .chip {
+        height: clamp(40px, 9vh, 84px);
+        border-radius: 5px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+      }
+      .swatch .name {
+        font-family: var(--font-display);
+        font-weight: 900;
+        font-size: clamp(0.95rem, 2vw, 1.45rem);
+      }
+      .swatch .wl {
+        font-size: clamp(0.6rem, 1.2vw, 0.85rem);
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+      }
+      .swatch .note {
+        font-size: clamp(0.6rem, 1.15vw, 0.82rem);
+        color: var(--text-secondary);
+        line-height: 1.4;
+      }
+
+      /* ===========================================
+         "WHY THIS ORDER" — refraction explainer
+         =========================================== */
+      .prism-row {
+        display: flex;
+        align-items: center;
+        gap: clamp(0.5rem, 2vw, 1.5rem);
+        width: 100%;
+      }
+      .wl-scale {
+        flex: 1;
+        height: clamp(26px, 5vh, 44px);
+        border-radius: 999px;
+        background: linear-gradient(
+          90deg,
+          var(--c-violet), var(--c-indigo), var(--c-blue),
+          var(--c-green), var(--c-yellow), var(--c-orange), var(--c-red)
+        );
+        box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+      }
+      .wl-ends {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        font-size: clamp(0.62rem, 1.2vw, 0.85rem);
+        color: var(--text-secondary);
+        font-weight: 600;
+        letter-spacing: 0.03em;
+      }
+      .fact-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.5rem, 1.4vh, 1rem);
+      }
+      .fact-list li {
+        position: relative;
+        padding-left: clamp(1.4rem, 3vw, 2rem);
+        font-size: var(--body-size);
+        color: var(--text-secondary);
+        line-height: 1.5;
+        max-width: 58ch;
+      }
+      .fact-list li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.45em;
+        width: clamp(0.6rem, 1.4vw, 0.85rem);
+        height: clamp(0.6rem, 1.4vw, 0.85rem);
+        border-radius: 50%;
+        background: var(--marker, var(--text-primary));
+      }
+      .fact-list li b { color: var(--text-primary); font-weight: 600; }
+
+      /* ===========================================
+         CLOSING SLIDE
+         =========================================== */
+      .closing .slide-content {
+        align-items: center;
+        text-align: center;
+        gap: var(--content-gap);
+      }
+      .closing h2 {
+        font-style: italic;
+        font-weight: 400;
+        font-size: clamp(2rem, 6.5vw, 4.5rem);
+      }
+      .dot-row {
+        display: flex;
+        gap: clamp(0.4rem, 1.2vw, 0.8rem);
+        justify-content: center;
+      }
+      .dot-row span {
+        width: clamp(12px, 2.4vw, 22px);
+        height: clamp(12px, 2.4vw, 22px);
+        border-radius: 50%;
+      }
+
+      /* ===========================================
+         PROGRESS BAR + NAV DOTS
+         =========================================== */
+      .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 4px;
+        width: 0;
+        z-index: 9998;
+        background: linear-gradient(
+          90deg,
+          var(--c-red), var(--c-orange), var(--c-yellow),
+          var(--c-green), var(--c-blue), var(--c-indigo), var(--c-violet)
+        );
+        transition: width 0.15s linear;
+      }
+      .nav-dots {
+        position: fixed;
+        right: clamp(0.75rem, 2vw, 1.5rem);
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(0.5rem, 1.2vh, 0.85rem);
+        z-index: 9998;
+      }
+      .nav-dots button {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        border: 1.5px solid var(--text-secondary);
+        background: transparent;
+        cursor: pointer;
+        padding: 0;
+        transition: all 0.3s var(--ease-out-expo);
+      }
+      .nav-dots button.active {
+        background: var(--text-primary);
+        border-color: var(--text-primary);
+        transform: scale(1.35);
+      }
+
+      /* ===========================================
+         INLINE EDITING (opt-in: enabled)
+         =========================================== */
+      .edit-hotzone {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 80px;
+        height: 80px;
+        z-index: 10000;
+        cursor: pointer;
+      }
+      .edit-toggle {
+        position: fixed;
+        top: clamp(0.75rem, 2vw, 1.25rem);
+        left: clamp(0.75rem, 2vw, 1.25rem);
+        width: 2.4rem;
+        height: 2.4rem;
+        border-radius: 50%;
+        border: 1px solid var(--rule);
+        background: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
+        cursor: pointer;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 10001;
+        backdrop-filter: blur(4px);
+      }
+      .edit-toggle.show,
+      .edit-toggle.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .edit-toggle.active {
+        background: var(--text-primary);
+        color: var(--bg-cream);
+      }
+      .edit-banner {
+        position: fixed;
+        top: clamp(0.75rem, 2vw, 1.25rem);
+        left: 50%;
+        transform: translate(-50%, -150%);
+        background: var(--text-primary);
+        color: var(--bg-cream);
+        padding: 0.5rem 1.1rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        letter-spacing: 0.04em;
+        z-index: 10001;
+        transition: transform 0.4s var(--ease-out-expo);
+        white-space: nowrap;
+      }
+      .edit-banner.active {
+        transform: translate(-50%, 0);
+      }
+      body.edit-active [contenteditable] {
+        outline: 1.5px dashed var(--c-blue);
+        outline-offset: 3px;
+        border-radius: 3px;
+      }
+      body.edit-active [contenteditable]:focus {
+        outline: 2px solid var(--c-blue);
+        background: rgba(47, 111, 174, 0.06);
+      }
+
+      /* PPTX export button hover (inline styles set base look) */
+      #pptx-export:hover {
+        background: var(--text-primary) !important;
+        color: var(--bg-cream) !important;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- === PROGRESS + NAV === -->
+    <div class="progress-bar"></div>
+    <nav class="nav-dots" aria-label="Slide navigation"></nav>
+
+    <!-- === INLINE EDITING UI === -->
+    <div class="edit-hotzone" title="Hover for edit mode"></div>
+    <button class="edit-toggle" id="editToggle" title="Edit mode (E)">✏️</button>
+    <div class="edit-banner" id="editBanner">Edit mode — click any text · Ctrl+S to save a copy</div>
+
+    <!-- === PPTX EXPORT BUTTON === -->
+    <button id="pptx-export" title="Export to PowerPoint" style="
+        position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 9999;
+        width: 2.4rem; height: 2.4rem; border-radius: 50%;
+        background: rgba(255,255,255,0.7); border: 1px solid #cdc3ad;
+        color: #6a6053; font-size: 0.9rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        backdrop-filter: blur(4px); transition: background 0.2s, color 0.2s;"
+       onclick="domToPptx.exportToPptx(Array.from(document.querySelectorAll('.slide')),{fileName:'rainbow-colors.pptx',svgAsVector:true})">
+        ⬇
+    </button>
+
+    <!-- =========================================================
+         SLIDE 1 — TITLE
+         ========================================================= -->
+    <section class="slide title-slide">
+      <span class="footer-mark">A Field Guide to Light</span>
+      <div class="slide-content">
+        <!-- Signature CSS rainbow arc (seven concentric half-rings) -->
+        <div class="arc-wrap reveal">
+          <div class="rainbow-arc" aria-hidden="true">
+            <!-- Bands sized largest→smallest; thickness & color per hue.
+                 Each band is a bordered half-ring. -->
+            <div class="band" style="width:100%; height:100%; border-width:0 clamp(8px,1.6vw,14px) 0; border-color:var(--c-red); animation-delay:.10s"></div>
+            <div class="band" style="width:86%; height:86%; border-width:0 clamp(8px,1.6vw,14px) 0; border-color:var(--c-orange); animation-delay:.18s"></div>
+            <div class="band" style="width:72%; height:72%; border-width:0 clamp(8px,1.6vw,14px) 0; border-color:var(--c-yellow); animation-delay:.26s"></div>
+            <div class="band" style="width:58%; height:58%; border-width:0 clamp(8px,1.6vw,14px) 0; border-color:var(--c-green); animation-delay:.34s"></div>
+            <div class="band" style="width:44%; height:44%; border-width:0 clamp(8px,1.6vw,14px) 0; border-color:var(--c-blue); animation-delay:.42s"></div>
+            <div class="band" style="width:30%; height:30%; border-width:0 clamp(8px,1.6vw,14px) 0; border-color:var(--c-indigo); animation-delay:.50s"></div>
+            <div class="band" style="width:16%; height:16%; border-width:0 clamp(8px,1.6vw,14px) 0; border-color:var(--c-violet); animation-delay:.58s"></div>
+          </div>
+        </div>
+        <p class="kicker reveal">Seven Hues · One Beam of Light</p>
+        <h1 class="reveal">The Colors of<span class="accent">the Rainbow</span></h1>
+        <p class="lead reveal">How a single ray of sunlight unfolds into the seven bands we name red, orange, yellow, green, blue, indigo, and violet.</p>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 2 — WHAT IS A RAINBOW
+         ========================================================= -->
+    <section class="slide">
+      <span class="slide-no">02</span>
+      <span class="footer-mark">The Phenomenon</span>
+      <div class="slide-content">
+        <div class="split">
+          <div class="stack">
+            <p class="kicker reveal">What Is a Rainbow?</p>
+            <h2 class="reveal">Light, bent and<br />split apart.</h2>
+            <div class="rule reveal"></div>
+            <p class="body-text reveal">Sunlight looks white, but it is really every color travelling together. When it passes through a raindrop, the drop acts like a tiny prism: it <b>bends</b> the light (refraction), <b>bounces</b> it off the back of the drop, and bends it once more on the way out.</p>
+            <p class="body-text reveal">Each color bends by a slightly different amount, so they fan out — and the rainbow appears.</p>
+          </div>
+          <div class="stack reveal" style="align-items:center;">
+            <div class="rainbow-arc" aria-hidden="true" style="width:clamp(200px,34vw,380px);">
+              <div class="band" style="width:100%; height:100%; border-width:0 clamp(7px,1.4vw,12px) 0; border-color:var(--c-red);"></div>
+              <div class="band" style="width:85%; height:85%; border-width:0 clamp(7px,1.4vw,12px) 0; border-color:var(--c-orange);"></div>
+              <div class="band" style="width:70%; height:70%; border-width:0 clamp(7px,1.4vw,12px) 0; border-color:var(--c-yellow);"></div>
+              <div class="band" style="width:55%; height:55%; border-width:0 clamp(7px,1.4vw,12px) 0; border-color:var(--c-green);"></div>
+              <div class="band" style="width:40%; height:40%; border-width:0 clamp(7px,1.4vw,12px) 0; border-color:var(--c-blue);"></div>
+              <div class="band" style="width:25%; height:25%; border-width:0 clamp(7px,1.4vw,12px) 0; border-color:var(--c-indigo);"></div>
+              <div class="band" style="width:12%; height:12%; border-width:0 clamp(7px,1.4vw,12px) 0; border-color:var(--c-violet);"></div>
+            </div>
+            <p class="body-text" style="text-align:center;">Sun behind you, rain ahead — that is when the arc appears.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 3 — ROYGBIV OVERVIEW
+         ========================================================= -->
+    <section class="slide">
+      <span class="slide-no">03</span>
+      <span class="footer-mark">The Order</span>
+      <div class="slide-content" style="align-items:center; text-align:center; gap:var(--content-gap);">
+        <p class="kicker reveal">The Seven Bands, In Order</p>
+        <h2 class="reveal">R · O · Y · G · B · I · V</h2>
+        <!-- Full spectrum strip, labelled -->
+        <div class="spectrum-strip reveal" role="img" aria-label="Spectrum from red to violet">
+          <div class="seg" style="background:var(--c-red);">Red</div>
+          <div class="seg" style="background:var(--c-orange);">Orange</div>
+          <div class="seg" style="background:var(--c-yellow); color:#3a2e10; text-shadow:none;">Yellow</div>
+          <div class="seg" style="background:var(--c-green);">Green</div>
+          <div class="seg" style="background:var(--c-blue);">Blue</div>
+          <div class="seg" style="background:var(--c-indigo);">Indigo</div>
+          <div class="seg" style="background:var(--c-violet);">Violet</div>
+        </div>
+        <p class="mnemonic reveal">Remember <b>Roy&nbsp;G.&nbsp;Biv</b> — or “<i>Richard Of York Gave Battle In Vain.</i>”</p>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 4 — WARM END (Red, Orange, Yellow)
+         ========================================================= -->
+    <section class="slide">
+      <span class="slide-no">04</span>
+      <span class="footer-mark">The Warm End · Long Waves</span>
+      <div class="slide-content" style="gap:var(--content-gap);">
+        <div class="stack reveal" style="max-width:none;">
+          <p class="kicker">The Warm End</p>
+          <h2>Red · Orange · Yellow</h2>
+          <p class="body-text">The longest wavelengths bend the least, so they ride the outer edge of the arc.</p>
+        </div>
+        <div class="swatch-grid cols-3 reveal">
+          <div class="swatch">
+            <div class="chip" style="background:var(--c-red);"></div>
+            <span class="name">Red</span>
+            <span class="wl">≈ 620–750 nm</span>
+            <span class="note">The longest visible wavelength. Bends least, so it sits on the outermost rim of the rainbow.</span>
+          </div>
+          <div class="swatch">
+            <div class="chip" style="background:var(--c-orange);"></div>
+            <span class="name">Orange</span>
+            <span class="wl">≈ 590–620 nm</span>
+            <span class="note">A warm blend between red and yellow — named after the fruit, not the other way around.</span>
+          </div>
+          <div class="swatch">
+            <div class="chip" style="background:var(--c-yellow);"></div>
+            <span class="name">Yellow</span>
+            <span class="wl">≈ 570–590 nm</span>
+            <span class="note">The brightest band to the human eye, sitting near the middle of the spectrum.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 5 — COOL END (Green, Blue, Indigo, Violet)
+         ========================================================= -->
+    <section class="slide">
+      <span class="slide-no">05</span>
+      <span class="footer-mark">The Cool End · Short Waves</span>
+      <div class="slide-content" style="gap:var(--content-gap);">
+        <div class="stack reveal" style="max-width:none;">
+          <p class="kicker">The Cool End</p>
+          <h2>Green · Blue · Indigo · Violet</h2>
+          <p class="body-text">Shorter wavelengths bend the most, curving onto the inner edge of the arc.</p>
+        </div>
+        <div class="swatch-grid cols-4 reveal">
+          <div class="swatch">
+            <div class="chip" style="background:var(--c-green);"></div>
+            <span class="name">Green</span>
+            <span class="wl">≈ 495–570 nm</span>
+            <span class="note">The center of the spectrum — the hue our eyes are most sensitive to.</span>
+          </div>
+          <div class="swatch">
+            <div class="chip" style="background:var(--c-blue);"></div>
+            <span class="name">Blue</span>
+            <span class="wl">≈ 450–495 nm</span>
+            <span class="note">Short waves that scatter easily — the same physics that makes the sky blue.</span>
+          </div>
+          <div class="swatch">
+            <div class="chip" style="background:var(--c-indigo);"></div>
+            <span class="name">Indigo</span>
+            <span class="wl">≈ 445–450 nm</span>
+            <span class="note">A deep blue-violet. Newton added it to make seven — a number he found harmonious.</span>
+          </div>
+          <div class="swatch">
+            <div class="chip" style="background:var(--c-violet);"></div>
+            <span class="name">Violet</span>
+            <span class="wl">≈ 380–450 nm</span>
+            <span class="note">The shortest visible wavelength. Bends most, so it lines the inner rim.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 6 — WHY THIS ORDER?
+         ========================================================= -->
+    <section class="slide">
+      <span class="slide-no">06</span>
+      <span class="footer-mark">The Physics</span>
+      <div class="slide-content">
+        <div class="stack reveal" style="margin-bottom:clamp(0.5rem,2vh,1.5rem); max-width:none;">
+          <p class="kicker">Why Always This Order?</p>
+          <h2>Wavelength decides<br />the lineup.</h2>
+        </div>
+        <div class="stack reveal" style="gap:clamp(0.4rem,1.5vh,0.9rem); width:min(94vw,1000px);">
+          <div class="prism-row">
+            <span style="font-weight:600; color:var(--c-violet);">Violet</span>
+            <div class="wl-scale" aria-hidden="true"></div>
+            <span style="font-weight:600; color:var(--c-red);">Red</span>
+          </div>
+          <div class="wl-ends">
+            <span>Shortest wave · bends most</span>
+            <span>Longest wave · bends least</span>
+          </div>
+        </div>
+        <ul class="fact-list reveal" style="margin-top:clamp(0.6rem,2vh,1.4rem);">
+          <li style="--marker:var(--c-red);"><b>Each color is a wavelength.</b> Red waves are long; violet waves are short.</li>
+          <li style="--marker:var(--c-green);"><b>Bending sorts them.</b> Shorter waves bend more as they pass through a drop, so the colors separate in a fixed sequence.</li>
+          <li style="--marker:var(--c-blue);"><b>The order never changes</b> because the physics never changes — that is why every rainbow reads red on the outside, violet on the inside.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 7 — A FEW WONDERS
+         ========================================================= -->
+    <section class="slide">
+      <span class="slide-no">07</span>
+      <span class="footer-mark">Curiosities</span>
+      <div class="slide-content">
+        <div class="split">
+          <div class="stack reveal">
+            <p class="kicker">A Few Wonders</p>
+            <h2>Light keeps a<br />few secrets.</h2>
+            <div class="rule"></div>
+            <p class="body-text">The rainbow you see is yours alone — it depends on exactly where you stand. Step sideways, and you are looking at a slightly different set of raindrops.</p>
+          </div>
+          <ul class="fact-list reveal">
+            <li style="--marker:var(--c-orange);"><b>No two people</b> ever see the very same rainbow.</li>
+            <li style="--marker:var(--c-yellow);"><b>Double rainbows</b> have a fainter second arc with the colors <i>reversed</i> — violet on the outside.</li>
+            <li style="--marker:var(--c-green);"><b>They are full circles.</b> From the ground we only see an arc; from a plane you can spot the whole ring.</li>
+            <li style="--marker:var(--c-violet);"><b>You can’t reach the end.</b> A rainbow has no fixed spot — it moves as you move.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 8 — CLOSING
+         ========================================================= -->
+    <section class="slide closing">
+      <span class="footer-mark">A Field Guide to Light</span>
+      <div class="slide-content">
+        <p class="kicker reveal">Seven hues, one beam</p>
+        <h2 class="reveal">Red to violet,<br />always in order.</h2>
+        <div class="dot-row reveal" aria-hidden="true">
+          <span style="background:var(--c-red);"></span>
+          <span style="background:var(--c-orange);"></span>
+          <span style="background:var(--c-yellow);"></span>
+          <span style="background:var(--c-green);"></span>
+          <span style="background:var(--c-blue);"></span>
+          <span style="background:var(--c-indigo);"></span>
+          <span style="background:var(--c-violet);"></span>
+        </div>
+        <p class="lead reveal" style="margin-inline:auto;">Next time the sun breaks through the rain, you’ll know exactly what you’re looking at — and why the colors line up the way they do.</p>
+      </div>
+    </section>
+
+    <script>
+      /* ===========================================
+         SLIDE PRESENTATION CONTROLLER
+         Keyboard / wheel / touch nav, progress bar,
+         nav dots, and scroll-triggered animations.
+         =========================================== */
+      class SlidePresentation {
+        constructor() {
+          this.slides = Array.from(document.querySelectorAll(".slide"));
+          this.current = 0;
+          this.progressBar = document.querySelector(".progress-bar");
+          this.navDotsContainer = document.querySelector(".nav-dots");
+          this.setupObserver();
+          this.setupNavDots();
+          this.setupKeyboard();
+          this.setupWheel();
+          this.setupTouch();
+          this.updateProgress();
+        }
+
+        setupObserver() {
+          // Add .visible when a slide enters view → fires CSS reveals.
+          const obs = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((e) => {
+                if (e.isIntersecting) {
+                  e.target.classList.add("visible");
+                  this.current = this.slides.indexOf(e.target);
+                  this.syncDots();
+                  this.updateProgress();
+                }
+              });
+            },
+            { threshold: 0.5 }
+          );
+          this.slides.forEach((s) => obs.observe(s));
+        }
+
+        setupNavDots() {
+          // Clear first so re-opening a saved copy never duplicates dots.
+          this.navDotsContainer.innerHTML = "";
+          this.slides.forEach((_, i) => {
+            const b = document.createElement("button");
+            b.setAttribute("aria-label", "Go to slide " + (i + 1));
+            if (i === 0) b.classList.add("active");
+            b.addEventListener("click", () => this.goTo(i));
+            this.navDotsContainer.appendChild(b);
+          });
+        }
+
+        syncDots() {
+          this.navDotsContainer
+            .querySelectorAll("button")
+            .forEach((b, i) => b.classList.toggle("active", i === this.current));
+        }
+
+        updateProgress() {
+          const pct =
+            this.slides.length > 1
+              ? (this.current / (this.slides.length - 1)) * 100
+              : 100;
+          if (this.progressBar) this.progressBar.style.width = pct + "%";
+        }
+
+        goTo(i) {
+          i = Math.max(0, Math.min(this.slides.length - 1, i));
+          this.slides[i].scrollIntoView({ behavior: "smooth" });
+        }
+
+        setupKeyboard() {
+          document.addEventListener("keydown", (e) => {
+            // Ignore navigation while editing text inline.
+            if (e.target.getAttribute && e.target.getAttribute("contenteditable")) return;
+            if (["ArrowDown", "ArrowRight", " ", "PageDown"].includes(e.key)) {
+              e.preventDefault();
+              this.goTo(this.current + 1);
+            } else if (["ArrowUp", "ArrowLeft", "PageUp"].includes(e.key)) {
+              e.preventDefault();
+              this.goTo(this.current - 1);
+            } else if (e.key === "Home") {
+              e.preventDefault();
+              this.goTo(0);
+            } else if (e.key === "End") {
+              e.preventDefault();
+              this.goTo(this.slides.length - 1);
+            }
+          });
+        }
+
+        setupWheel() {
+          let lock = false;
+          window.addEventListener(
+            "wheel",
+            (e) => {
+              if (document.body.classList.contains("edit-active")) return;
+              if (lock) return;
+              if (Math.abs(e.deltaY) < 25) return;
+              lock = true;
+              this.goTo(this.current + (e.deltaY > 0 ? 1 : -1));
+              setTimeout(() => (lock = false), 800);
+            },
+            { passive: true }
+          );
+        }
+
+        setupTouch() {
+          let startY = 0;
+          window.addEventListener(
+            "touchstart",
+            (e) => (startY = e.touches[0].clientY),
+            { passive: true }
+          );
+          window.addEventListener(
+            "touchend",
+            (e) => {
+              const dy = startY - e.changedTouches[0].clientY;
+              if (Math.abs(dy) > 50) this.goTo(this.current + (dy > 0 ? 1 : -1));
+            },
+            { passive: true }
+          );
+        }
+      }
+
+      /* ===========================================
+         INLINE EDITOR (opt-in feature)
+         Toggle with the ✏️ button, the top-left
+         hotzone, or the "E" key. Ctrl+S downloads
+         a clean copy of the edited HTML.
+         =========================================== */
+      class InlineEditor {
+        constructor() {
+          this.isActive = false;
+          this.toggleBtn = document.getElementById("editToggle");
+          this.banner = document.getElementById("editBanner");
+          // Every text element that should be editable.
+          this.selector =
+            "h1, h2, h3, p, span.name, span.wl, span.note, .seg, li, .mnemonic, .footer-mark, .kicker, .lead, .body-text";
+        }
+
+        toggleEditMode() {
+          this.isActive = !this.isActive;
+          document.body.classList.toggle("edit-active", this.isActive);
+          this.toggleBtn.classList.toggle("active", this.isActive);
+          this.banner.classList.toggle("active", this.isActive);
+          document.querySelectorAll(this.selector).forEach((el) => {
+            if (this.isActive) el.setAttribute("contenteditable", "true");
+            else el.removeAttribute("contenteditable");
+          });
+        }
+
+        save() {
+          // Strip live edit state so the saved file opens clean.
+          const editableEls = Array.from(document.querySelectorAll("[contenteditable]"));
+          editableEls.forEach((el) => el.removeAttribute("contenteditable"));
+          document.body.classList.remove("edit-active");
+          this.toggleBtn.classList.remove("active", "show");
+          this.banner.classList.remove("active", "show");
+          const visibleSlides = Array.from(document.querySelectorAll(".slide.visible"));
+          visibleSlides.forEach((s) => s.classList.remove("visible"));
+
+          const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+          // Restore so the user can keep editing.
+          document.body.classList.add("edit-active");
+          editableEls.forEach((el) => el.setAttribute("contenteditable", "true"));
+          this.toggleBtn.classList.add("active");
+          this.banner.classList.add("active");
+          visibleSlides.forEach((s) => s.classList.add("visible"));
+
+          const blob = new Blob([html], { type: "text/html" });
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = "rainbow-colors.html";
+          a.click();
+          URL.revokeObjectURL(a.href);
+        }
+      }
+
+      /* === BOOT === */
+      const deck = new SlidePresentation();
+      const editor = new InlineEditor();
+
+      // Toggle button click
+      document.getElementById("editToggle").addEventListener("click", () => editor.toggleEditMode());
+
+      // Hotzone hover with a 400ms grace period (JS, not CSS ~ selector)
+      const hotzone = document.querySelector(".edit-hotzone");
+      const editToggle = document.getElementById("editToggle");
+      let hideTimeout = null;
+      hotzone.addEventListener("mouseenter", () => {
+        clearTimeout(hideTimeout);
+        editToggle.classList.add("show");
+      });
+      hotzone.addEventListener("mouseleave", () => {
+        hideTimeout = setTimeout(() => {
+          if (!editor.isActive) editToggle.classList.remove("show");
+        }, 400);
+      });
+      editToggle.addEventListener("mouseenter", () => clearTimeout(hideTimeout));
+      editToggle.addEventListener("mouseleave", () => {
+        hideTimeout = setTimeout(() => {
+          if (!editor.isActive) editToggle.classList.remove("show");
+        }, 400);
+      });
+      hotzone.addEventListener("click", () => editor.toggleEditMode());
+
+      // Keyboard: E toggles edit, Ctrl/Cmd+S saves a copy.
+      document.addEventListener("keydown", (e) => {
+        if ((e.key === "e" || e.key === "E") && !e.target.getAttribute("contenteditable")) {
+          editor.toggleEditMode();
+        }
+        if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) {
+          e.preventDefault();
+          editor.save();
+        }
+      });
+    </script>
+  </body>
+</html>
