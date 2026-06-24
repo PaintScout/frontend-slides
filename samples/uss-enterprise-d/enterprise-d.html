@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>USS Enterprise NCC-1701-D — Starfleet Technical Readout</title>
+
+  <!--
+    Fonts via Google Fonts. Degrade gracefully if offline (fallbacks declared
+    in --font-* variables). No other external resources — fully self-contained.
+    - Antonio: condensed, futuristic display face for the LCARS Okudagram feel.
+    - Oswald: secondary condensed face for labels / sub-headers.
+    - Share Tech Mono: clean monospace for numeric spec readouts.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;600;700&family=Oswald:wght@400;500;600&family=Share+Tech+Mono&display=swap"
+    crossorigin="anonymous"
+  />
+
+  <style>
+    /* ===========================================
+       CSS CUSTOM PROPERTIES (THEME)
+       LCARS — Library Computer Access/Retrieval System.
+       Canonical Okudagram palette on a black background.
+       Change these to retune the whole interface.
+       =========================================== */
+    :root {
+      /* --- Core surfaces --- */
+      --bg-primary: #000000;       /* LCARS is always black */
+      --bg-panel: #0a0a0a;
+      --bg-readout: #11110d;
+
+      /* --- Canonical LCARS palette --- */
+      --lcars-amber:     #FF9900;  /* primary amber */
+      --lcars-orange:    #FF7700;  /* deep orange */
+      --lcars-lavender:  #CC99CC;  /* lavender / purple */
+      --lcars-peri:      #9999FF;  /* periwinkle blue */
+      --lcars-salmon:    #FFCC99;  /* salmon */
+      --lcars-red:       #CC6666;  /* alert / red bar */
+      --lcars-cream:     #FFCC66;  /* secondary amber-cream */
+
+      /* --- Text --- */
+      --text-primary:   #FF9900;
+      --text-bright:    #FFCC99;
+      --text-muted:     #9999FF;
+      --text-readout:   #FFCC66;
+
+      /* --- Typography (Google Fonts + graceful fallbacks) --- */
+      --font-display: "Antonio", "Oswald", "Arial Narrow", sans-serif;
+      --font-label:   "Oswald", "Arial Narrow", sans-serif;
+      --font-mono:    "Share Tech Mono", "Courier New", monospace;
+
+      /* Type sizes — ALL clamp() for viewport fitting */
+      --title-size:    clamp(2rem, 6.5vw, 5.5rem);
+      --h2-size:       clamp(1.4rem, 4vw, 3rem);
+      --h3-size:       clamp(1rem, 2.4vw, 1.65rem);
+      --subtitle-size: clamp(0.9rem, 2vw, 1.4rem);
+      --body-size:     clamp(0.75rem, 1.5vw, 1.05rem);
+      --small-size:    clamp(0.62rem, 1vw, 0.82rem);
+      --stat-size:     clamp(1.6rem, 4.5vw, 3.2rem);
+
+      /* Spacing — clamp() */
+      --slide-padding: clamp(1rem, 4vw, 4rem);
+      --content-gap:   clamp(0.6rem, 2vw, 1.8rem);
+      --element-gap:   clamp(0.3rem, 1vw, 1rem);
+
+      /* LCARS geometry */
+      --elbow-radius: clamp(28px, 4vw, 64px);
+      --bar-width:    clamp(60px, 9vw, 140px);
+
+      /* Animation */
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --duration-normal: 0.6s;
+    }
+
+    /* ===========================================
+       BASE STYLES
+       =========================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-label);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===========================================
+       VIEWPORT FITTING: MANDATORY BASE STYLES
+       (full contents of viewport-base.css, verbatim)
+       These ensure every slide fits exactly in 100vh.
+       =========================================== */
+
+    /* 1. Lock html/body to viewport */
+    html, body {
+        height: 100%;
+        overflow-x: hidden;
+    }
+
+    html {
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+    }
+
+    /* 2. Each slide = exact viewport height */
+    .slide {
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh; /* Dynamic viewport height for mobile browsers */
+        overflow: hidden; /* CRITICAL: Prevent ANY overflow */
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    /* 3. Content container with flex for centering */
+    .slide-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-height: 100%;
+        overflow: hidden; /* Double-protection against overflow */
+        padding: var(--slide-padding);
+    }
+
+    /* 4. ALL typography uses clamp() for responsive scaling */
+    :root {
+        /* Titles scale from mobile to desktop */
+        --title-size: clamp(1.5rem, 5vw, 4rem);
+        --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+        --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+
+        /* Body text */
+        --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+        --small-size: clamp(0.65rem, 1vw, 0.875rem);
+
+        /* Spacing scales with viewport */
+        --slide-padding: clamp(1rem, 4vw, 4rem);
+        --content-gap: clamp(0.5rem, 2vw, 2rem);
+        --element-gap: clamp(0.25rem, 1vw, 1rem);
+    }
+
+    /* 5. Cards/containers use viewport-relative max sizes */
+    .card, .container, .content-box {
+        max-width: min(90vw, 1000px);
+        max-height: min(80vh, 700px);
+    }
+
+    /* 6. Lists auto-scale with viewport */
+    .feature-list, .bullet-list {
+        gap: clamp(0.4rem, 1vh, 1rem);
+    }
+
+    .feature-list li, .bullet-list li {
+        font-size: var(--body-size);
+        line-height: 1.4;
+    }
+
+    /* 7. Grids adapt to available space */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+        gap: clamp(0.5rem, 1.5vw, 1rem);
+    }
+
+    /* 8. Images constrained to viewport */
+    img, .image-container {
+        max-width: 100%;
+        max-height: min(50vh, 400px);
+        object-fit: contain;
+    }
+
+    /* ===========================================
+       RESPONSIVE BREAKPOINTS
+       Aggressive scaling for smaller viewports
+       =========================================== */
+
+    /* Short viewports (< 700px height) */
+    @media (max-height: 700px) {
+        :root {
+            --slide-padding: clamp(0.75rem, 3vw, 2rem);
+            --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+            --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+            --h2-size: clamp(1rem, 3vw, 1.75rem);
+        }
+    }
+
+    /* Very short viewports (< 600px height) */
+    @media (max-height: 600px) {
+        :root {
+            --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+            --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+            --title-size: clamp(1.1rem, 4vw, 2rem);
+            --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+        }
+
+        /* Hide non-essential elements */
+        .nav-dots, .keyboard-hint, .decorative {
+            display: none;
+        }
+    }
+
+    /* Extremely short (landscape phones, < 500px height) */
+    @media (max-height: 500px) {
+        :root {
+            --slide-padding: clamp(0.4rem, 2vw, 1rem);
+            --title-size: clamp(1rem, 3.5vw, 1.5rem);
+            --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+            --body-size: clamp(0.65rem, 1vw, 0.85rem);
+        }
+    }
+
+    /* Narrow viewports (< 600px width) */
+    @media (max-width: 600px) {
+        :root {
+            --title-size: clamp(1.25rem, 7vw, 2.5rem);
+        }
+
+        /* Stack grids vertically */
+        .grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ===========================================
+       REDUCED MOTION
+       Respect user preferences
+       =========================================== */
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.2s !important;
+        }
+
+        html {
+            scroll-behavior: auto;
+        }
+    }
+
+    /* ===========================================
+       END viewport-base.css
+       The block above re-declares :root size tokens
+       per the skill's mandate to paste the file in full.
+       Re-assert our richer LCARS tokens below so they win.
+       =========================================== */
+    :root {
+      --title-size:    clamp(2rem, 6.5vw, 5.5rem);
+      --h2-size:       clamp(1.4rem, 4vw, 3rem);
+      --h3-size:       clamp(1rem, 2.4vw, 1.65rem);
+      --body-size:     clamp(0.75rem, 1.5vw, 1.05rem);
+      --small-size:    clamp(0.62rem, 1vw, 0.82rem);
+    }
+    @media (max-height: 700px) {
+      :root {
+        --title-size: clamp(1.6rem, 5vw, 3.4rem);
+        --h2-size:    clamp(1.2rem, 3.4vw, 2.2rem);
+        --stat-size:  clamp(1.3rem, 3.6vw, 2.4rem);
+      }
+    }
+    @media (max-height: 600px) {
+      :root {
+        --title-size: clamp(1.4rem, 4.5vw, 2.6rem);
+        --stat-size:  clamp(1.15rem, 3vw, 2rem);
+      }
+    }
+
+    /* ===========================================
+       LCARS LAYOUT — the "elbow" frame
+       Every content slide is wrapped in an L-shaped
+       sidebar + top bar (the classic Okudagram chrome).
+       =========================================== */
+
+    /* Subtle scanline / starfield atmosphere behind everything */
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 12%, rgba(153,153,255,0.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 90%, rgba(255,153,0,0.06) 0%, transparent 50%),
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,0.018) 0px,
+          rgba(255,255,255,0.018) 1px,
+          transparent 1px,
+          transparent 3px
+        );
+      z-index: 0;
+    }
+
+    /* The LCARS chrome wrapper sits inside .slide-content */
+    .lcars {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: grid;
+      grid-template-columns: var(--bar-width) 1fr;
+      grid-template-rows: auto 1fr auto;
+      gap: clamp(6px, 0.9vw, 14px);
+      max-height: 100%;
+      overflow: hidden;
+    }
+
+    /* Left vertical bar (spans all rows) with rounded outer elbow */
+    .lcars-sidebar {
+      grid-row: 1 / 4;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(6px, 0.9vw, 14px);
+      min-height: 0;
+    }
+    .lcars-sidebar .bar {
+      border-radius: 0 0 0 0;
+      font-family: var(--font-display);
+      font-weight: 600;
+      color: #000;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding: clamp(4px, 0.7vw, 10px) clamp(6px, 0.8vw, 12px);
+      font-size: var(--small-size);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      overflow: hidden;
+      text-transform: uppercase;
+    }
+    /* Top-of-sidebar cap forms the elbow with the header bar */
+    .lcars-sidebar .bar.cap {
+      border-top-left-radius: var(--elbow-radius);
+      flex: 0 0 clamp(40px, 6vh, 70px);
+      background: var(--lcars-amber);
+    }
+    .lcars-sidebar .bar.mid   { flex: 1 1 auto; background: var(--lcars-lavender); }
+    .lcars-sidebar .bar.mid2  { flex: 0 0 18%;  background: var(--lcars-peri); }
+    .lcars-sidebar .bar.foot  {
+      flex: 0 0 clamp(34px, 5vh, 60px);
+      background: var(--lcars-orange);
+      border-bottom-left-radius: var(--elbow-radius);
+      align-items: flex-start;
+    }
+
+    /* Header bar across the top of the content column */
+    .lcars-header {
+      grid-column: 2;
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      gap: clamp(6px, 0.9vw, 14px);
+      min-height: 0;
+    }
+    .lcars-header .header-fill {
+      height: clamp(22px, 3vh, 38px);
+      flex: 1;
+      background: var(--lcars-amber);
+      border-top-right-radius: var(--elbow-radius);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: clamp(10px, 1.5vw, 24px);
+      color: #000;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: var(--small-size);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .lcars-header .header-block {
+      height: clamp(22px, 3vh, 38px);
+      width: clamp(50px, 8vw, 120px);
+      background: var(--lcars-peri);
+      border-radius: 4px;
+    }
+
+    /* Main content cell */
+    .lcars-main {
+      grid-column: 2;
+      grid-row: 2;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: var(--content-gap);
+      padding: clamp(0.3rem, 1vw, 1rem) clamp(0.2rem, 1vw, 1rem);
+    }
+
+    /* Footer bar */
+    .lcars-footer {
+      grid-column: 2;
+      grid-row: 3;
+      display: flex;
+      align-items: center;
+      gap: clamp(6px, 0.9vw, 14px);
+    }
+    .lcars-footer .foot-fill {
+      height: clamp(16px, 2.2vh, 28px);
+      flex: 1;
+      background: var(--lcars-orange);
+      border-bottom-right-radius: var(--elbow-radius);
+    }
+    .lcars-footer .foot-block {
+      height: clamp(16px, 2.2vh, 28px);
+      width: clamp(40px, 6vw, 90px);
+      background: var(--lcars-lavender);
+      border-radius: 4px;
+    }
+    .lcars-footer .foot-tag {
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      font-size: var(--small-size);
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    /* ===========================================
+       TYPOGRAPHY & CONTENT ELEMENTS
+       =========================================== */
+    .eyebrow {
+      font-family: var(--font-mono);
+      color: var(--lcars-peri);
+      font-size: var(--small-size);
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+    }
+
+    h1.lcars-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--title-size);
+      line-height: 0.92;
+      letter-spacing: 0.01em;
+      color: var(--lcars-amber);
+      text-transform: uppercase;
+    }
+    h2.lcars-h2 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: var(--h2-size);
+      line-height: 0.98;
+      letter-spacing: 0.02em;
+      color: var(--lcars-amber);
+      text-transform: uppercase;
+    }
+    .subtitle {
+      font-family: var(--font-label);
+      font-weight: 400;
+      font-size: var(--subtitle-size);
+      color: var(--text-bright);
+      letter-spacing: 0.05em;
+    }
+
+    p.body, li.body {
+      font-family: var(--font-label);
+      font-size: var(--body-size);
+      color: var(--text-bright);
+      line-height: 1.42;
+      letter-spacing: 0.01em;
+    }
+
+    /* Bullet lists with LCARS tick markers */
+    ul.bullet-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.35rem, 1.2vh, 0.9rem);
+    }
+    ul.bullet-list li {
+      position: relative;
+      padding-left: clamp(1rem, 2vw, 1.8rem);
+      font-family: var(--font-label);
+      font-size: var(--body-size);
+      color: var(--text-bright);
+      line-height: 1.4;
+    }
+    ul.bullet-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.5em;
+      width: clamp(0.5rem, 1.1vw, 0.85rem);
+      height: clamp(0.5rem, 1.1vw, 0.85rem);
+      background: var(--lcars-peri);
+      border-radius: 2px;
+    }
+    ul.bullet-list li:nth-child(even)::before { background: var(--lcars-lavender); }
+    ul.bullet-list li b { color: var(--lcars-amber); font-weight: 600; }
+
+    /* ===========================================
+       DATA PANELS & STAT READOUTS
+       =========================================== */
+    .panel-grid {
+      display: grid;
+      gap: clamp(0.5rem, 1.3vw, 1rem);
+      min-height: 0;
+    }
+    .panel-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .panel-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .panel-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+    /* A stat readout card */
+    .stat {
+      background: var(--bg-readout);
+      border-left: clamp(4px, 0.6vw, 8px) solid var(--lcars-amber);
+      border-radius: 0 8px 8px 0;
+      padding: clamp(0.5rem, 1.4vw, 1.1rem) clamp(0.6rem, 1.6vw, 1.2rem);
+      display: flex;
+      flex-direction: column;
+      gap: 0.15em;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .stat:nth-child(3n+2) { border-left-color: var(--lcars-peri); }
+    .stat:nth-child(3n+3) { border-left-color: var(--lcars-lavender); }
+    .stat .label {
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      color: var(--text-muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .stat .value {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--stat-size);
+      line-height: 0.95;
+      color: var(--lcars-amber);
+    }
+    .stat .unit {
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      color: var(--text-readout);
+      letter-spacing: 0.06em;
+    }
+
+    /* Readout rows — label : value lines, monospace */
+    .readout {
+      background: var(--bg-readout);
+      border-radius: 8px;
+      padding: clamp(0.5rem, 1.4vw, 1.1rem) clamp(0.7rem, 1.8vw, 1.3rem);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.25rem, 0.8vh, 0.55rem);
+      min-height: 0;
+      overflow: hidden;
+    }
+    .readout .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      border-bottom: 1px dashed rgba(255,153,0,0.18);
+      padding-bottom: clamp(0.2rem, 0.6vh, 0.4rem);
+    }
+    .readout .row:last-child { border-bottom: none; }
+    .readout .row .k {
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .readout .row .v {
+      font-family: var(--font-mono);
+      font-size: var(--body-size);
+      color: var(--text-readout);
+      text-align: right;
+    }
+    .readout .row .v.hi { color: var(--lcars-amber); font-weight: bold; }
+
+    /* Two-column main layout (text + panel) */
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(0.8rem, 2vw, 2rem);
+      align-items: center;
+      min-height: 0;
+    }
+    .split.lean { grid-template-columns: 1.1fr 0.9fr; }
+
+    /* Big numeric hero used on dimension slide etc. */
+    .hero-num {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(2.6rem, 9vw, 7rem);
+      line-height: 0.85;
+      color: var(--lcars-amber);
+    }
+
+    .note {
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ===========================================
+       TITLE SLIDE — special full-frame treatment
+       =========================================== */
+    .title-slide .slide-content { padding: clamp(1.2rem, 5vw, 5rem); }
+    .title-frame {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: grid;
+      grid-template-columns: var(--bar-width) 1fr;
+      gap: clamp(8px, 1.2vw, 18px);
+      min-height: 0;
+    }
+    .title-frame .side {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 1.2vw, 18px);
+    }
+    .title-frame .side .blk { border-radius: 4px; }
+    .title-frame .side .blk:nth-child(1) { flex: 0 0 22%; background: var(--lcars-amber); border-top-left-radius: var(--elbow-radius); }
+    .title-frame .side .blk:nth-child(2) { flex: 1 1 auto; background: var(--lcars-lavender); }
+    .title-frame .side .blk:nth-child(3) { flex: 0 0 14%; background: var(--lcars-peri); }
+    .title-frame .side .blk:nth-child(4) { flex: 0 0 10%; background: var(--lcars-orange); border-bottom-left-radius: var(--elbow-radius); }
+    .title-frame .body-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: clamp(0.5rem, 1.8vh, 1.4rem);
+      min-height: 0;
+      overflow: hidden;
+    }
+    .title-frame .topcap {
+      height: clamp(24px, 3.4vh, 44px);
+      background: var(--lcars-amber);
+      border-top-right-radius: var(--elbow-radius);
+      display: flex; align-items: center; justify-content: flex-end;
+      padding-right: clamp(12px, 2vw, 28px);
+      color: #000; font-family: var(--font-display); font-weight: 600;
+      letter-spacing: 0.14em; font-size: var(--small-size);
+      text-transform: uppercase;
+    }
+
+    /* ===========================================
+       ANIMATIONS
+       Trigger via .visible class (added by JS observer)
+       =========================================== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition:
+        opacity var(--duration-normal) var(--ease-out-expo),
+        transform var(--duration-normal) var(--ease-out-expo);
+    }
+    .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+
+    /* LCARS bars sweep in horizontally — feels like a console booting */
+    .reveal-bar {
+      opacity: 0;
+      transform: scaleX(0.2);
+      transform-origin: left center;
+      transition:
+        opacity 0.5s var(--ease-out-expo),
+        transform 0.5s var(--ease-out-expo);
+    }
+    .slide.visible .reveal-bar { opacity: 1; transform: scaleX(1); }
+
+    /* Stagger children for sequential reveal */
+    .slide.visible .reveal:nth-child(1)  { transition-delay: 0.08s; }
+    .slide.visible .reveal:nth-child(2)  { transition-delay: 0.16s; }
+    .slide.visible .reveal:nth-child(3)  { transition-delay: 0.24s; }
+    .slide.visible .reveal:nth-child(4)  { transition-delay: 0.32s; }
+    .slide.visible .reveal:nth-child(5)  { transition-delay: 0.40s; }
+    .slide.visible .reveal:nth-child(6)  { transition-delay: 0.48s; }
+
+    /* Stagger inside panel grids */
+    .slide.visible .panel-grid .reveal:nth-child(1) { transition-delay: 0.10s; }
+    .slide.visible .panel-grid .reveal:nth-child(2) { transition-delay: 0.18s; }
+    .slide.visible .panel-grid .reveal:nth-child(3) { transition-delay: 0.26s; }
+    .slide.visible .panel-grid .reveal:nth-child(4) { transition-delay: 0.34s; }
+    .slide.visible .panel-grid .reveal:nth-child(5) { transition-delay: 0.42s; }
+    .slide.visible .panel-grid .reveal:nth-child(6) { transition-delay: 0.50s; }
+
+    /* Blinking status light on the title slide */
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+    .status-dot {
+      display: inline-block;
+      width: 0.55em; height: 0.55em; border-radius: 50%;
+      background: var(--lcars-amber);
+      margin-right: 0.5em;
+      animation: blink 1.6s ease-in-out infinite;
+    }
+
+    /* ===========================================
+       PROGRESS BAR & NAV DOTS
+       =========================================== */
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 4px;
+      width: 0%;
+      background: var(--lcars-amber);
+      z-index: 9999;
+      transition: width 0.2s ease;
+    }
+
+    .nav-dots {
+      position: fixed;
+      right: clamp(8px, 1.5vw, 20px);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(6px, 1vh, 12px);
+      z-index: 9999;
+    }
+    .nav-dots button {
+      width: clamp(8px, 1vw, 12px);
+      height: clamp(8px, 1vw, 12px);
+      border-radius: 2px;
+      border: none;
+      background: rgba(153,153,255,0.35);
+      cursor: pointer;
+      padding: 0;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .nav-dots button:hover { background: var(--lcars-peri); transform: scale(1.2); }
+    .nav-dots button.active { background: var(--lcars-amber); transform: scale(1.3); }
+
+    .keyboard-hint {
+      position: fixed;
+      bottom: clamp(8px, 1.5vh, 16px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      color: rgba(153,153,255,0.5);
+      letter-spacing: 0.1em;
+      z-index: 9999;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Progress bar (top) -->
+  <div class="progress-bar" aria-hidden="true"></div>
+
+  <!-- Navigation dots (right edge) — populated by JS -->
+  <nav class="nav-dots" aria-label="Slide navigation"></nav>
+
+  <!-- Keyboard hint -->
+  <div class="keyboard-hint">◄ ► / SPACE / SCROLL — LCARS ACCESS TERMINAL</div>
+
+  <!-- =====================================================================
+       SLIDE 01 — TITLE
+       ===================================================================== -->
+  <section class="slide title-slide" aria-label="Title">
+    <div class="slide-content">
+      <div class="title-frame">
+        <div class="side">
+          <div class="blk reveal-bar"></div>
+          <div class="blk reveal-bar"></div>
+          <div class="blk reveal-bar"></div>
+          <div class="blk reveal-bar"></div>
+        </div>
+        <div class="body-col">
+          <div class="topcap reveal-bar">LCARS 47-ALPHA · STARFLEET</div>
+          <p class="eyebrow reveal"><span class="status-dot"></span>UFP · STARFLEET COMMAND · TECHNICAL ARCHIVE</p>
+          <h1 class="lcars-title reveal">USS Enterprise<br>NCC-1701-D</h1>
+          <p class="subtitle reveal">Galaxy-Class Starship · Starfleet Technical Readout</p>
+          <p class="note reveal">CLASSIFICATION: GENERAL ACCESS · FILE 1701-D · STARDATE 41153.7</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 02 — CLASS OVERVIEW & REGISTRY
+       ===================================================================== -->
+  <section class="slide" aria-label="Class overview and registry">
+    <div class="slide-content">
+      <div class="lcars">
+        <div class="lcars-sidebar">
+          <div class="bar cap reveal-bar">01-02</div>
+          <div class="bar mid reveal-bar">CLASS</div>
+          <div class="bar mid2 reveal-bar">REG</div>
+          <div class="bar foot reveal-bar">UFP</div>
+        </div>
+        <div class="lcars-header">
+          <div class="header-fill reveal-bar">CLASS OVERVIEW · REGISTRY</div>
+          <div class="header-block reveal-bar"></div>
+        </div>
+        <div class="lcars-main">
+          <div class="eyebrow reveal">VESSEL DESIGNATION</div>
+          <h2 class="lcars-h2 reveal">Galaxy-Class Explorer</h2>
+          <div class="split lean">
+            <p class="body reveal">
+              The Enterprise-D is the fifth Federation starship to bear the name and the
+              flagship of Starfleet. Built as a deep-space explorer and diplomatic platform,
+              the Galaxy class was designed for missions of indefinite duration — combining
+              scientific, defensive, and habitation capacity in a single spaceframe.
+            </p>
+            <div class="readout reveal">
+              <div class="row"><span class="k">Registry</span><span class="v hi">NCC-1701-D</span></div>
+              <div class="row"><span class="k">Class</span><span class="v">Galaxy</span></div>
+              <div class="row"><span class="k">Operator</span><span class="v">Starfleet / UFP</span></div>
+              <div class="row"><span class="k">Built At</span><span class="v">Utopia Planitia, Mars</span></div>
+              <div class="row"><span class="k">Commissioned</span><span class="v">Stardate 41124</span></div>
+              <div class="row"><span class="k">Role</span><span class="v">Explorer · Flagship</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="lcars-footer">
+          <div class="foot-block reveal-bar"></div>
+          <div class="foot-fill reveal-bar"></div>
+          <span class="foot-tag reveal">REF 1701-D · 02</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 03 — DIMENSIONS & MASS
+       ===================================================================== -->
+  <section class="slide" aria-label="Dimensions and mass">
+    <div class="slide-content">
+      <div class="lcars">
+        <div class="lcars-sidebar">
+          <div class="bar cap reveal-bar">03</div>
+          <div class="bar mid reveal-bar">SPEC</div>
+          <div class="bar mid2 reveal-bar">DIM</div>
+          <div class="bar foot reveal-bar">M</div>
+        </div>
+        <div class="lcars-header">
+          <div class="header-fill reveal-bar">DIMENSIONS · MASS</div>
+          <div class="header-block reveal-bar"></div>
+        </div>
+        <div class="lcars-main">
+          <h2 class="lcars-h2 reveal">Physical Specifications</h2>
+          <div class="panel-grid cols-3">
+            <div class="stat reveal"><span class="label">Length</span><span class="value">642.5</span><span class="unit">METERS · 42 DECKS</span></div>
+            <div class="stat reveal"><span class="label">Beam (Width)</span><span class="value">463.7</span><span class="unit">METERS</span></div>
+            <div class="stat reveal"><span class="label">Height</span><span class="value">195.3</span><span class="unit">METERS</span></div>
+            <div class="stat reveal"><span class="label">Decks</span><span class="value">42</span><span class="unit">HABITABLE LEVELS</span></div>
+            <div class="stat reveal"><span class="label">Mass</span><span class="value">4.96</span><span class="unit">MILLION TONNES</span></div>
+            <div class="stat reveal"><span class="label">Hull Config</span><span class="value">2</span><span class="unit">PRIMARY + SECONDARY</span></div>
+          </div>
+        </div>
+        <div class="lcars-footer">
+          <div class="foot-block reveal-bar"></div>
+          <div class="foot-fill reveal-bar"></div>
+          <span class="foot-tag reveal">REF 1701-D · 03</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 04 — CREW COMPLEMENT
+       ===================================================================== -->
+  <section class="slide" aria-label="Crew complement">
+    <div class="slide-content">
+      <div class="lcars">
+        <div class="lcars-sidebar">
+          <div class="bar cap reveal-bar">04</div>
+          <div class="bar mid reveal-bar">CREW</div>
+          <div class="bar mid2 reveal-bar">POP</div>
+          <div class="bar foot reveal-bar">EVAC</div>
+        </div>
+        <div class="lcars-header">
+          <div class="header-fill reveal-bar">CREW COMPLEMENT · HABITATION</div>
+          <div class="header-block reveal-bar"></div>
+        </div>
+        <div class="lcars-main">
+          <h2 class="lcars-h2 reveal">Crew &amp; Civilian Complement</h2>
+          <div class="split">
+            <div class="readout reveal">
+              <div class="row"><span class="k">Standard Complement</span><span class="v hi">~1,014</span></div>
+              <div class="row"><span class="k">Includes Families</span><span class="v">Civilians &amp; children</span></div>
+              <div class="row"><span class="k">Evacuation Limit</span><span class="v hi">~15,000</span></div>
+              <div class="row"><span class="k">Mission Duration</span><span class="v">Indefinite</span></div>
+            </div>
+            <p class="body reveal">
+              Unlike earlier warships, the Galaxy class was conceived as a mobile community.
+              Officers and enlisted crew serve alongside resident families, with schools,
+              recreation, and arboreta integrated into the saucer. In a crisis the spaceframe
+              can shelter many times its normal population during emergency evacuation.
+            </p>
+          </div>
+        </div>
+        <div class="lcars-footer">
+          <div class="foot-block reveal-bar"></div>
+          <div class="foot-fill reveal-bar"></div>
+          <span class="foot-tag reveal">REF 1701-D · 04</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 05 — SPACEFRAME / DECK LAYOUT
+       ===================================================================== -->
+  <section class="slide" aria-label="Spaceframe and deck layout">
+    <div class="slide-content">
+      <div class="lcars">
+        <div class="lcars-sidebar">
+          <div class="bar cap reveal-bar">05</div>
+          <div class="bar mid reveal-bar">HULL</div>
+          <div class="bar mid2 reveal-bar">DECK</div>
+          <div class="bar foot reveal-bar">SF</div>
+        </div>
+        <div class="lcars-header">
+          <div class="header-fill reveal-bar">SPACEFRAME · DECK LAYOUT</div>
+          <div class="header-block reveal-bar"></div>
+        </div>
+        <div class="lcars-main">
+          <h2 class="lcars-h2 reveal">Two-Hull Architecture</h2>
+          <div class="panel-grid cols-2">
+            <div class="stat reveal" style="border-left-color:var(--lcars-amber)">
+              <span class="label">Primary Hull · Saucer</span>
+              <span class="value" style="font-size:var(--h3-size)">Decks 1–10</span>
+              <span class="unit">Bridge · habitation · science · Ten-Forward</span>
+            </div>
+            <div class="stat reveal" style="border-left-color:var(--lcars-peri)">
+              <span class="label">Secondary Hull · Engineering</span>
+              <span class="value" style="font-size:var(--h3-size)">Decks 8–42</span>
+              <span class="unit">Warp core · main shuttlebay · cargo</span>
+            </div>
+          </div>
+          <ul class="bullet-list reveal">
+            <li><b>Saucer section</b> carries the main bridge (Deck 1), crew quarters, and primary science labs; it detaches as an autonomous sublight vessel.</li>
+            <li><b>Engineering hull</b> houses the matter/antimatter reaction assembly, the warp nacelle pylons, and the main navigational deflector.</li>
+            <li><b>Interconnecting dorsal</b> ("the neck") links the two hulls and routes power, turbolifts, and personnel between sections.</li>
+          </ul>
+        </div>
+        <div class="lcars-footer">
+          <div class="foot-block reveal-bar"></div>
+          <div class="foot-fill reveal-bar"></div>
+          <span class="foot-tag reveal">REF 1701-D · 05</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 06 — WARP PROPULSION
+       ===================================================================== -->
+  <section class="slide" aria-label="Warp propulsion">
+    <div class="slide-content">
+      <div class="lcars">
+        <div class="lcars-sidebar">
+          <div class="bar cap reveal-bar">06</div>
+          <div class="bar mid reveal-bar">WARP</div>
+          <div class="bar mid2 reveal-bar">M/AM</div>
+          <div class="bar foot reveal-bar">FTL</div>
+        </div>
+        <div class="lcars-header">
+          <div class="header-fill reveal-bar">WARP PROPULSION SYSTEM</div>
+          <div class="header-block reveal-bar"></div>
+        </div>
+        <div class="lcars-main">
+          <h2 class="lcars-h2 reveal">Matter / Antimatter Drive</h2>
+          <div class="split lean">
+            <p class="body reveal">
+              Faster-than-light travel is driven by a controlled matter/antimatter reaction.
+              Deuterium and antideuterium streams meet in the reaction chamber, their annihilation
+              focused and regulated by a <b>dilithium</b> crystal lattice. The resulting plasma
+              is channeled to the warp field coils in the nacelles, generating the subspace field
+              that propels the ship.
+            </p>
+            <div class="readout reveal">
+              <div class="row"><span class="k">Reaction</span><span class="v">Matter / Antimatter</span></div>
+              <div class="row"><span class="k">Regulator</span><span class="v">Dilithium crystal</span></div>
+              <div class="row"><span class="k">Cruise Velocity</span><span class="v hi">Warp 6</span></div>
+              <div class="row"><span class="k">Maximum Sustainable</span><span class="v">Warp 9.2</span></div>
+              <div class="row"><span class="k">Maximum (12 hr limit)</span><span class="v hi">Warp 9.6</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="lcars-footer">
+          <div class="foot-block reveal-bar"></div>
+          <div class="foot-fill reveal-bar"></div>
+          <span class="foot-tag reveal">REF 1701-D · 06</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 07 — IMPULSE PROPULSION & POWER
+       ===================================================================== -->
+  <section class="slide" aria-label="Impulse propulsion and power systems">
+    <div class="slide-content">
+      <div class="lcars">
+        <div class="lcars-sidebar">
+          <div class="bar cap reveal-bar">07</div>
+          <div class="bar mid reveal-bar">IMP</div>
+          <div class="bar mid2 reveal-bar">PWR</div>
+          <div class="bar foot reveal-bar">SUB</div>
+        </div>
+        <div class="lcars-header">
+          <div class="header-fill reveal-bar">IMPULSE · POWER SYSTEMS</div>
+          <div class="header-block reveal-bar"></div>
+        </div>
+        <div class="lcars-main">
+          <h2 class="lcars-h2 reveal">Sublight &amp; Power Generation</h2>
+          <ul class="bullet-list reveal">
+            <li><b>Impulse engines</b> use fusion reactors driving high-energy plasma through exhaust drivers for sublight propulsion and maneuvering.</li>
+            <li><b>Three impulse engine assemblies</b> — two in the saucer, one in the engineering hull — allow independent thrust after saucer separation.</li>
+            <li><b>Fusion reactors</b> supply baseline electrical power; the warp core remains the primary EPS source for high-demand systems.</li>
+            <li><b>EPS conduits</b> (Electro-Plasma System) distribute power shipwide, with redundant routing for combat survivability.</li>
+          </ul>
+        </div>
+        <div class="lcars-footer">
+          <div class="foot-block reveal-bar"></div>
+          <div class="foot-fill reveal-bar"></div>
+          <span class="foot-tag reveal">REF 1701-D · 07</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 08 — COMPUTER CORE
+       ===================================================================== -->
+  <section class="slide" aria-label="Computer core">
+    <div class="slide-content">
+      <div class="lcars">
+        <div class="lcars-sidebar">
+          <div class="bar cap reveal-bar">08</div>
+          <div class="bar mid reveal-bar">CORE</div>
+          <div class="bar mid2 reveal-bar">ISO</div>
+          <div class="bar foot reveal-bar">AI</div>
+        </div>
+        <div class="lcars-header">
+          <div class="header-fill reveal-bar">COMPUTER CORE · LCARS</div>
+          <div class="header-block reveal-bar"></div>
+        </div>
+        <div class="lcars-main">
+          <h2 class="lcars-h2 reveal">Isolinear Computer Core</h2>
+          <div class="split">
+            <div class="readout reveal">
+              <div class="row"><span class="k">Storage Medium</span><span class="v hi">Isolinear chips</span></div>
+              <div class="row"><span class="k">Bio-neural Gel?</span><span class="v">No — pre-Intrepid</span></div>
+              <div class="row"><span class="k">Redundant Cores</span><span class="v hi">3 independent</span></div>
+              <div class="row"><span class="k">Interface</span><span class="v">LCARS</span></div>
+              <div class="row"><span class="k">Processing</span><span class="v">Subspace field assist</span></div>
+            </div>
+            <p class="body reveal">
+              The Enterprise-D predates bio-neural gel packs and instead relies on
+              <b>isolinear optical chip</b> storage. Three redundant cores — two in the
+              saucer, one in the engineering hull — provide fault tolerance. All access
+              is mediated by <b>LCARS</b>, the Library Computer Access/Retrieval System,
+              whose color-coded touch panels define the ship's interface.
+            </p>
+          </div>
+        </div>
+        <div class="lcars-footer">
+          <div class="foot-block reveal-bar"></div>
+          <div class="foot-fill reveal-bar"></div>
+          <span class="foot-tag reveal">REF 1701-D · 08</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 09 — DEFLECTOR SHIELDS
+       ===================================================================== -->
+  <section class="slide" aria-label="Deflector shields">
+    <div class="slide-content">
+      <div class="lcars">
+        <div class="lcars-sidebar">
+          <div class="bar cap reveal-bar">09</div>
+          <div class="bar mid reveal-bar">DEF</div>
+          <div class="bar mid2 reveal-bar">SHLD</div>
+          <div class="bar foot reveal-bar">SS</div>
+        </div>
+        <div class="lcars-header">
+          <div class="header-fill reveal-bar">DEFENSIVE SYSTEMS · SHIELDS</div>
+          <div class="header-block reveal-bar"></div>
+        </div>
+        <div class="lcars-main">
+          <h2 class="lcars-h2 reveal">Deflector Shield Grid</h2>
+          <div class="split lean">
+            <p class="body reveal">
+              The primary defense is a <b>multi-layer deflector shield</b> — a focused
+              graviton field projected by shield generators across the hull. The shields
+              absorb and disperse incoming energy and kinetic threats. Operators can
+              modulate shield frequency and reinforce specific arcs, balancing coverage
+              against power draw from the warp core.
+            </p>
+            <div class="readout reveal">
+              <div class="row"><span class="k">Type</span><span class="v hi">Graviton deflector</span></div>
+              <div class="row"><span class="k">Coverage</span><span class="v">Full spheroid envelope</span></div>
+              <div class="row"><span class="k">Control</span><span class="v">Frequency modulation</span></div>
+              <div class="row"><span class="k">Reinforcement</span><span class="v">Arc-selectable</span></div>
+              <div class="row"><span class="k">Power Source</span><span class="v">EPS / warp core</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="lcars-footer">
+          <div class="foot-block reveal-bar"></div>
+          <div class="foot-fill reveal-bar"></div>
+          <span class="foot-tag reveal">REF 1701-D · 09</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 10 — PHASER ARRAYS
+       ===================================================================== -->
+  <section class="slide" aria-label="Phaser arrays">
+    <div class="slide-content">
+      <div class="lcars">
+        <div class="lcars-sidebar">
+          <div class="bar cap reveal-bar">10</div>
+          <div class="bar mid reveal-bar">PHSR</div>
+          <div class="bar mid2 reveal-bar">TY-X</div>
+          <div class="bar foot reveal-bar">EM</div>
+        </div>
+        <div class="lcars-header">
+          <div class="header-fill reveal-bar">PHASER ARRAYS · TYPE-X</div>
+          <div class="header-block reveal-bar"></div>
+        </div>
+        <div class="lcars-main">
+          <h2 class="lcars-h2 reveal">Type-X Phaser Banks</h2>
+          <div class="panel-grid cols-3">
+            <div class="stat reveal"><span class="label">Emitter Type</span><span class="value" style="font-size:var(--h3-size)">Type-X</span><span class="unit">HIGHEST STARSHIP-GRADE</span></div>
+            <div class="stat reveal"><span class="label">Array Banks</span><span class="value">12</span><span class="unit">DISTRIBUTED STRIPS</span></div>
+            <div class="stat reveal"><span class="label">Architecture</span><span class="value" style="font-size:var(--h3-size)">Strip</span><span class="unit">SEGMENTED EMITTERS</span></div>
+          </div>
+          <ul class="bullet-list reveal">
+            <li><b>Phaser strips</b> fire a continuous beam by relaying energy emitter-to-emitter, allowing rapid target tracking across the array.</li>
+            <li>Arrays wrap the saucer rim, engineering hull, and nacelle pylons for near-total firing coverage.</li>
+          </ul>
+        </div>
+        <div class="lcars-footer">
+          <div class="foot-block reveal-bar"></div>
+          <div class="foot-fill reveal-bar"></div>
+          <span class="foot-tag reveal">REF 1701-D · 10</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 11 — PHOTON TORPEDOES
+       ===================================================================== -->
+  <section class="slide" aria-label="Photon torpedoes">
+    <div class="slide-content">
+      <div class="lcars">
+        <div class="lcars-sidebar">
+          <div class="bar cap reveal-bar">11</div>
+          <div class="bar mid reveal-bar">TORP</div>
+          <div class="bar mid2 reveal-bar">M/AM</div>
+          <div class="bar foot reveal-bar">ORD</div>
+        </div>
+        <div class="lcars-header">
+          <div class="header-fill reveal-bar">PHOTON TORPEDOES · ORDNANCE</div>
+          <div class="header-block reveal-bar"></div>
+        </div>
+        <div class="lcars-main">
+          <h2 class="lcars-h2 reveal">Photon Torpedo System</h2>
+          <div class="split">
+            <div class="readout reveal">
+              <div class="row"><span class="k">Warhead</span><span class="v hi">Matter / antimatter</span></div>
+              <div class="row"><span class="k">Launchers</span><span class="v">Fore &amp; aft tubes</span></div>
+              <div class="row"><span class="k">Firing Mode</span><span class="v hi">Burst-fire capable</span></div>
+              <div class="row"><span class="k">Magazine Capacity</span><span class="v hi">~250 casings</span></div>
+              <div class="row"><span class="k">Guidance</span><span class="v">Independent sublight</span></div>
+            </div>
+            <p class="body reveal">
+              Photon torpedoes carry a measured charge of antideuterium suspended away from
+              a matter charge until detonation. The Enterprise-D can launch them singly or in
+              rapid <b>burst-fire</b> spreads of up to ten casings, and carries a standard
+              loadout of roughly <b>250</b> torpedoes.
+            </p>
+          </div>
+        </div>
+        <div class="lcars-footer">
+          <div class="foot-block reveal-bar"></div>
+          <div class="foot-fill reveal-bar"></div>
+          <span class="foot-tag reveal">REF 1701-D · 11</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 12 — SAUCER SEPARATION
+       ===================================================================== -->
+  <section class="slide" aria-label="Saucer separation">
+    <div class="slide-content">
+      <div class="lcars">
+        <div class="lcars-sidebar">
+          <div class="bar cap reveal-bar">12</div>
+          <div class="bar mid reveal-bar">SEP</div>
+          <div class="bar mid2 reveal-bar">MVS</div>
+          <div class="bar foot reveal-bar">2X</div>
+        </div>
+        <div class="lcars-header">
+          <div class="header-fill reveal-bar">SAUCER SEPARATION · MVS</div>
+          <div class="header-block reveal-bar"></div>
+        </div>
+        <div class="lcars-main">
+          <h2 class="lcars-h2 reveal">Multi-Vector Separation</h2>
+          <div class="split lean">
+            <p class="body reveal">
+              The Galaxy class can split into two independent vessels. The <b>saucer
+              section</b> detaches to carry non-combatants to safety on impulse power,
+              while the <b>battle section</b> (engineering hull + nacelles) retains warp
+              drive and the primary weapons. The maneuver is most often used to shield
+              civilians before a tactical engagement; reconnection requires precise
+              docking at sublight.
+            </p>
+            <div class="readout reveal">
+              <div class="row"><span class="k">Resulting Vessels</span><span class="v hi">2 autonomous</span></div>
+              <div class="row"><span class="k">Saucer Drive</span><span class="v">Impulse only</span></div>
+              <div class="row"><span class="k">Battle Section</span><span class="v hi">Retains warp</span></div>
+              <div class="row"><span class="k">Primary Use</span><span class="v">Civilian protection</span></div>
+              <div class="row"><span class="k">Reconnection</span><span class="v">Sublight docking</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="lcars-footer">
+          <div class="foot-block reveal-bar"></div>
+          <div class="foot-fill reveal-bar"></div>
+          <span class="foot-tag reveal">REF 1701-D · 12</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 13 — SENSORS / DEFLECTOR DISH
+       ===================================================================== -->
+  <section class="slide" aria-label="Sensors and deflector dish">
+    <div class="slide-content">
+      <div class="lcars">
+        <div class="lcars-sidebar">
+          <div class="bar cap reveal-bar">13</div>
+          <div class="bar mid reveal-bar">SENS</div>
+          <div class="bar mid2 reveal-bar">NAV</div>
+          <div class="bar foot reveal-bar">DISH</div>
+        </div>
+        <div class="lcars-header">
+          <div class="header-fill reveal-bar">SENSORS · NAVIGATIONAL DEFLECTOR</div>
+          <div class="header-block reveal-bar"></div>
+        </div>
+        <div class="lcars-main">
+          <h2 class="lcars-h2 reveal">Sensors &amp; Main Deflector</h2>
+          <ul class="bullet-list reveal">
+            <li><b>Navigational deflector dish</b> on the engineering hull sweeps interstellar debris and microparticles from the flight path at warp.</li>
+            <li><b>Long-range sensors</b> scan light-years ahead across subspace, EM, gravimetric, and particle bands for exploration and threat detection.</li>
+            <li><b>Lateral sensor arrays</b> ring both hulls for short-range navigation, tactical tracking, and science telemetry.</li>
+            <li>The deflector dish doubles as a <b>high-energy emitter</b>, repurposable for graviton pulses and other engineering improvisations.</li>
+          </ul>
+        </div>
+        <div class="lcars-footer">
+          <div class="foot-block reveal-bar"></div>
+          <div class="foot-fill reveal-bar"></div>
+          <span class="foot-tag reveal">REF 1701-D · 13</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 14 — NOTABLE FACILITIES
+       ===================================================================== -->
+  <section class="slide" aria-label="Notable facilities">
+    <div class="slide-content">
+      <div class="lcars">
+        <div class="lcars-sidebar">
+          <div class="bar cap reveal-bar">14</div>
+          <div class="bar mid reveal-bar">FAC</div>
+          <div class="bar mid2 reveal-bar">LIFE</div>
+          <div class="bar foot reveal-bar">DECK</div>
+        </div>
+        <div class="lcars-header">
+          <div class="header-fill reveal-bar">NOTABLE FACILITIES · HABITAT</div>
+          <div class="header-block reveal-bar"></div>
+        </div>
+        <div class="lcars-main">
+          <h2 class="lcars-h2 reveal">Notable Onboard Facilities</h2>
+          <div class="panel-grid cols-3">
+            <div class="stat reveal">
+              <span class="label">Holodecks</span>
+              <span class="value" style="font-size:var(--h3-size)">Multiple</span>
+              <span class="unit">Holographic + forcefield + replicated matter</span>
+            </div>
+            <div class="stat reveal">
+              <span class="label">Sickbay · Medical</span>
+              <span class="value" style="font-size:var(--h3-size)">Full Ward</span>
+              <span class="unit">Biobeds · surgery · medical labs</span>
+            </div>
+            <div class="stat reveal">
+              <span class="label">Ten-Forward</span>
+              <span class="value" style="font-size:var(--h3-size)">Deck 10</span>
+              <span class="unit">Forward saucer lounge &amp; social hub</span>
+            </div>
+          </div>
+          <p class="body reveal" style="margin-top:var(--element-gap)">
+            These facilities reflect the Galaxy class mandate: a ship built not only to fight
+            and explore, but to <b>live aboard</b> for years at a time.
+          </p>
+        </div>
+        <div class="lcars-footer">
+          <div class="foot-block reveal-bar"></div>
+          <div class="foot-fill reveal-bar"></div>
+          <span class="foot-tag reveal">REF 1701-D · 14</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       SLIDE 15 — CLOSING READOUT
+       ===================================================================== -->
+  <section class="slide" aria-label="Closing readout">
+    <div class="slide-content">
+      <div class="lcars">
+        <div class="lcars-sidebar">
+          <div class="bar cap reveal-bar">15</div>
+          <div class="bar mid reveal-bar">EOF</div>
+          <div class="bar mid2 reveal-bar">SYS</div>
+          <div class="bar foot reveal-bar">END</div>
+        </div>
+        <div class="lcars-header">
+          <div class="header-fill reveal-bar">ARCHIVE SUMMARY · END OF FILE</div>
+          <div class="header-block reveal-bar"></div>
+        </div>
+        <div class="lcars-main">
+          <p class="eyebrow reveal"><span class="status-dot"></span>FILE 1701-D · READOUT COMPLETE</p>
+          <h2 class="lcars-h2 reveal">USS Enterprise NCC-1701-D</h2>
+          <p class="subtitle reveal">Galaxy-Class Flagship · "Let's see what's out there."</p>
+          <div class="panel-grid cols-4" style="margin-top:var(--element-gap)">
+            <div class="stat reveal"><span class="label">Length</span><span class="value" style="font-size:var(--h3-size)">642.5 m</span></div>
+            <div class="stat reveal"><span class="label">Crew</span><span class="value" style="font-size:var(--h3-size)">~1,014</span></div>
+            <div class="stat reveal"><span class="label">Max Warp</span><span class="value" style="font-size:var(--h3-size)">9.6</span></div>
+            <div class="stat reveal"><span class="label">Decks</span><span class="value" style="font-size:var(--h3-size)">42</span></div>
+          </div>
+          <p class="note reveal" style="margin-top:var(--element-gap)">END OF FILE · STARFLEET TECHNICAL ARCHIVE · LCARS 47-ALPHA</p>
+        </div>
+        <div class="lcars-footer">
+          <div class="foot-block reveal-bar"></div>
+          <div class="foot-fill reveal-bar"></div>
+          <span class="foot-tag reveal">REF 1701-D · 15 · EOF</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    /* ===========================================
+       SLIDE PRESENTATION CONTROLLER
+       Keyboard / touch / wheel nav, progress bar,
+       nav dots, and IntersectionObserver reveals.
+       Zero dependencies, all inline.
+       =========================================== */
+    class SlidePresentation {
+      constructor() {
+        this.slides = Array.from(document.querySelectorAll(".slide"));
+        this.currentSlide = 0;
+        this.isScrolling = false;
+
+        this.progressBar = document.querySelector(".progress-bar");
+        this.navDotsContainer = document.querySelector(".nav-dots");
+
+        this.setupIntersectionObserver();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupWheelNav();
+        this.setupProgressBar();
+        this.setupNavDots();
+      }
+
+      /* --- Reveal animations: add .visible when a slide is centered --- */
+      setupIntersectionObserver() {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+                // Track current slide for nav dots / progress
+                const idx = this.slides.indexOf(entry.target);
+                if (idx !== -1) {
+                  this.currentSlide = idx;
+                  this.updateProgress();
+                  this.updateNavDots();
+                }
+              }
+            });
+          },
+          { threshold: 0.55 }
+        );
+        this.slides.forEach((s) => observer.observe(s));
+      }
+
+      /* --- Programmatic navigation --- */
+      goToSlide(index) {
+        index = Math.max(0, Math.min(index, this.slides.length - 1));
+        this.currentSlide = index;
+        this.slides[index].scrollIntoView({ behavior: "smooth" });
+      }
+      next() { this.goToSlide(this.currentSlide + 1); }
+      prev() { this.goToSlide(this.currentSlide - 1); }
+
+      /* --- Keyboard: arrows, space, page up/down, home/end --- */
+      setupKeyboardNav() {
+        document.addEventListener("keydown", (e) => {
+          switch (e.key) {
+            case "ArrowRight":
+            case "ArrowDown":
+            case " ":
+            case "PageDown":
+              e.preventDefault();
+              this.next();
+              break;
+            case "ArrowLeft":
+            case "ArrowUp":
+            case "PageUp":
+              e.preventDefault();
+              this.prev();
+              break;
+            case "Home":
+              e.preventDefault();
+              this.goToSlide(0);
+              break;
+            case "End":
+              e.preventDefault();
+              this.goToSlide(this.slides.length - 1);
+              break;
+          }
+        });
+      }
+
+      /* --- Touch / swipe (vertical) --- */
+      setupTouchNav() {
+        let startY = 0;
+        let startX = 0;
+        document.addEventListener("touchstart", (e) => {
+          startY = e.touches[0].clientY;
+          startX = e.touches[0].clientX;
+        }, { passive: true });
+        document.addEventListener("touchend", (e) => {
+          const dy = e.changedTouches[0].clientY - startY;
+          const dx = e.changedTouches[0].clientX - startX;
+          // Require a deliberate swipe and ignore mostly-horizontal scrolls
+          if (Math.abs(dy) > 50 && Math.abs(dy) > Math.abs(dx)) {
+            if (dy < 0) this.next();
+            else this.prev();
+          }
+        }, { passive: true });
+      }
+
+      /* --- Mouse wheel — debounced one-slide-per-gesture --- */
+      setupWheelNav() {
+        document.addEventListener("wheel", (e) => {
+          if (this.isScrolling) return;
+          if (Math.abs(e.deltaY) < 20) return;
+          this.isScrolling = true;
+          if (e.deltaY > 0) this.next();
+          else this.prev();
+          setTimeout(() => { this.isScrolling = false; }, 750);
+        }, { passive: true });
+      }
+
+      /* --- Progress bar across the top --- */
+      setupProgressBar() { this.updateProgress(); }
+      updateProgress() {
+        const pct = this.slides.length > 1
+          ? (this.currentSlide / (this.slides.length - 1)) * 100
+          : 100;
+        if (this.progressBar) this.progressBar.style.width = pct + "%";
+      }
+
+      /* --- Nav dots (right edge) ---
+         IMPORTANT: clear the container before building. If this file's
+         outerHTML were ever captured while dots existed, re-opening it
+         would otherwise append a duplicate set on top of the existing ones. */
+      setupNavDots() {
+        if (!this.navDotsContainer) return;
+        this.navDotsContainer.innerHTML = "";
+        this.slides.forEach((_, i) => {
+          const dot = document.createElement("button");
+          dot.setAttribute("aria-label", "Go to slide " + (i + 1));
+          if (i === this.currentSlide) dot.classList.add("active");
+          dot.addEventListener("click", () => this.goToSlide(i));
+          this.navDotsContainer.appendChild(dot);
+        });
+      }
+      updateNavDots() {
+        if (!this.navDotsContainer) return;
+        Array.from(this.navDotsContainer.children).forEach((dot, i) => {
+          dot.classList.toggle("active", i === this.currentSlide);
+        });
+      }
+    }
+
+    // Boot the controller once the DOM is ready.
+    new SlidePresentation();
+  </script>
+</body>
+</html>

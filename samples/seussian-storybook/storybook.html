@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bo the Wibblewog &amp; the Zibbentine Zatch</title>
+
+    <!-- Fonts: rounded, friendly display + readable rounded body (Google Fonts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@400;500;600;700&family=Baloo+2:wght@500;600;700&display=swap"
+        crossorigin="anonymous"
+    />
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES (THEME)
+           Construction-paper whimsy. Change these to
+           retune the whole storybook's look.
+           =========================================== */
+        :root {
+            /* Colors — warm cream paper + fat primary crayon colors */
+            --paper:        #fdf3df;   /* warm cream background     */
+            --paper-deep:   #f6e6c5;   /* slightly deeper cream     */
+            --ink:          #3a2f24;   /* friendly soft brown-black */
+            --red:          #ff5a4d;   /* tomato red                */
+            --yellow:       #ffcf3f;   /* sunshine yellow           */
+            --blue:         #4ca7e0;   /* sky blue                  */
+            --green:        #5fbf6a;   /* grass green               */
+            --purple:       #a87fd1;   /* grape purple              */
+            --orange:       #ff944d;   /* pumpkin orange            */
+            --pink:         #ff8fb3;   /* bubblegum pink            */
+
+            /* Typography — MUST use clamp() everywhere */
+            --font-display: "Chewy", "Fredoka", cursive;
+            --font-stanza:  "Fredoka", "Baloo 2", sans-serif;
+            --font-body:    "Baloo 2", "Fredoka", sans-serif;
+
+            --title-size:    clamp(2.2rem, 8vw, 6rem);
+            --h2-size:       clamp(1.6rem, 5vw, 3.5rem);
+            --stanza-size:   clamp(1.15rem, 3.4vw, 2.6rem);
+            --body-size:     clamp(0.85rem, 1.8vw, 1.25rem);
+            --pagenum-size:  clamp(2rem, 6vw, 4.5rem);
+
+            /* Spacing — MUST use clamp() */
+            --slide-padding: clamp(1.25rem, 5vw, 4rem);
+            --content-gap:   clamp(0.75rem, 2.5vw, 2rem);
+            --element-gap:   clamp(0.4rem, 1.2vw, 1rem);
+
+            /* Animation — bouncy / springy easings */
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);   /* overshoot pop */
+            --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+            --duration:    0.7s;
+        }
+
+        /* ===========================================
+           BASE STYLES
+           =========================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--ink);
+            background: var(--paper);
+        }
+
+        /* ===========================================
+           VIEWPORT FITTING: MANDATORY BASE STYLES
+           (Full contents of viewport-base.css — verbatim)
+           These styles ensure slides fit exactly in the viewport.
+           =========================================== */
+
+        /* 1. Lock html/body to viewport */
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        /* 2. Each slide = exact viewport height */
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh; /* Dynamic viewport height for mobile browsers */
+            overflow: hidden; /* CRITICAL: Prevent ANY overflow */
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* 3. Content container with flex for centering */
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden; /* Double-protection against overflow */
+            padding: var(--slide-padding);
+        }
+
+        /* 4. ALL typography uses clamp() for responsive scaling */
+        :root {
+            /* Titles scale from mobile to desktop */
+            --title-size: clamp(1.5rem, 5vw, 4rem);
+            --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+            --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+
+            /* Body text */
+            --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+            --small-size: clamp(0.65rem, 1vw, 0.875rem);
+
+            /* Spacing scales with viewport */
+            --slide-padding: clamp(1rem, 4vw, 4rem);
+            --content-gap: clamp(0.5rem, 2vw, 2rem);
+            --element-gap: clamp(0.25rem, 1vw, 1rem);
+        }
+
+        /* 5. Cards/containers use viewport-relative max sizes */
+        .card, .container, .content-box {
+            max-width: min(90vw, 1000px);
+            max-height: min(80vh, 700px);
+        }
+
+        /* 6. Lists auto-scale with viewport */
+        .feature-list, .bullet-list {
+            gap: clamp(0.4rem, 1vh, 1rem);
+        }
+
+        .feature-list li, .bullet-list li {
+            font-size: var(--body-size);
+            line-height: 1.4;
+        }
+
+        /* 7. Grids adapt to available space */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+
+        /* 8. Images constrained to viewport */
+        img, .image-container {
+            max-width: 100%;
+            max-height: min(50vh, 400px);
+            object-fit: contain;
+        }
+
+        /* ===========================================
+           RESPONSIVE BREAKPOINTS
+           Aggressive scaling for smaller viewports
+           =========================================== */
+
+        /* Short viewports (< 700px height) */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 3vw, 2rem);
+                --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+                --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+                --h2-size: clamp(1rem, 3vw, 1.75rem);
+            }
+        }
+
+        /* Very short viewports (< 600px height) */
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+                --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+                --title-size: clamp(1.1rem, 4vw, 2rem);
+                --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+            }
+
+            /* Hide non-essential elements */
+            .nav-dots, .keyboard-hint, .decorative {
+                display: none;
+            }
+        }
+
+        /* Extremely short (landscape phones, < 500px height) */
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.4rem, 2vw, 1rem);
+                --title-size: clamp(1rem, 3.5vw, 1.5rem);
+                --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+                --body-size: clamp(0.65rem, 1vw, 0.85rem);
+            }
+        }
+
+        /* Narrow viewports (< 600px width) */
+        @media (max-width: 600px) {
+            :root {
+                --title-size: clamp(1.25rem, 7vw, 2.5rem);
+            }
+
+            /* Stack grids vertically */
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===========================================
+           REDUCED MOTION
+           Respect user preferences
+           =========================================== */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+
+            html {
+                scroll-behavior: auto;
+            }
+        }
+        /* --- END viewport-base.css --- */
+
+        /* ===========================================
+           STORYBOOK TYPE OVERRIDES
+           Re-assert the playful clamp() sizes that the
+           pasted base file reset above (load order!).
+           =========================================== */
+        :root {
+            --title-size:    clamp(2.2rem, 8vw, 6rem);
+            --h2-size:       clamp(1.6rem, 5vw, 3.5rem);
+            --stanza-size:   clamp(1.15rem, 3.4vw, 2.6rem);
+            --body-size:     clamp(0.85rem, 1.8vw, 1.25rem);
+            --pagenum-size:  clamp(2rem, 6vw, 4.5rem);
+            --slide-padding: clamp(1.25rem, 5vw, 4rem);
+            --content-gap:   clamp(0.75rem, 2.5vw, 2rem);
+        }
+        @media (max-height: 700px) {
+            :root {
+                --stanza-size:  clamp(1.05rem, 3vw, 2rem);
+                --pagenum-size: clamp(1.6rem, 5vw, 3rem);
+            }
+        }
+        @media (max-height: 600px) {
+            :root {
+                --stanza-size:  clamp(0.95rem, 2.6vw, 1.6rem);
+                --title-size:   clamp(1.6rem, 6vw, 3rem);
+            }
+        }
+
+        /* ===========================================
+           PAPER TEXTURE & PAGE FRAME
+           Subtle layered radial wash for warmth + a soft
+           rounded "page" feel inside each slide.
+           =========================================== */
+        .slide {
+            background:
+                radial-gradient(ellipse at 18% 12%, rgba(255,255,255,0.55) 0%, transparent 45%),
+                radial-gradient(ellipse at 82% 88%, rgba(246,230,197,0.7) 0%, transparent 55%),
+                var(--paper);
+        }
+
+        .slide-content {
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ===========================================
+           STANZA TEXT — big, centered, picture-book feel
+           =========================================== */
+        .stanza {
+            font-family: var(--font-stanza);
+            font-weight: 600;
+            font-size: var(--stanza-size);
+            line-height: 1.35;
+            max-width: min(92vw, 900px);
+            text-wrap: balance;
+            letter-spacing: 0.2px;
+        }
+        .stanza .pop {
+            font-family: var(--font-display);
+            color: var(--red);
+            display: inline-block;
+        }
+        .stanza .pop.blue   { color: var(--blue); }
+        .stanza .pop.green  { color: var(--green); }
+        .stanza .pop.purple { color: var(--purple); }
+        .stanza .pop.orange { color: var(--orange); }
+        .stanza .pop.pink   { color: var(--pink); }
+
+        /* Soft "card" the stanza sits on, like collaged paper */
+        .stanza-card {
+            background: rgba(255,255,255,0.66);
+            border: clamp(2px, 0.5vw, 5px) dashed rgba(58,47,36,0.18);
+            border-radius: clamp(18px, 3vw, 38px);
+            padding: clamp(1rem, 3.5vw, 2.6rem) clamp(1.25rem, 4vw, 3rem);
+            box-shadow: 0 clamp(6px,1.5vw,16px) clamp(14px,3vw,34px) rgba(58,47,36,0.10);
+            max-width: min(92vw, 920px);
+        }
+
+        /* ===========================================
+           TITLE PAGE
+           =========================================== */
+        .title-slide .slide-content { gap: var(--content-gap); }
+        .booktitle {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            line-height: 1.0;
+            color: var(--red);
+            text-shadow:
+                clamp(2px,0.5vw,5px) clamp(2px,0.5vw,5px) 0 var(--yellow),
+                calc(-1 * clamp(1px,0.3vw,3px)) calc(-1 * clamp(1px,0.3vw,3px)) 0 var(--blue);
+            text-wrap: balance;
+        }
+        .booktitle .l2 { color: var(--blue);
+            text-shadow:
+                clamp(2px,0.5vw,5px) clamp(2px,0.5vw,5px) 0 var(--green),
+                calc(-1 * clamp(1px,0.3vw,3px)) calc(-1 * clamp(1px,0.3vw,3px)) 0 var(--pink);
+        }
+        .subtitle {
+            font-family: var(--font-stanza);
+            font-weight: 500;
+            font-size: var(--h2-size);
+            color: var(--ink);
+        }
+        .byline {
+            font-family: var(--font-body);
+            font-size: var(--body-size);
+            color: rgba(58,47,36,0.7);
+            letter-spacing: 1px;
+        }
+
+        /* ===========================================
+           THE END PAGE
+           =========================================== */
+        .endword {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            color: var(--purple);
+            text-shadow:
+                clamp(2px,0.5vw,5px) clamp(2px,0.5vw,5px) 0 var(--yellow),
+                calc(-1 * clamp(1px,0.3vw,3px)) calc(-1 * clamp(1px,0.3vw,3px)) 0 var(--pink);
+        }
+
+        /* ===========================================
+           BIG FRIENDLY PAGE NUMBER (bottom corner)
+           A fat crayon circle with the page number.
+           =========================================== */
+        .page-num {
+            position: absolute;
+            bottom: clamp(0.75rem, 2.5vw, 2rem);
+            right: clamp(0.75rem, 2.5vw, 2rem);
+            width: var(--pagenum-size);
+            height: var(--pagenum-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: calc(var(--pagenum-size) * 0.5);
+            color: #fff;
+            background: var(--blue);
+            border-radius: 50%;
+            box-shadow: 0 clamp(3px,0.8vw,7px) 0 rgba(58,47,36,0.22);
+            z-index: 3;
+            transform: rotate(-6deg);
+        }
+        /* Rotate the page-number colors page to page */
+        .slide:nth-child(3n)   .page-num { background: var(--green); }
+        .slide:nth-child(3n+1) .page-num { background: var(--orange); }
+        .slide:nth-child(3n+2) .page-num { background: var(--purple); }
+
+        /* ===========================================
+           CSS / SVG SCENERY (decorative, hidden when tiny)
+           Fat rounded blobs + simple SVG critters & clouds.
+           =========================================== */
+        .decor {
+            position: absolute;
+            z-index: 1;
+            pointer-events: none;
+        }
+        /* Rounded "hill" blobs anchored to bottom */
+        .hill {
+            position: absolute;
+            bottom: calc(-1 * clamp(2rem, 6vw, 5rem));
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Floating clouds */
+        .cloud {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 50%;
+            z-index: 1;
+            opacity: 0.9;
+            box-shadow:
+                clamp(20px,4vw,46px) clamp(6px,1.4vw,16px) 0 calc(-1 * clamp(4px,1vw,10px)) #fff,
+                calc(-1 * clamp(20px,4vw,46px)) clamp(8px,1.6vw,18px) 0 calc(-1 * clamp(6px,1.4vw,14px)) #fff;
+        }
+
+        /* Little SVG creatures sit in corners */
+        .critter {
+            position: absolute;
+            z-index: 2;
+            width: clamp(80px, 16vw, 230px);
+            height: auto;
+            pointer-events: none;
+        }
+
+        /* Hide busy scenery on very short screens (per base rules) */
+        @media (max-height: 600px) {
+            .decor, .hill, .cloud, .critter { display: none; }
+        }
+
+        /* ===========================================
+           REVEAL / ENTRANCE ANIMATIONS — springy pop
+           Triggered by .visible (added by JS observer).
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(34px) scale(0.94);
+            transition:
+                opacity var(--duration) var(--ease-out),
+                transform var(--duration) var(--ease-bounce);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        /* Stagger children for a sequential page-build */
+        .slide.visible .reveal:nth-child(1) { transition-delay: 0.10s; }
+        .slide.visible .reveal:nth-child(2) { transition-delay: 0.25s; }
+        .slide.visible .reveal:nth-child(3) { transition-delay: 0.40s; }
+        .slide.visible .reveal:nth-child(4) { transition-delay: 0.55s; }
+
+        /* A gentler "pop in" used for the title word */
+        .reveal-pop {
+            opacity: 0;
+            transform: scale(0.4) rotate(-8deg);
+            transition:
+                opacity 0.5s var(--ease-out),
+                transform 0.8s var(--ease-bounce);
+        }
+        .slide.visible .reveal-pop { opacity: 1; transform: scale(1) rotate(0); }
+
+        /* Critters bounce in from the side */
+        .reveal-side {
+            opacity: 0;
+            transform: translateX(60px) rotate(10deg);
+            transition: opacity 0.6s var(--ease-out), transform 0.9s var(--ease-bounce);
+            transition-delay: 0.5s;
+        }
+        .slide.visible .reveal-side { opacity: 1; transform: translateX(0) rotate(0); }
+
+        /* ===========================================
+           IDLE LOOPS — gentle bob & wobble (decorative)
+           =========================================== */
+        @keyframes bob   { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-14px); } }
+        @keyframes drift { 0%{ transform: translateX(0); } 100%{ transform: translateX(40px); } }
+        @keyframes wobble{ 0%,100%{ transform: rotate(-4deg);} 50%{ transform: rotate(4deg);} }
+
+        .slide.visible .bob    { animation: bob 4s ease-in-out infinite; }
+        .slide.visible .cloud  { animation: drift 14s ease-in-out infinite alternate; }
+        .slide.visible .wobble { animation: wobble 5s ease-in-out infinite; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .bob, .cloud, .wobble { animation: none !important; }
+        }
+
+        /* ===========================================
+           PROGRESS BAR (top) — fat rounded crayon stripe
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: clamp(5px, 1vw, 9px);
+            width: 0%;
+            background: linear-gradient(90deg, var(--red), var(--orange), var(--yellow), var(--green), var(--blue));
+            border-radius: 0 6px 6px 0;
+            z-index: 9999;
+            transition: width 0.25s var(--ease-out);
+        }
+
+        /* ===========================================
+           NAV DOTS (right side) — little paper buttons
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: clamp(0.4rem, 1.5vw, 1.1rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.4rem, 1vw, 0.7rem);
+            z-index: 9999;
+        }
+        .nav-dots button {
+            width: clamp(10px, 1.6vw, 15px);
+            height: clamp(10px, 1.6vw, 15px);
+            border-radius: 50%;
+            border: 2px solid rgba(58,47,36,0.35);
+            background: rgba(255,255,255,0.7);
+            cursor: pointer;
+            padding: 0;
+            transition: transform 0.25s var(--ease-bounce), background 0.25s;
+        }
+        .nav-dots button:hover { transform: scale(1.35); }
+        .nav-dots button.active {
+            background: var(--red);
+            border-color: var(--red);
+            transform: scale(1.45);
+        }
+
+        /* ===========================================
+           KEYBOARD HINT (title page only)
+           =========================================== */
+        .keyboard-hint {
+            position: absolute;
+            bottom: clamp(0.75rem, 2.5vw, 2rem);
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-body);
+            font-size: var(--small-size);
+            color: rgba(58,47,36,0.6);
+            z-index: 3;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Rainbow progress bar across the top -->
+    <div class="progress-bar"></div>
+
+    <!-- Navigation dots (built by JS) -->
+    <nav class="nav-dots" aria-label="Page navigation"></nav>
+
+    <!-- ===========================================
+         PAGE 1 — TITLE
+         =========================================== -->
+    <section class="slide title-slide" aria-label="Title page">
+        <!-- Decorative sky scenery -->
+        <div class="cloud decorative" style="top:12%; left:12%; width:clamp(60px,10vw,120px); height:clamp(34px,6vw,70px);"></div>
+        <div class="cloud decorative" style="top:22%; right:14%; width:clamp(46px,8vw,90px); height:clamp(26px,5vw,52px);"></div>
+        <!-- Rolling hills -->
+        <div class="hill decorative" style="left:-8%;  width:60%; height:38%; background:var(--green); opacity:0.85;"></div>
+        <div class="hill decorative" style="right:-12%; width:62%; height:30%; background:var(--yellow); opacity:0.8;"></div>
+
+        <div class="slide-content">
+            <p class="byline reveal">A bright little tale of a roly-poly fellow</p>
+            <h1 class="booktitle reveal-pop">Bo the<br><span class="l2">Wibblewog</span></h1>
+            <p class="subtitle reveal">&amp; the Lost Zibbentine Zatch</p>
+            <p class="byline reveal">An original storybook &middot; 12 pages</p>
+        </div>
+        <p class="keyboard-hint">Arrow keys, space, or swipe to turn the page &rarr;</p>
+    </section>
+
+    <!-- ===========================================
+         PAGE 2 — Meet Bo
+         =========================================== -->
+    <section class="slide" aria-label="Page 2">
+        <div class="cloud decorative" style="top:14%; left:18%; width:clamp(50px,9vw,100px); height:clamp(28px,5vw,56px);"></div>
+        <div class="hill decorative" style="left:-10%; width:70%; height:34%; background:var(--blue); opacity:0.75;"></div>
+        <!-- Bo: a fat round blue blob with two dot eyes -->
+        <svg class="critter bob" style="bottom:6%; left:6%;" viewBox="0 0 200 180" aria-hidden="true">
+            <ellipse cx="100" cy="110" rx="78" ry="62" fill="#4cffe0" opacity="0"/>
+            <ellipse cx="100" cy="108" rx="80" ry="64" fill="#4cffe0" style="display:none"/>
+            <ellipse cx="100" cy="108" rx="80" ry="64" fill="#7ec9f5"/>
+            <ellipse cx="100" cy="108" rx="80" ry="64" fill="#5fb6ef"/>
+            <circle cx="74" cy="92" r="11" fill="#fff"/><circle cx="74" cy="94" r="5" fill="#3a2f24"/>
+            <circle cx="126" cy="92" r="11" fill="#fff"/><circle cx="126" cy="94" r="5" fill="#3a2f24"/>
+            <path d="M82 132 Q100 150 118 132" stroke="#3a2f24" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <circle cx="58" cy="118" r="9" fill="#ff8fb3" opacity="0.7"/>
+            <circle cx="142" cy="118" r="9" fill="#ff8fb3" opacity="0.7"/>
+            <ellipse cx="70" cy="48" rx="7" ry="14" fill="#5fb6ef" transform="rotate(-18 70 48)"/>
+            <ellipse cx="130" cy="48" rx="7" ry="14" fill="#5fb6ef" transform="rotate(18 130 48)"/>
+        </svg>
+
+        <div class="slide-content">
+            <div class="stanza-card reveal">
+                <p class="stanza">
+                    In a snug little snuggery, round as a log,<br>
+                    lived a <span class="pop blue">roly-poly Wibblewog</span> &mdash; his name, it was Bo.<br>
+                    He was happy and bouncy from his toes to his top,<br>
+                    with a hop and a wibble and a wibbly-wog wop!
+                </p>
+            </div>
+        </div>
+        <div class="page-num">2</div>
+    </section>
+
+    <!-- ===========================================
+         PAGE 3 — The Zatch is introduced & lost
+         =========================================== -->
+    <section class="slide" aria-label="Page 3">
+        <div class="cloud decorative" style="top:16%; right:16%; width:clamp(50px,9vw,100px); height:clamp(28px,5vw,56px);"></div>
+        <!-- The Zatch: a fat yellow star-ish blob -->
+        <svg class="critter wobble" style="top:9%; left:8%; width:clamp(60px,11vw,150px);" viewBox="0 0 160 160" aria-hidden="true">
+            <circle cx="80" cy="80" r="58" fill="#ffcf3f"/>
+            <circle cx="80" cy="80" r="58" fill="none" stroke="#ffb000" stroke-width="6" stroke-dasharray="8 12"/>
+            <circle cx="80" cy="80" r="22" fill="#ff944d"/>
+            <path d="M80 18 L88 40 L80 36 L72 40 Z" fill="#ffe27a"/>
+        </svg>
+
+        <div class="slide-content">
+            <div class="stanza-card reveal">
+                <p class="stanza">
+                    Now Bo had one treasure he loved more than much:<br>
+                    a glittery, glimmery <span class="pop orange">Zibbentine Zatch.</span><br>
+                    But he woke up one morning and let out a YELP &mdash;<br>
+                    his Zatch wasn't there! Oh, who, oh who&apos;d help?
+                </p>
+            </div>
+        </div>
+        <div class="page-num">3</div>
+    </section>
+
+    <!-- ===========================================
+         PAGE 4 — Off to the Snorkle Marsh
+         =========================================== -->
+    <section class="slide" aria-label="Page 4">
+        <div class="hill decorative" style="left:-12%; width:75%; height:40%; background:var(--green); opacity:0.85;"></div>
+        <div class="hill decorative" style="right:-10%; width:55%; height:28%; background:#3fa0a8; opacity:0.7;"></div>
+        <!-- Cattail reeds -->
+        <svg class="critter" style="bottom:5%; right:8%; width:clamp(70px,13vw,180px);" viewBox="0 0 180 200" aria-hidden="true">
+            <rect x="40" y="60" width="8" height="130" rx="4" fill="#5fbf6a"/>
+            <rect x="90" y="40" width="8" height="150" rx="4" fill="#5fbf6a"/>
+            <rect x="138" y="80" width="8" height="110" rx="4" fill="#5fbf6a"/>
+            <rect x="36" y="40" width="16" height="40" rx="8" fill="#a86b3c"/>
+            <rect x="86" y="18" width="16" height="44" rx="8" fill="#a86b3c"/>
+            <rect x="134" y="58" width="16" height="36" rx="8" fill="#a86b3c"/>
+        </svg>
+
+        <div class="slide-content">
+            <div class="stanza-card reveal">
+                <p class="stanza">
+                    He bumbled and rumbled to the <span class="pop green">Snorkle Marsh</span> bog,<br>
+                    where the mud goes <em>ker-splatch</em> and the frogs go ker-glog.<br>
+                    &ldquo;Have you seen my dear Zatch?&rdquo; called poor little Bo &mdash;<br>
+                    but the marsh only burbled a bubbly &ldquo;<span class="pop blue">no.</span>&rdquo;
+                </p>
+            </div>
+        </div>
+        <div class="page-num">4</div>
+    </section>
+
+    <!-- ===========================================
+         PAGE 5 — Meets a Snurmple
+         =========================================== -->
+    <section class="slide" aria-label="Page 5">
+        <div class="cloud decorative" style="top:12%; left:14%; width:clamp(54px,9vw,110px); height:clamp(30px,5vw,60px);"></div>
+        <!-- Snurmple: a tall purple egg-blob with one big eye and stripes -->
+        <svg class="critter bob" style="bottom:4%; right:7%; width:clamp(90px,16vw,210px);" viewBox="0 0 180 240" aria-hidden="true">
+            <ellipse cx="90" cy="150" rx="70" ry="86" fill="#a87fd1"/>
+            <path d="M30 150 q60 30 120 0" stroke="#8a5fc0" stroke-width="10" fill="none" stroke-linecap="round"/>
+            <path d="M28 180 q62 30 124 0" stroke="#8a5fc0" stroke-width="10" fill="none" stroke-linecap="round"/>
+            <circle cx="90" cy="100" r="30" fill="#fff"/>
+            <circle cx="92" cy="104" r="14" fill="#3a2f24"/>
+            <circle cx="86" cy="98" r="5" fill="#fff"/>
+            <path d="M70 140 Q90 156 110 140" stroke="#3a2f24" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M90 70 q-6 -26 14 -34" stroke="#a87fd1" stroke-width="9" fill="none" stroke-linecap="round"/>
+            <circle cx="106" cy="34" r="9" fill="#ffcf3f"/>
+        </svg>
+
+        <div class="slide-content">
+            <div class="stanza-card reveal">
+                <p class="stanza">
+                    Then a <span class="pop purple">Snurmple</span> popped up with a curious blink:<br>
+                    &ldquo;You look mighty mopey. Now, what do you think?<br>
+                    A Zatch in the marsh? That&apos;s a hard thing to catch &mdash;<br>
+                    have you peeked, my dear Wibblewog, <em>under</em> your patch?&rdquo;
+                </p>
+            </div>
+        </div>
+        <div class="page-num">5</div>
+    </section>
+
+    <!-- ===========================================
+         PAGE 6 — Up Mount Fluvial
+         =========================================== -->
+    <section class="slide" aria-label="Page 6">
+        <!-- Big mountain blobs -->
+        <svg class="decor" style="bottom:0; left:0; width:100%; height:55%;" viewBox="0 0 1000 360" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 360 L210 90 L360 360 Z" fill="#8a8fb8"/>
+            <path d="M260 360 L520 40 L780 360 Z" fill="#6f76a8"/>
+            <path d="M620 360 L850 120 L1000 360 Z" fill="#9aa0c8"/>
+            <path d="M470 80 L520 40 L570 80 L545 80 L545 110 L495 110 L495 80 Z" fill="#fff"/>
+        </svg>
+        <div class="cloud decorative" style="top:14%; right:18%; width:clamp(50px,9vw,100px); height:clamp(28px,5vw,56px);"></div>
+
+        <div class="slide-content">
+            <div class="stanza-card reveal">
+                <p class="stanza">
+                    So he climbed, oh he climbed, up <span class="pop purple">Mount Fluvial</span>&apos;s height,<br>
+                    past the gloop and the goop and the gniff out of sight.<br>
+                    &ldquo;My Zatch! Is it here, in the snow and the scratch?&rdquo;<br>
+                    But the mountain just shrugged. There was no sign of Zatch.
+                </p>
+            </div>
+        </div>
+        <div class="page-num">6</div>
+    </section>
+
+    <!-- ===========================================
+         PAGE 7 — Meets the Quibbling Gnorf
+         =========================================== -->
+    <section class="slide" aria-label="Page 7">
+        <!-- Quibbling Gnorf: a wide orange grumpy-friendly blob with eyebrows -->
+        <svg class="critter wobble" style="bottom:5%; left:6%; width:clamp(100px,18vw,240px);" viewBox="0 0 240 200" aria-hidden="true">
+            <ellipse cx="120" cy="120" rx="104" ry="74" fill="#ff944d"/>
+            <ellipse cx="120" cy="120" rx="104" ry="74" fill="none" stroke="#e0712a" stroke-width="6" stroke-dasharray="10 14"/>
+            <circle cx="86" cy="104" r="16" fill="#fff"/><circle cx="86" cy="106" r="7" fill="#3a2f24"/>
+            <circle cx="154" cy="104" r="16" fill="#fff"/><circle cx="154" cy="106" r="7" fill="#3a2f24"/>
+            <path d="M66 84 L104 92" stroke="#c85a18" stroke-width="7" stroke-linecap="round"/>
+            <path d="M174 84 L136 92" stroke="#c85a18" stroke-width="7" stroke-linecap="round"/>
+            <path d="M96 146 Q120 138 144 146" stroke="#3a2f24" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <path d="M20 110 q-12 -8 -2 -20" stroke="#ff944d" stroke-width="10" fill="none" stroke-linecap="round"/>
+            <path d="M220 110 q12 -8 2 -20" stroke="#ff944d" stroke-width="10" fill="none" stroke-linecap="round"/>
+        </svg>
+
+        <div class="slide-content">
+            <div class="stanza-card reveal">
+                <p class="stanza">
+                    In the deep, drowsy <span class="pop green">Gnorfwood</span> he met, with a start,<br>
+                    a <span class="pop orange">Quibbling Gnorf</span> with a grumble-y heart.<br>
+                    &ldquo;You want HELP?&rdquo; harrumphed Gnorf. &ldquo;Well, it&apos;s perfectly true &mdash;<br>
+                    the bravest of beasties just <em>ask</em> when they&apos;re blue.&rdquo;
+                </p>
+            </div>
+        </div>
+        <div class="page-num">7</div>
+    </section>
+
+    <!-- ===========================================
+         PAGE 8 — Bo asks everyone for help
+         =========================================== -->
+    <section class="slide" aria-label="Page 8">
+        <div class="hill decorative" style="left:-10%; width:60%; height:30%; background:var(--pink); opacity:0.7;"></div>
+        <div class="hill decorative" style="right:-12%; width:64%; height:34%; background:var(--yellow); opacity:0.75;"></div>
+        <!-- a little crowd of dot-critters -->
+        <svg class="critter bob" style="bottom:6%; right:6%; width:clamp(110px,20vw,260px);" viewBox="0 0 260 140" aria-hidden="true">
+            <circle cx="50" cy="90" r="40" fill="#5fbf6a"/><circle cx="38" cy="80" r="6" fill="#3a2f24"/><circle cx="60" cy="80" r="6" fill="#3a2f24"/>
+            <circle cx="130" cy="80" r="46" fill="#ff8fb3"/><circle cx="116" cy="68" r="7" fill="#3a2f24"/><circle cx="144" cy="68" r="7" fill="#3a2f24"/>
+            <circle cx="210" cy="92" r="38" fill="#4ca7e0"/><circle cx="198" cy="82" r="6" fill="#3a2f24"/><circle cx="222" cy="82" r="6" fill="#3a2f24"/>
+        </svg>
+
+        <div class="slide-content">
+            <div class="stanza-card reveal">
+                <p class="stanza">
+                    So Bo took a breath and he called, loud and clear,<br>
+                    &ldquo;<span class="pop pink">I&apos;m stuck, and I&apos;m sad, and I need a friend here!</span>&rdquo;<br>
+                    And the marsh-folk and gnorf-folk all came in a batch,<br>
+                    every snurmple and snorkle, to hunt for his Zatch.
+                </p>
+            </div>
+        </div>
+        <div class="page-num">8</div>
+    </section>
+
+    <!-- ===========================================
+         PAGE 9 — The discovery (it was on him!)
+         =========================================== -->
+    <section class="slide" aria-label="Page 9">
+        <div class="cloud decorative" style="top:13%; left:16%; width:clamp(54px,9vw,110px); height:clamp(30px,5vw,60px);"></div>
+        <!-- Sparkles -->
+        <svg class="critter wobble" style="top:10%; right:9%; width:clamp(60px,11vw,150px);" viewBox="0 0 120 120" aria-hidden="true">
+            <path d="M60 10 L68 50 L60 44 L52 50 Z" fill="#ffcf3f"/>
+            <path d="M60 110 L52 70 L60 76 L68 70 Z" fill="#ffcf3f"/>
+            <path d="M10 60 L50 52 L44 60 L50 68 Z" fill="#ff944d"/>
+            <path d="M110 60 L70 68 L76 60 L70 52 Z" fill="#ff944d"/>
+            <circle cx="60" cy="60" r="9" fill="#ff5a4d"/>
+        </svg>
+
+        <div class="slide-content">
+            <div class="stanza-card reveal">
+                <p class="stanza">
+                    Then the Snurmple peeked close at Bo&apos;s wibbly back &mdash;<br>
+                    &ldquo;Why, you silly old softie&hellip; <span class="pop orange">that&apos;s where is your Zatch!</span>&rdquo;<br>
+                    It had ridden along, snuggled up in his fur,<br>
+                    the whole bumbly way, in a glittery whirr!
+                </p>
+            </div>
+        </div>
+        <div class="page-num">9</div>
+    </section>
+
+    <!-- ===========================================
+         PAGE 10 — Joy & gratitude
+         =========================================== -->
+    <section class="slide" aria-label="Page 10">
+        <div class="hill decorative" style="left:-10%; width:72%; height:38%; background:var(--green); opacity:0.85;"></div>
+        <!-- Bo bouncing happily -->
+        <svg class="critter bob" style="bottom:6%; left:7%;" viewBox="0 0 200 180" aria-hidden="true">
+            <ellipse cx="100" cy="108" rx="80" ry="64" fill="#5fb6ef"/>
+            <circle cx="74" cy="92" r="11" fill="#fff"/><circle cx="74" cy="90" r="5" fill="#3a2f24"/>
+            <circle cx="126" cy="92" r="11" fill="#fff"/><circle cx="126" cy="90" r="5" fill="#3a2f24"/>
+            <path d="M78 128 Q100 158 122 128" stroke="#3a2f24" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <circle cx="56" cy="116" r="10" fill="#ff8fb3" opacity="0.8"/>
+            <circle cx="144" cy="116" r="10" fill="#ff8fb3" opacity="0.8"/>
+            <circle cx="100" cy="44" r="16" fill="#ffcf3f"/>
+        </svg>
+
+        <div class="slide-content">
+            <div class="stanza-card reveal">
+                <p class="stanza">
+                    Oh, Bo did a jig and a jubilant <span class="pop green">JOMP</span>,<br>
+                    with a wibble, a wobble, a thankity-stomp!<br>
+                    &ldquo;You looked, and you helped, and you stuck by my side &mdash;<br>
+                    and the asking,&rdquo; smiled Bo, &ldquo;was the bravest I&apos;ve tried.&rdquo;
+                </p>
+            </div>
+        </div>
+        <div class="page-num">10</div>
+    </section>
+
+    <!-- ===========================================
+         PAGE 11 — The gentle lesson
+         =========================================== -->
+    <section class="slide" aria-label="Page 11">
+        <div class="cloud decorative" style="top:12%; right:14%; width:clamp(50px,9vw,100px); height:clamp(28px,5vw,56px);"></div>
+        <div class="cloud decorative" style="top:20%; left:13%; width:clamp(44px,8vw,88px); height:clamp(24px,4.5vw,48px);"></div>
+
+        <div class="slide-content">
+            <div class="stanza-card reveal">
+                <p class="stanza">
+                    So if ever you&apos;re lost, or you&apos;ve mislaid your <span class="pop red">match</span>,<br>
+                    or your sock, or your smile, or your own little Zatch &mdash;<br>
+                    just <span class="pop blue">ask</span>, and be brave, and you&apos;ll surely soon see:<br>
+                    the best things were close as close-can-be to thee.
+                </p>
+            </div>
+        </div>
+        <div class="page-num">11</div>
+    </section>
+
+    <!-- ===========================================
+         PAGE 12 — THE END
+         =========================================== -->
+    <section class="slide" aria-label="The End">
+        <div class="cloud decorative" style="top:16%; left:18%; width:clamp(54px,9vw,110px); height:clamp(30px,5vw,60px);"></div>
+        <div class="cloud decorative" style="top:24%; right:16%; width:clamp(46px,8vw,90px); height:clamp(26px,5vw,52px);"></div>
+        <div class="hill decorative" style="left:-8%;  width:62%; height:34%; background:var(--yellow); opacity:0.82;"></div>
+        <div class="hill decorative" style="right:-12%; width:64%; height:30%; background:var(--green); opacity:0.85;"></div>
+        <!-- Bo waving goodbye -->
+        <svg class="critter bob" style="bottom:5%; right:7%; width:clamp(90px,16vw,200px);" viewBox="0 0 200 180" aria-hidden="true">
+            <ellipse cx="100" cy="108" rx="80" ry="64" fill="#5fb6ef"/>
+            <circle cx="74" cy="92" r="11" fill="#fff"/><circle cx="74" cy="94" r="5" fill="#3a2f24"/>
+            <circle cx="126" cy="92" r="11" fill="#fff"/><circle cx="126" cy="94" r="5" fill="#3a2f24"/>
+            <path d="M82 132 Q100 150 118 132" stroke="#3a2f24" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M168 70 q22 -14 28 6" stroke="#5fb6ef" stroke-width="14" fill="none" stroke-linecap="round"/>
+            <circle cx="100" cy="44" r="58" fill="#ffcf3f" opacity="0.0"/>
+        </svg>
+
+        <div class="slide-content">
+            <h2 class="endword reveal-pop">The End</h2>
+            <p class="subtitle reveal">&hellip;and Bo wibbled happily ever after.</p>
+            <p class="byline reveal">Thanks for turning every page.</p>
+        </div>
+        <div class="page-num">12</div>
+    </section>
+
+    <script>
+    /* ===========================================
+       SLIDE PRESENTATION CONTROLLER
+       Keyboard / wheel / touch nav, progress bar,
+       nav dots, and IntersectionObserver reveals.
+       =========================================== */
+    class SlidePresentation {
+        constructor() {
+            this.slides = Array.from(document.querySelectorAll('.slide'));
+            this.currentSlide = 0;
+            this.isAnimating = false;            // debounce wheel between pages
+            this.progressBar = document.querySelector('.progress-bar');
+            this.navDotsContainer = document.querySelector('.nav-dots');
+
+            this.setupIntersectionObserver();
+            this.setupKeyboardNav();
+            this.setupTouchNav();
+            this.setupWheelNav();
+            this.setupNavDots();
+            this.setupProgressBar();
+        }
+
+        /* --- Reveal animations: add .visible when a page scrolls in --- */
+        setupIntersectionObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        // Track current page for dots + progress
+                        const idx = this.slides.indexOf(entry.target);
+                        if (idx !== -1) {
+                            this.currentSlide = idx;
+                            this.updateNavDots();
+                            this.updateProgressBar();
+                        }
+                    }
+                });
+            }, { threshold: 0.5 });
+            this.slides.forEach((slide) => observer.observe(slide));
+        }
+
+        /* --- Scroll a page into view by index --- */
+        goToSlide(index) {
+            index = Math.max(0, Math.min(index, this.slides.length - 1));
+            this.currentSlide = index;
+            this.slides[index].scrollIntoView({ behavior: 'smooth' });
+        }
+        next() { this.goToSlide(this.currentSlide + 1); }
+        prev() { this.goToSlide(this.currentSlide - 1); }
+
+        /* --- Keyboard: arrows, space, page up/down, home/end --- */
+        setupKeyboardNav() {
+            document.addEventListener('keydown', (e) => {
+                switch (e.key) {
+                    case 'ArrowDown':
+                    case 'ArrowRight':
+                    case ' ':
+                    case 'PageDown':
+                        e.preventDefault(); this.next(); break;
+                    case 'ArrowUp':
+                    case 'ArrowLeft':
+                    case 'PageUp':
+                        e.preventDefault(); this.prev(); break;
+                    case 'Home':
+                        e.preventDefault(); this.goToSlide(0); break;
+                    case 'End':
+                        e.preventDefault(); this.goToSlide(this.slides.length - 1); break;
+                }
+            });
+        }
+
+        /* --- Touch / swipe (vertical) --- */
+        setupTouchNav() {
+            let startY = 0;
+            document.addEventListener('touchstart', (e) => {
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+            document.addEventListener('touchend', (e) => {
+                const dy = startY - e.changedTouches[0].clientY;
+                if (Math.abs(dy) > 50) { dy > 0 ? this.next() : this.prev(); }
+            }, { passive: true });
+        }
+
+        /* --- Mouse wheel: one page per gesture (debounced) --- */
+        setupWheelNav() {
+            window.addEventListener('wheel', (e) => {
+                if (this.isAnimating) return;
+                if (Math.abs(e.deltaY) < 20) return;
+                this.isAnimating = true;
+                e.deltaY > 0 ? this.next() : this.prev();
+                setTimeout(() => { this.isAnimating = false; }, 750);
+            }, { passive: true });
+        }
+
+        /* --- Nav dots: clear container first, then build --- */
+        setupNavDots() {
+            // IMPORTANT: clear before building so re-opening a saved copy
+            // never stacks a duplicate set of dots.
+            this.navDotsContainer.innerHTML = '';
+            this.slides.forEach((_, i) => {
+                const dot = document.createElement('button');
+                dot.setAttribute('aria-label', 'Go to page ' + (i + 1));
+                if (i === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => this.goToSlide(i));
+                this.navDotsContainer.appendChild(dot);
+            });
+        }
+        updateNavDots() {
+            Array.from(this.navDotsContainer.children).forEach((dot, i) => {
+                dot.classList.toggle('active', i === this.currentSlide);
+            });
+        }
+
+        /* --- Progress bar across the top --- */
+        setupProgressBar() { this.updateProgressBar(); }
+        updateProgressBar() {
+            const pct = (this.currentSlide / (this.slides.length - 1)) * 100;
+            if (this.progressBar) this.progressBar.style.width = pct + '%';
+        }
+    }
+
+    // Boot the storybook
+    new SlidePresentation();
+    </script>
+</body>
+</html>

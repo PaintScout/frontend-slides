@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GAINZCORP — Seed Round, Bro</title>
+
+  <!-- ===========================================
+       FONTS (Google Fonts — works offline once cached;
+       no other external resources are required)
+       Display: Anton (huge heavy condensed uppercase)
+       Body:    Archivo (clean grotesque)
+       =========================================== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;800;900&display=swap"
+    rel="stylesheet"
+    crossorigin="anonymous"
+  />
+
+  <style>
+    /* ===========================================
+       CSS CUSTOM PROPERTIES (THEME)
+       Change these to change the whole look.
+       Near-black bg + ONE electric acid-green accent.
+       =========================================== */
+    :root {
+      /* Colors */
+      --bg-primary:   #06070a;   /* near black */
+      --bg-secondary: #0d0f14;   /* panel */
+      --text-primary: #f4f6f0;   /* off-white */
+      --text-secondary: #8a8f7e; /* muted olive-gray */
+      --accent:       #ccff00;   /* ACID GREEN — the one neon */
+      --accent-dim:   #9bc400;
+      --accent-glow:  rgba(204, 255, 0, 0.35);
+
+      /* Typography — MUST use clamp() */
+      --font-display: "Anton", sans-serif;
+      --font-body:    "Archivo", sans-serif;
+
+      --title-size:    clamp(2.5rem, 9vw, 8rem);
+      --h2-size:       clamp(1.75rem, 5.5vw, 4.5rem);
+      --h3-size:       clamp(1.1rem, 2.8vw, 2rem);
+      --subtitle-size: clamp(0.9rem, 2vw, 1.4rem);
+      --body-size:     clamp(0.8rem, 1.4vw, 1.15rem);
+      --small-size:    clamp(0.65rem, 1vw, 0.85rem);
+      --stat-size:     clamp(2.5rem, 8vw, 7rem);
+
+      /* Spacing — MUST use clamp() */
+      --slide-padding: clamp(1.5rem, 4vw, 4.5rem);
+      --content-gap:   clamp(1rem, 2vw, 2rem);
+      --element-gap:   clamp(0.4rem, 1vw, 1rem);
+
+      /* Animation */
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-back:     cubic-bezier(0.34, 1.56, 0.64, 1);
+      --duration-normal: 0.6s;
+    }
+
+    /* ===========================================
+       BASE STYLES
+       =========================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===========================================
+       VIEWPORT FITTING: MANDATORY BASE STYLES
+       (FULL contents of viewport-base.css, verbatim)
+       These styles ensure slides fit exactly in the viewport.
+       =========================================== */
+
+    /* 1. Lock html/body to viewport */
+    html, body {
+        height: 100%;
+        overflow-x: hidden;
+    }
+
+    html {
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+    }
+
+    /* 2. Each slide = exact viewport height */
+    .slide {
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh; /* Dynamic viewport height for mobile browsers */
+        overflow: hidden; /* CRITICAL: Prevent ANY overflow */
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    /* 3. Content container with flex for centering */
+    .slide-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-height: 100%;
+        overflow: hidden; /* Double-protection against overflow */
+        padding: var(--slide-padding);
+    }
+
+    /* 4. ALL typography uses clamp() for responsive scaling */
+    :root {
+        /* Titles scale from mobile to desktop */
+        --title-size: clamp(1.5rem, 5vw, 4rem);
+        --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+        --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+
+        /* Body text */
+        --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+        --small-size: clamp(0.65rem, 1vw, 0.875rem);
+
+        /* Spacing scales with viewport */
+        --slide-padding: clamp(1rem, 4vw, 4rem);
+        --content-gap: clamp(0.5rem, 2vw, 2rem);
+        --element-gap: clamp(0.25rem, 1vw, 1rem);
+    }
+
+    /* 5. Cards/containers use viewport-relative max sizes */
+    .card, .container, .content-box {
+        max-width: min(90vw, 1000px);
+        max-height: min(80vh, 700px);
+    }
+
+    /* 6. Lists auto-scale with viewport */
+    .feature-list, .bullet-list {
+        gap: clamp(0.4rem, 1vh, 1rem);
+    }
+
+    .feature-list li, .bullet-list li {
+        font-size: var(--body-size);
+        line-height: 1.4;
+    }
+
+    /* 7. Grids adapt to available space */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+        gap: clamp(0.5rem, 1.5vw, 1rem);
+    }
+
+    /* 8. Images constrained to viewport */
+    img, .image-container {
+        max-width: 100%;
+        max-height: min(50vh, 400px);
+        object-fit: contain;
+    }
+
+    /* ===========================================
+       RESPONSIVE BREAKPOINTS
+       Aggressive scaling for smaller viewports
+       =========================================== */
+
+    /* Short viewports (< 700px height) */
+    @media (max-height: 700px) {
+        :root {
+            --slide-padding: clamp(0.75rem, 3vw, 2rem);
+            --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+            --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+            --h2-size: clamp(1rem, 3vw, 1.75rem);
+        }
+    }
+
+    /* Very short viewports (< 600px height) */
+    @media (max-height: 600px) {
+        :root {
+            --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+            --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+            --title-size: clamp(1.1rem, 4vw, 2rem);
+            --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+        }
+
+        /* Hide non-essential elements */
+        .nav-dots, .keyboard-hint, .decorative {
+            display: none;
+        }
+    }
+
+    /* Extremely short (landscape phones, < 500px height) */
+    @media (max-height: 500px) {
+        :root {
+            --slide-padding: clamp(0.4rem, 2vw, 1rem);
+            --title-size: clamp(1rem, 3.5vw, 1.5rem);
+            --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+            --body-size: clamp(0.65rem, 1vw, 0.85rem);
+        }
+    }
+
+    /* Narrow viewports (< 600px width) */
+    @media (max-width: 600px) {
+        :root {
+            --title-size: clamp(1.25rem, 7vw, 2.5rem);
+        }
+
+        /* Stack grids vertically */
+        .grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ===========================================
+       REDUCED MOTION
+       Respect user preferences
+       =========================================== */
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.2s !important;
+        }
+
+        html {
+            scroll-behavior: auto;
+        }
+    }
+
+    /* ===========================================
+       THEME OVERRIDES
+       Re-declare the loud sizes AFTER viewport-base.css
+       so the bro-deck scale wins (base file resets some
+       of these to smaller defaults).
+       =========================================== */
+    :root {
+      --title-size:    clamp(2.5rem, 9vw, 8rem);
+      --h2-size:       clamp(1.75rem, 5.5vw, 4.5rem);
+      --h3-size:       clamp(1.1rem, 2.8vw, 2rem);
+      --body-size:     clamp(0.8rem, 1.4vw, 1.15rem);
+      --small-size:    clamp(0.65rem, 1vw, 0.85rem);
+      --slide-padding: clamp(1.5rem, 4vw, 4.5rem);
+    }
+    @media (max-height: 700px) {
+      :root {
+        --title-size: clamp(2rem, 7vw, 5rem);
+        --h2-size:    clamp(1.4rem, 4.5vw, 3rem);
+        --stat-size:  clamp(2rem, 6.5vw, 5rem);
+      }
+    }
+    @media (max-height: 600px) {
+      :root {
+        --title-size: clamp(1.6rem, 6vw, 3.5rem);
+        --stat-size:  clamp(1.6rem, 5.5vw, 4rem);
+      }
+    }
+
+    /* ===========================================
+       SHARED LAYOUT / TYPOGRAPHY HELPERS
+       =========================================== */
+    h1, h2, h3 {
+      font-family: var(--font-display);
+      font-weight: 400; /* Anton is single-weight */
+      text-transform: uppercase;
+      line-height: 0.92;
+      letter-spacing: 0.5px;
+    }
+
+    .accent { color: var(--accent); }
+    .glow { text-shadow: 0 0 30px var(--accent-glow); }
+
+    /* Eyebrow label above headings */
+    .eyebrow {
+      font-family: var(--font-body);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.35em;
+      font-size: var(--small-size);
+      color: var(--accent);
+      margin-bottom: var(--element-gap);
+    }
+
+    /* ===========================================
+       BACKGROUND TEXTURE
+       Subtle grid + accent glow for atmosphere/depth.
+       =========================================== */
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(204,255,0,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(204,255,0,0.04) 1px, transparent 1px);
+      background-size: clamp(40px, 6vw, 70px) clamp(40px, 6vw, 70px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .slide::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        ellipse at 75% 15%,
+        rgba(204, 255, 0, 0.10) 0%,
+        transparent 55%
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+    .slide-content { position: relative; z-index: 1; }
+
+    /* Giant faded watermark digit/word behind some slides */
+    .watermark {
+      position: absolute;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      color: rgba(204, 255, 0, 0.04);
+      font-size: clamp(8rem, 30vw, 26rem);
+      line-height: 1;
+      right: -2vw;
+      bottom: -4vh;
+      z-index: 0;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ===========================================
+       ENTRANCE ANIMATIONS
+       Triggered by .visible class (added by JS observer)
+       =========================================== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition:
+        opacity var(--duration-normal) var(--ease-out-expo),
+        transform var(--duration-normal) var(--ease-out-expo);
+    }
+    .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+
+    /* Punchy staggered delays (deeper than template default) */
+    .slide.visible .reveal:nth-child(1) { transition-delay: 0.05s; }
+    .slide.visible .reveal:nth-child(2) { transition-delay: 0.15s; }
+    .slide.visible .reveal:nth-child(3) { transition-delay: 0.25s; }
+    .slide.visible .reveal:nth-child(4) { transition-delay: 0.35s; }
+    .slide.visible .reveal:nth-child(5) { transition-delay: 0.45s; }
+    .slide.visible .reveal:nth-child(6) { transition-delay: 0.55s; }
+
+    /* Use data-delay for explicit ordering inside wrappers */
+    .reveal[data-delay="1"] { transition-delay: 0.10s; }
+    .reveal[data-delay="2"] { transition-delay: 0.22s; }
+    .reveal[data-delay="3"] { transition-delay: 0.34s; }
+    .reveal[data-delay="4"] { transition-delay: 0.46s; }
+    .reveal[data-delay="5"] { transition-delay: 0.58s; }
+    .reveal[data-delay="6"] { transition-delay: 0.70s; }
+
+    /* Scale-in pop for big hero numbers */
+    .reveal-pop {
+      opacity: 0;
+      transform: scale(0.8);
+      transition:
+        opacity 0.5s var(--ease-out-expo),
+        transform 0.6s var(--ease-back);
+    }
+    .slide.visible .reveal-pop { opacity: 1; transform: scale(1); }
+
+    /* ===========================================
+       SLIDE 1 — TITLE
+       =========================================== */
+    .title-slide .slide-content { align-items: flex-start; }
+    .title-slide h1 {
+      font-size: var(--title-size);
+      letter-spacing: -1px;
+    }
+    .title-slide .ticker {
+      font-family: var(--font-body);
+      font-weight: 900;
+      letter-spacing: 0.3em;
+      color: var(--accent);
+      font-size: var(--subtitle-size);
+    }
+    .title-slide .sub {
+      font-size: var(--h3-size);
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      color: var(--text-primary);
+      max-width: 18ch;
+      line-height: 1;
+    }
+    .title-slide .seed {
+      font-size: var(--subtitle-size);
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    .seed b { color: var(--accent); }
+
+    /* ===========================================
+       GENERIC SECTION HEADINGS
+       =========================================== */
+    .big-statement {
+      font-size: var(--h2-size);
+      max-width: 20ch;
+    }
+    .lead {
+      font-size: var(--body-size);
+      color: var(--text-secondary);
+      max-width: 60ch;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+
+    /* ===========================================
+       SOLUTION — arrow chain
+       =========================================== */
+    .arrow-chain {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: clamp(0.5rem, 2vw, 1.5rem);
+      margin-top: var(--content-gap);
+    }
+    .arrow-chain .step {
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: clamp(1.3rem, 4vw, 3rem);
+      padding: clamp(0.4rem, 1.5vw, 1rem) clamp(0.8rem, 2.5vw, 1.6rem);
+      border: 3px solid var(--accent);
+      color: var(--accent);
+      line-height: 1;
+      box-shadow: 0 0 25px var(--accent-glow) inset;
+    }
+    .arrow-chain .arrow {
+      font-family: var(--font-display);
+      color: var(--text-primary);
+      font-size: clamp(1.5rem, 4.5vw, 3.5rem);
+    }
+
+    /* ===========================================
+       FLYWHEEL (circular loop)
+       =========================================== */
+    .flywheel-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+    }
+    .flywheel {
+      position: relative;
+      width: min(62vh, 80vw, 560px);
+      aspect-ratio: 1 / 1;
+    }
+    .flywheel .ring {
+      position: absolute;
+      inset: 0;
+      border: 4px dashed var(--accent);
+      border-radius: 50%;
+      opacity: 0.5;
+      animation: spin 22s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .flywheel .core {
+      position: absolute;
+      inset: 28%;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      color: var(--accent);
+      font-size: clamp(0.9rem, 2.4vw, 1.6rem);
+      line-height: 0.95;
+      box-shadow: 0 0 40px var(--accent-glow);
+    }
+    .flywheel .node {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: clamp(0.9rem, 2.6vw, 1.8rem);
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      border: 3px solid var(--accent);
+      padding: clamp(0.3rem,1vw,0.6rem) clamp(0.6rem,1.6vw,1.1rem);
+      white-space: nowrap;
+    }
+    /* Position the 4 nodes around the circle */
+    .flywheel .n1 { margin-top: calc(-1 * min(31vh, 40vw, 280px)); }
+    .flywheel .n2 { margin-left: min(31vh, 40vw, 280px); }
+    .flywheel .n3 { margin-top: min(31vh, 40vw, 280px); }
+    .flywheel .n4 { margin-left: calc(-1 * min(31vh, 40vw, 280px)); }
+
+    /* ===========================================
+       CHART (TRACTION) — animated up-and-to-the-right
+       SVG line that draws itself when slide is visible.
+       =========================================== */
+    .chart-wrap {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      gap: var(--content-gap);
+      align-items: stretch;
+      margin-top: var(--element-gap);
+    }
+    .chart-box {
+      flex: 1;
+      min-width: 0;
+      position: relative;
+      border: 2px solid rgba(204,255,0,0.25);
+      background: linear-gradient(180deg, rgba(204,255,0,0.03), transparent);
+    }
+    .chart-box svg { width: 100%; height: 100%; display: block; }
+    /* The line path is hidden via dash offset until .visible fires */
+    .chart-line {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 8px var(--accent-glow));
+      stroke-dasharray: 1200;
+      stroke-dashoffset: 1200;
+      transition: stroke-dashoffset 1.8s var(--ease-out-expo);
+    }
+    .slide.visible .chart-line { stroke-dashoffset: 0; }
+    .chart-area {
+      fill: url(#areaGrad);
+      opacity: 0;
+      transition: opacity 1.2s ease 1s;
+    }
+    .slide.visible .chart-area { opacity: 1; }
+    .chart-label {
+      position: absolute;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      color: var(--accent);
+      font-size: clamp(0.9rem, 2.2vw, 1.8rem);
+      right: clamp(0.5rem, 2vw, 1.5rem);
+      top: clamp(0.5rem, 2vw, 1.2rem);
+      text-align: right;
+      line-height: 0.95;
+    }
+    .chart-x {
+      position: absolute;
+      bottom: clamp(0.3rem,1vw,0.6rem);
+      left: 0; right: 0;
+      display: flex;
+      justify-content: space-around;
+      font-family: var(--font-body);
+      font-weight: 800;
+      color: var(--text-secondary);
+      font-size: var(--small-size);
+      text-transform: uppercase;
+    }
+
+    /* ===========================================
+       TAM / MARKET — giant infinity
+       =========================================== */
+    .tam .slide-content { align-items: center; text-align: center; }
+    .infinity {
+      font-family: var(--font-display);
+      font-size: clamp(6rem, 26vw, 22rem);
+      color: var(--accent);
+      line-height: 0.8;
+      text-shadow: 0 0 60px var(--accent-glow);
+    }
+    .tam .equation {
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: var(--h3-size);
+      letter-spacing: 0.05em;
+    }
+
+    /* ===========================================
+       KPIs — animated number counters
+       =========================================== */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--content-gap);
+      margin-top: var(--content-gap);
+    }
+    @media (min-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    .kpi {
+      border: 2px solid rgba(204,255,0,0.25);
+      background: var(--bg-secondary);
+      padding: clamp(0.8rem, 2vw, 1.6rem);
+      text-align: left;
+    }
+    .kpi .num {
+      font-family: var(--font-display);
+      font-size: var(--stat-size);
+      color: var(--accent);
+      line-height: 0.9;
+      text-shadow: 0 0 25px var(--accent-glow);
+    }
+    .kpi .num .suffix { font-size: 0.5em; color: var(--text-primary); }
+    .kpi .label {
+      font-family: var(--font-body);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: var(--small-size);
+      margin-top: var(--element-gap);
+    }
+    .kpi .sub {
+      color: var(--text-secondary);
+      font-size: var(--small-size);
+      font-weight: 600;
+      margin-top: 0.2em;
+    }
+
+    /* ===========================================
+       BUSINESS MODEL — money flow
+       =========================================== */
+    .money .slide-content { align-items: flex-start; }
+    .money-flow {
+      display: flex;
+      flex-direction: column;
+      gap: var(--element-gap);
+      margin-top: var(--content-gap);
+    }
+    .money-flow .row {
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: clamp(1.4rem, 5vw, 3.5rem);
+      line-height: 1;
+    }
+    .money-flow .row span { color: var(--accent); }
+
+    /* ===========================================
+       TEAM — made-up titles
+       =========================================== */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+      gap: var(--content-gap);
+      margin-top: var(--content-gap);
+    }
+    .member {
+      border: 2px solid rgba(204,255,0,0.25);
+      background: var(--bg-secondary);
+      padding: clamp(0.9rem, 2vw, 1.5rem);
+      text-align: center;
+    }
+    .member .avatar {
+      width: clamp(48px, 8vw, 84px);
+      height: clamp(48px, 8vw, 84px);
+      margin: 0 auto var(--element-gap);
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--bg-primary);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: clamp(1.3rem, 3vw, 2.4rem);
+      box-shadow: 0 0 30px var(--accent-glow);
+    }
+    .member .role {
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      color: var(--accent);
+      font-size: var(--h3-size);
+      line-height: 0.95;
+    }
+    .member .name {
+      font-weight: 800;
+      font-size: var(--body-size);
+      margin-top: 0.3em;
+    }
+    .member .bio {
+      color: var(--text-secondary);
+      font-size: var(--small-size);
+      font-weight: 600;
+      margin-top: 0.3em;
+    }
+
+    /* ===========================================
+       COMPETITION — 2x2 matrix
+       =========================================== */
+    .matrix-wrap {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: var(--element-gap);
+    }
+    .matrix {
+      position: relative;
+      width: min(64vh, 88vw, 620px);
+      aspect-ratio: 1 / 1;
+      border-left: 3px solid var(--text-secondary);
+      border-bottom: 3px solid var(--text-secondary);
+    }
+    .matrix .axis-x, .matrix .axis-y {
+      position: absolute;
+      font-family: var(--font-body);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-secondary);
+      font-size: var(--small-size);
+    }
+    .matrix .axis-x { bottom: -1.8em; width: 100%; text-align: center; }
+    .matrix .axis-y {
+      left: -0.5em; top: 50%;
+      transform: translateX(-100%) rotate(-90deg);
+      transform-origin: right center;
+      white-space: nowrap;
+    }
+    .matrix .gridline-v, .matrix .gridline-h {
+      position: absolute;
+      background: rgba(255,255,255,0.08);
+    }
+    .matrix .gridline-v { left: 50%; top: 0; bottom: 0; width: 1px; }
+    .matrix .gridline-h { top: 50%; left: 0; right: 0; height: 1px; }
+    .matrix .dot {
+      position: absolute;
+      transform: translate(-50%, 50%);
+      font-family: var(--font-body);
+      font-weight: 800;
+      font-size: var(--small-size);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .matrix .dot::before {
+      content: "";
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+      margin-right: 0.4em;
+      vertical-align: middle;
+    }
+    .matrix .us {
+      color: var(--accent);
+      font-family: var(--font-display);
+      font-size: clamp(1.1rem, 3.2vw, 2.4rem);
+      text-shadow: 0 0 25px var(--accent-glow);
+      z-index: 2;
+    }
+    .matrix .us::before {
+      width: clamp(16px, 3vw, 26px);
+      height: clamp(16px, 3vw, 26px);
+      background: var(--accent);
+      box-shadow: 0 0 30px var(--accent-glow);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.25); }
+    }
+
+    /* ===========================================
+       THE ASK
+       =========================================== */
+    .ask .slide-content { align-items: center; text-align: center; }
+    .ask .figure {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 18vw, 16rem);
+      color: var(--accent);
+      line-height: 0.85;
+      text-shadow: 0 0 60px var(--accent-glow);
+    }
+    .ask-breakdown {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--content-gap);
+      margin-top: var(--content-gap);
+    }
+    .ask-breakdown .item {
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-size: var(--h3-size);
+    }
+    .ask-breakdown .item b { color: var(--accent); }
+
+    /* ===========================================
+       CLOSING
+       =========================================== */
+    .closing .slide-content { align-items: center; justify-content: center; text-align: center; }
+    .closing h1 {
+      font-size: var(--title-size);
+      line-height: 0.9;
+    }
+    .closing .rocket {
+      font-size: clamp(3rem, 12vw, 9rem);
+      animation: liftoff 2.2s ease-in-out infinite;
+    }
+    @keyframes liftoff {
+      0%, 100% { transform: translateY(0) rotate(-8deg); }
+      50% { transform: translateY(-18px) rotate(-8deg); }
+    }
+    .closing .disclaim {
+      color: var(--text-secondary);
+      font-size: var(--small-size);
+      font-weight: 600;
+      max-width: 50ch;
+      margin-top: var(--content-gap);
+    }
+
+    /* ===========================================
+       CHROME: progress bar, nav dots, hint
+       =========================================== */
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 5px;
+      width: 0%;
+      background: var(--accent);
+      box-shadow: 0 0 14px var(--accent-glow);
+      z-index: 9999;
+      transition: width 0.2s ease;
+    }
+    .nav-dots {
+      position: fixed;
+      right: clamp(0.6rem, 1.5vw, 1.4rem);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      z-index: 9998;
+    }
+    .nav-dots button {
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .nav-dots button:hover { transform: scale(1.3); }
+    .nav-dots button.active {
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .keyboard-hint {
+      position: fixed;
+      bottom: clamp(0.6rem, 1.5vw, 1.2rem);
+      left: clamp(0.6rem, 1.5vw, 1.2rem);
+      color: var(--text-secondary);
+      font-size: var(--small-size);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      z-index: 9998;
+      opacity: 0.6;
+    }
+    .slide-number {
+      position: absolute;
+      top: clamp(1rem, 2.5vw, 2rem);
+      right: clamp(1rem, 2.5vw, 2.5rem);
+      font-family: var(--font-display);
+      color: rgba(204,255,0,0.4);
+      font-size: var(--h3-size);
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- Progress bar (top) -->
+  <div class="progress-bar" id="progressBar"></div>
+
+  <!-- Navigation dots (right) — generated by JS -->
+  <nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+
+  <!-- Keyboard hint (bottom-left) -->
+  <div class="keyboard-hint">↑ ↓ / Space / Scroll — Run It Up</div>
+
+  <main>
+
+    <!-- ===========================================
+         SLIDE 1 — TITLE
+         =========================================== -->
+    <section class="slide title-slide" aria-label="Title">
+      <span class="slide-number">01</span>
+      <div class="slide-content" style="gap: var(--content-gap);">
+        <div class="ticker reveal" data-delay="1">$GAINZ · NASDAQ-ADJACENT</div>
+        <h1 class="reveal glow" data-delay="2">GAINZ<span class="accent">CORP</span></h1>
+        <p class="sub reveal" data-delay="3">Disrupting the <span class="accent">Babe-Sales</span> Synergy Vertical</p>
+        <p class="seed reveal" data-delay="4">Seed Round, Bro · <b>Pre-Revenue. Post-Pump.</b></p>
+      </div>
+      <div class="watermark">💪</div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 2 — THE PROBLEM
+         =========================================== -->
+    <section class="slide" aria-label="The Problem">
+      <span class="slide-number">02</span>
+      <div class="slide-content" style="gap: var(--content-gap);">
+        <div class="eyebrow reveal" data-delay="1">The Problem</div>
+        <h2 class="big-statement reveal" data-delay="2">
+          Graphs not going up <span class="accent">enough.</span>
+        </h2>
+        <ul class="bullet-list reveal" data-delay="3" style="list-style:none; display:flex; flex-direction:column; gap: var(--element-gap); font-family: var(--font-display); text-transform: uppercase; font-size: var(--h3-size);">
+          <li>📉 Not enough <span class="accent">babes.</span> Bro.</li>
+          <li>🥤 Protein synergy: critically under-leveraged.</li>
+          <li>🤝 The grind is being left, frankly, un-grinded.</li>
+        </ul>
+        <p class="lead reveal" data-delay="4">A trillion-dollar opportunity is just sitting there, not getting sent.</p>
+      </div>
+      <div class="watermark">?!</div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 3 — OUR SOLUTION
+         =========================================== -->
+    <section class="slide" aria-label="Our Solution">
+      <span class="slide-number">03</span>
+      <div class="slide-content" style="gap: var(--content-gap);">
+        <div class="eyebrow reveal" data-delay="1">Our Solution</div>
+        <h2 class="big-statement reveal" data-delay="2">We make the <span class="accent">number</span> bigger.</h2>
+        <div class="arrow-chain reveal" data-delay="3">
+          <div class="step">More Sales</div>
+          <div class="arrow">→</div>
+          <div class="step">Graph Go Up</div>
+          <div class="arrow">→</div>
+          <div class="step">More Babes</div>
+        </div>
+        <p class="lead reveal" data-delay="4">It's a closed-loop, vertically-integrated, full-stack hustle solution. Patent pending. Probably.</p>
+      </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 4 — THE FLYWHEEL
+         =========================================== -->
+    <section class="slide" aria-label="The Flywheel">
+      <span class="slide-number">04</span>
+      <div class="slide-content" style="gap: var(--element-gap);">
+        <div class="eyebrow reveal" data-delay="1">The Flywheel</div>
+        <h2 class="reveal" data-delay="2" style="font-size: var(--h3-size);">It just keeps <span class="accent">spinning</span>, bro.</h2>
+        <div class="flywheel-wrap reveal" data-delay="3">
+          <div class="flywheel" role="img" aria-label="Flywheel loop: Sales to Gains to Babes to More Sales">
+            <div class="ring"></div>
+            <div class="core">Run<br>It<br>Up</div>
+            <div class="node n1">Sales</div>
+            <div class="node n2">Gains</div>
+            <div class="node n3">Babes</div>
+            <div class="node n4">↻ More Sales</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 5 — TRACTION (animated up-chart)
+         =========================================== -->
+    <section class="slide" aria-label="Traction">
+      <span class="slide-number">05</span>
+      <div class="slide-content" style="gap: var(--element-gap);">
+        <div class="eyebrow reveal" data-delay="1">Traction</div>
+        <h2 class="reveal" data-delay="2" style="font-size: var(--h3-size);">Up and to the <span class="accent">right.</span> Always.</h2>
+        <div class="chart-wrap reveal" data-delay="3">
+          <div class="chart-box">
+            <div class="chart-label">GAINS<br>per BABE<br>(×1000)</div>
+            <!-- SVG line chart; .chart-line draws itself via dashoffset on .visible -->
+            <svg viewBox="0 0 400 220" preserveAspectRatio="none" aria-label="Hockey-stick growth chart">
+              <defs>
+                <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(204,255,0,0.35)" />
+                  <stop offset="100%" stop-color="rgba(204,255,0,0)" />
+                </linearGradient>
+              </defs>
+              <!-- Filled area under the curve -->
+              <path class="chart-area"
+                d="M10,205 L70,195 L150,180 L230,150 L300,95 L380,15 L380,215 L10,215 Z" />
+              <!-- The line itself -->
+              <path class="chart-line"
+                d="M10,205 L70,195 L150,180 L230,150 L300,95 L380,15" />
+            </svg>
+            <div class="chart-x">
+              <span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span><span>?</span><span>🚀</span>
+            </div>
+          </div>
+        </div>
+        <p class="lead reveal" data-delay="4">We don't do Q4. We do <span class="accent">GAINS</span>. Units: vibes per kilo of protein.</p>
+      </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 6 — TAM / MARKET
+         =========================================== -->
+    <section class="slide tam" aria-label="Total Addressable Market">
+      <span class="slide-number">06</span>
+      <div class="slide-content" style="gap: var(--element-gap);">
+        <div class="eyebrow reveal" data-delay="1">Total Addressable Market</div>
+        <div class="infinity reveal-pop" data-delay="2">∞</div>
+        <p class="equation reveal" data-delay="3">The Market = Everyone Who Lifts = <span class="accent">∞</span></p>
+        <p class="lead reveal" data-delay="4" style="margin: 0 auto;">Bottom-up, top-down, and also sideways. The TAM is technically uncapped because everyone could, theoretically, start lifting tomorrow.</p>
+      </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 7 — KPIs (animated counters)
+         =========================================== -->
+    <section class="slide" aria-label="Key Performance Indicators">
+      <span class="slide-number">07</span>
+      <div class="slide-content" style="gap: var(--element-gap);">
+        <div class="eyebrow reveal" data-delay="1">The Metrics That Matter</div>
+        <h2 class="reveal" data-delay="2" style="font-size: var(--h3-size);">Our KPIs are <span class="accent">absolutely cooking.</span></h2>
+        <div class="kpi-grid reveal" data-delay="3">
+          <div class="kpi">
+            <div class="num"><span class="counter" data-target="420" data-suffix="%">0</span></div>
+            <div class="label">Pump Coefficient</div>
+            <div class="sub">QoQ, blended, swole-adjusted</div>
+          </div>
+          <div class="kpi">
+            <div class="num"><span class="counter" data-target="69000" data-suffix="">0</span></div>
+            <div class="label">Synergy Reps</div>
+            <div class="sub">Run-rate, annualized, bro</div>
+          </div>
+          <div class="kpi">
+            <div class="num"><span class="counter" data-target="11" data-suffix="x">0</span></div>
+            <div class="label">Babe Velocity</div>
+            <div class="sub">Net new, fully diluted</div>
+          </div>
+          <div class="kpi">
+            <div class="num"><span class="counter" data-target="100" data-suffix="/100">0</span></div>
+            <div class="label">Grind Index</div>
+            <div class="sub">We literally cannot stop</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 8 — BUSINESS MODEL
+         =========================================== -->
+    <section class="slide money" aria-label="Business Model">
+      <span class="slide-number">08</span>
+      <div class="slide-content" style="gap: var(--element-gap);">
+        <div class="eyebrow reveal" data-delay="1">Business Model</div>
+        <h2 class="reveal" data-delay="2" style="font-size: var(--h3-size);">It's honestly so <span class="accent">simple.</span></h2>
+        <div class="money-flow">
+          <div class="row reveal" data-delay="3">We charge <span>money.</span></div>
+          <div class="row reveal" data-delay="4">They give us <span>money.</span></div>
+          <div class="row reveal" data-delay="5">Money <span>go up.</span> 📈</div>
+        </div>
+        <p class="lead reveal" data-delay="6">Gross margins approach 100% because we have not, as of yet, identified any costs.</p>
+      </div>
+      <div class="watermark">$$$</div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 9 — THE TEAM
+         =========================================== -->
+    <section class="slide" aria-label="The Team">
+      <span class="slide-number">09</span>
+      <div class="slide-content" style="gap: var(--element-gap);">
+        <div class="eyebrow reveal" data-delay="1">The Team</div>
+        <h2 class="reveal" data-delay="2" style="font-size: var(--h3-size);">Founder-led. <span class="accent">Gym-pilled.</span></h2>
+        <div class="team-grid reveal" data-delay="3">
+          <div class="member">
+            <div class="avatar">B</div>
+            <div class="role">Chief Vibes Officer</div>
+            <div class="name">Brock "Sendman" Steele</div>
+            <div class="bio">Ex-pre-seed. 2× failed protein startup. Undefeated at vibes.</div>
+          </div>
+          <div class="member">
+            <div class="avatar">C</div>
+            <div class="role">VP of Sending It</div>
+            <div class="name">Chad Maximus</div>
+            <div class="bio">Has never not sent it. Owns 14 hoodies.</div>
+          </div>
+          <div class="member">
+            <div class="avatar">T</div>
+            <div class="role">Head of Gains</div>
+            <div class="name">Trip Brewster III</div>
+            <div class="bio">PhD (incomplete) in deadlift economics.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 10 — COMPETITION (2x2 matrix)
+         =========================================== -->
+    <section class="slide" aria-label="Competitive Landscape">
+      <span class="slide-number">10</span>
+      <div class="slide-content" style="gap: var(--element-gap);">
+        <div class="eyebrow reveal" data-delay="1">Competitive Landscape</div>
+        <h2 class="reveal" data-delay="2" style="font-size: var(--h3-size);">We're alone in the <span class="accent">Absolute Unit</span> quadrant.</h2>
+        <div class="matrix-wrap reveal" data-delay="3">
+          <div class="matrix" role="img" aria-label="2 by 2 matrix; GAINZCORP is alone in the top-right quadrant">
+            <div class="gridline-v"></div>
+            <div class="gridline-h"></div>
+            <span class="axis-x">More Swole →</span>
+            <span class="axis-y">More Vibes →</span>
+            <!-- competitors clustered bottom-left -->
+            <span class="dot" style="left:18%; bottom:22%;">Legacy Spreadsheets</span>
+            <span class="dot" style="left:30%; bottom:34%;">Some Guy's Newsletter</span>
+            <span class="dot" style="left:22%; bottom:48%;">Regular Gym</span>
+            <span class="dot" style="left:42%; bottom:18%;">Cardio (lol)</span>
+            <!-- us, top-right -->
+            <span class="dot us" style="left:80%; bottom:84%;">GAINZCORP</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 11 — THE ASK
+         =========================================== -->
+    <section class="slide ask" aria-label="The Ask">
+      <span class="slide-number">11</span>
+      <div class="slide-content" style="gap: var(--element-gap);">
+        <div class="eyebrow reveal" data-delay="1">The Ask</div>
+        <div class="figure reveal-pop" data-delay="2">$10M</div>
+        <div class="ask-breakdown reveal" data-delay="3">
+          <div class="item"><b>60%</b> Protein</div>
+          <div class="item"><b>30%</b> Growth</div>
+          <div class="item"><b>10%</b> More Protein</div>
+        </div>
+        <p class="lead reveal" data-delay="4" style="margin: 0 auto;">For protein. And growth. Mostly protein. We'll figure the rest out at the gym.</p>
+      </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 12 — CLOSING
+         =========================================== -->
+    <section class="slide closing" aria-label="Closing">
+      <span class="slide-number">12</span>
+      <div class="slide-content" style="gap: var(--content-gap);">
+        <div class="rocket reveal-pop" data-delay="1">🚀</div>
+        <h1 class="reveal glow" data-delay="2">LET'S RUN<br><span class="accent">IT UP.</span></h1>
+        <p class="disclaim reveal" data-delay="3">GAINZCORP · This is not financial advice, a real company, or, technically, advice of any kind. Past gains do not guarantee future babes. Lift responsibly.</p>
+      </div>
+      <div class="watermark">∞</div>
+    </section>
+
+  </main>
+
+  <script>
+    /* ===========================================
+       SLIDE PRESENTATION CONTROLLER
+       Keyboard / touch / wheel nav, progress bar,
+       nav dots, IntersectionObserver-driven reveals,
+       number counters, and the chart draw-up trigger.
+       =========================================== */
+    class SlidePresentation {
+      constructor() {
+        this.slides = Array.from(document.querySelectorAll(".slide"));
+        this.currentSlide = 0;
+        this.isScrolling = false;
+
+        this.progressBar = document.getElementById("progressBar");
+        this.navDotsContainer = document.getElementById("navDots");
+
+        this.setupIntersectionObserver();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupWheelNav();
+        this.setupNavDots();
+        this.setupProgressBar();
+      }
+
+      /* --- Reveal animations + per-slide one-shot effects --- */
+      setupIntersectionObserver() {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+
+                // Fire the number counters on this slide once
+                entry.target
+                  .querySelectorAll(".counter:not(.counted)")
+                  .forEach((el) => this.animateCounter(el));
+
+                // Track current slide for dots/progress
+                const idx = this.slides.indexOf(entry.target);
+                if (idx !== -1) {
+                  this.currentSlide = idx;
+                  this.updateNavDots();
+                  this.updateProgress();
+                }
+              }
+            });
+          },
+          { threshold: 0.5 }
+        );
+        this.slides.forEach((slide) => observer.observe(slide));
+      }
+
+      /* --- Animated number counter (KPIs) --- */
+      animateCounter(el) {
+        el.classList.add("counted");
+        const target = parseFloat(el.dataset.target) || 0;
+        const suffix = el.dataset.suffix || "";
+        const duration = 1600; // ms
+        const start = performance.now();
+
+        const reduceMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+        if (reduceMotion) {
+          el.textContent = this.formatNum(target) + suffix;
+          return;
+        }
+
+        const tick = (now) => {
+          const t = Math.min((now - start) / duration, 1);
+          // ease-out-expo for a punchy slowdown
+          const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+          const value = target * eased;
+          el.textContent = this.formatNum(value) + suffix;
+          if (t < 1) requestAnimationFrame(tick);
+          else el.textContent = this.formatNum(target) + suffix;
+        };
+        requestAnimationFrame(tick);
+      }
+
+      formatNum(n) {
+        // Whole numbers get thousands separators; keep it bro-clean
+        return Math.round(n).toLocaleString("en-US");
+      }
+
+      /* --- Navigate to a slide by index --- */
+      goToSlide(index) {
+        index = Math.max(0, Math.min(index, this.slides.length - 1));
+        this.currentSlide = index;
+        this.slides[index].scrollIntoView({ behavior: "smooth" });
+      }
+
+      next() { this.goToSlide(this.currentSlide + 1); }
+      prev() { this.goToSlide(this.currentSlide - 1); }
+
+      /* --- Keyboard: arrows / space / page up-down / home-end --- */
+      setupKeyboardNav() {
+        document.addEventListener("keydown", (e) => {
+          switch (e.key) {
+            case "ArrowDown":
+            case "ArrowRight":
+            case "PageDown":
+            case " ":
+              e.preventDefault();
+              this.next();
+              break;
+            case "ArrowUp":
+            case "ArrowLeft":
+            case "PageUp":
+              e.preventDefault();
+              this.prev();
+              break;
+            case "Home":
+              e.preventDefault();
+              this.goToSlide(0);
+              break;
+            case "End":
+              e.preventDefault();
+              this.goToSlide(this.slides.length - 1);
+              break;
+          }
+        });
+      }
+
+      /* --- Touch / swipe (vertical) --- */
+      setupTouchNav() {
+        let startY = 0;
+        document.addEventListener(
+          "touchstart",
+          (e) => { startY = e.touches[0].clientY; },
+          { passive: true }
+        );
+        document.addEventListener(
+          "touchend",
+          (e) => {
+            const dy = startY - e.changedTouches[0].clientY;
+            if (Math.abs(dy) > 50) {
+              dy > 0 ? this.next() : this.prev();
+            }
+          },
+          { passive: true }
+        );
+      }
+
+      /* --- Mouse wheel: throttled so one notch = one slide --- */
+      setupWheelNav() {
+        window.addEventListener(
+          "wheel",
+          (e) => {
+            if (this.isScrolling) return;
+            if (Math.abs(e.deltaY) < 12) return;
+            this.isScrolling = true;
+            e.deltaY > 0 ? this.next() : this.prev();
+            setTimeout(() => { this.isScrolling = false; }, 800);
+          },
+          { passive: true }
+        );
+      }
+
+      /* --- Nav dots ---
+         IMPORTANT: clear container before building so re-opening
+         a saved copy never appends a duplicate set. --- */
+      setupNavDots() {
+        this.navDotsContainer.innerHTML = "";
+        this.slides.forEach((slide, i) => {
+          const dot = document.createElement("button");
+          dot.setAttribute("aria-label", "Go to slide " + (i + 1));
+          if (i === 0) dot.classList.add("active");
+          dot.addEventListener("click", () => this.goToSlide(i));
+          this.navDotsContainer.appendChild(dot);
+        });
+      }
+
+      updateNavDots() {
+        const dots = this.navDotsContainer.querySelectorAll("button");
+        dots.forEach((dot, i) =>
+          dot.classList.toggle("active", i === this.currentSlide)
+        );
+      }
+
+      /* --- Progress bar --- */
+      setupProgressBar() { this.updateProgress(); }
+      updateProgress() {
+        const pct =
+          this.slides.length > 1
+            ? (this.currentSlide / (this.slides.length - 1)) * 100
+            : 100;
+        this.progressBar.style.width = pct + "%";
+      }
+    }
+
+    // Boot it up, bro.
+    new SlidePresentation();
+  </script>
+</body>
+</html>
