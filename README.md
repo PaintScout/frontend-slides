@@ -1,10 +1,12 @@
 # Frontend Slides
 
-A Claude Code skill for creating stunning, animation-rich HTML presentations — from scratch or by converting PowerPoint files.
+A Claude Code skill for creating stunning, animation-rich HTML presentations — from scratch or by converting PowerPoint files. Defaults to the PaintScout brand, but can produce any visual style on request.
 
 ## What This Does
 
-**Frontend Slides** helps non-designers create beautiful web presentations without knowing CSS or JavaScript. It uses a "show, don't tell" approach: instead of asking you to describe your aesthetic preferences in words, it generates visual previews and lets you pick what you like.
+**Frontend Slides** helps non-designers create beautiful web presentations without knowing CSS or JavaScript. By default it builds decks on the **PaintScout brand** (colors, typography, voice, and the 13-layout slide library). Ask for a different look and it switches to a "show, don't tell" style discovery flow instead — it generates visual options and you pick what you like.
+
+Every deck is a single self-contained HTML file: no dependencies, works offline, opens in any browser.
 
 Here is a deck about the skill, made through the skill:
 
@@ -12,47 +14,49 @@ https://github.com/user-attachments/assets/ef57333e-f879-432a-afb9-180388982478
 
 ### Key Features
 
+- **PaintScout brand by default** — On-brand decks with no setup; just describe your content.
 - **Zero Dependencies** — Single HTML files with inline CSS/JS. No npm, no build tools, no frameworks.
-- **Visual Style Discovery** — Can't articulate design preferences? No problem. Pick from generated visual previews.
+- **Visual Style Discovery (on request)** — Want something off-brand? Pick from generated visual previews instead of describing preferences in words.
 - **PPT Conversion** — Convert existing PowerPoint files to web, preserving all images and content.
-- **Anti-AI-Slop** — Curated distinctive styles that avoid generic AI aesthetics (bye-bye, purple gradients on white).
-- **Production Quality** — Accessible, responsive, well-commented code you can customize.
+- **Shareable output** — Download the HTML, or publish it to a private claude.ai link in one step.
 
-## Installation
+## Quick Start
 
-Clone directly into your Claude Code skills directory:
+**This is a repository skill — there's nothing to install.** Open this repo in Claude Code (on the web at [claude.ai/code](https://claude.ai/code), or locally) and the skill loads automatically.
 
-```bash
-git clone https://github.com/ColtonRhyason/frontend-slides.git ~/.claude/skills/frontend-slides
-```
+1. Open the repo in Claude Code and start a session.
+2. Type `/frontend-slides`, or just describe what you want:
+   > "Make me a 10-slide pitch deck about our commercial estimating workflow."
+3. Answer a couple of quick questions, and you get a finished `.html` deck you can download or get a shareable link for.
 
-Then use it by typing `/frontend-slides` in Claude Code.
-
-### Keeping It Up to Date
-
-Pull the latest changes at any time:
-
-```bash
-cd ~/.claude/skills/frontend-slides && git pull
-```
+**New to this?** See **[GETTING_STARTED.md](GETTING_STARTED.md)** — a plain-language, click-by-click guide written for non-technical teammates.
 
 ## Usage
 
-### Create a New Presentation
+### Create a New Presentation (PaintScout brand)
 
 ```
 /frontend-slides
 
-> "I want to create a pitch deck for my AI startup"
+> "I want a pitch deck for winning bigger commercial painting jobs"
 ```
 
 The skill will:
 
-1. Ask about your content (slides, messages, images)
-2. Ask about the feeling you want (impressed? excited? calm?)
-3. Generate 3 visual style previews for you to compare
-4. Create the full presentation in your chosen style
-5. Open it in your browser
+1. Confirm it's using the PaintScout brand (say the word for a different style)
+2. Ask about your content and scope (length, what you have ready)
+3. Build the full presentation on the PaintScout slide library
+4. Hand it to you: a downloadable HTML file and, optionally, a private shareable link
+
+### Create an Off-Brand / Custom-Style Deck
+
+```
+/frontend-slides
+
+> "Make a fun, retro children's-book style deck — not PaintScout branded"
+```
+
+When you ask for a specific look (or a clearly non-PaintScout topic), the skill skips the brand and runs style discovery, letting you choose from curated visual presets.
 
 ### Convert a PowerPoint
 
@@ -62,104 +66,62 @@ The skill will:
 > "Convert my presentation.pptx to a web slideshow"
 ```
 
-The skill will:
+It extracts all text, images, and notes, confirms the content with you, then generates an HTML presentation with your original assets.
 
-1. Extract all text, images, and notes from your PPT
-2. Show you the extracted content for confirmation
-3. Let you pick a visual style
-4. Generate an HTML presentation with all your original assets
+## Included Styles (off-brand mode)
 
-## Included Styles
+When you opt out of PaintScout branding, these curated presets are available:
 
-### Dark Themes
+**Dark:** Bold Signal · Electric Studio · Creative Voltage · Dark Botanical
+**Light:** Notebook Tabs · Pastel Geometry · Split Pastel · Vintage Editorial
+**Specialty:** Neon Cyber · Terminal Green · Swiss Modern · Paper & Ink
 
-- **Bold Signal** — Confident, high-impact, vibrant card on dark
-- **Electric Studio** — Clean, professional, split-panel
-- **Creative Voltage** — Energetic, retro-modern, electric blue + neon
-- **Dark Botanical** — Elegant, sophisticated, warm accents
-
-### Light Themes
-
-- **Notebook Tabs** — Editorial, organized, paper with colorful tabs
-- **Pastel Geometry** — Friendly, approachable, vertical pills
-- **Split Pastel** — Playful, modern, two-color vertical split
-- **Vintage Editorial** — Witty, personality-driven, geometric shapes
-
-### Specialty
-
-- **Neon Cyber** — Futuristic, particle backgrounds, neon glow
-- **Terminal Green** — Developer-focused, hacker aesthetic
-- **Swiss Modern** — Minimal, Bauhaus-inspired, geometric
-- **Paper & Ink** — Literary, drop caps, pull quotes
+See [`samples/`](samples/) for three finished example decks (with the exact prompts that produced them) spanning very different styles.
 
 ## Architecture
 
-This skill uses **progressive disclosure** — the main `SKILL.md` is a concise map (~180 lines), with supporting files loaded on-demand only when needed:
+This skill uses **progressive disclosure** — `SKILL.md` is a concise map, with supporting files loaded on-demand only when needed. Everything lives in [`.claude/skills/frontend-slides/`](.claude/skills/frontend-slides/):
 
-| File                      | Purpose                        | Loaded When               |
-| ------------------------- | ------------------------------ | ------------------------- |
-| `SKILL.md`                | Core workflow and rules        | Always (skill invocation) |
-| `STYLE_PRESETS.md`        | 12 curated visual presets      | Phase 2 (style selection) |
-| `viewport-base.css`       | Mandatory responsive CSS       | Phase 3 (generation)      |
-| `html-template.md`        | HTML structure and JS features | Phase 3 (generation)      |
-| `animation-patterns.md`   | CSS/JS animation reference     | Phase 3 (generation)      |
-| `scripts/extract-pptx.py` | PPT content extraction         | Phase 4 (conversion)      |
-| `scripts/deploy.sh`       | Deploy to Vercel               | Phase 6 (sharing)         |
-| `scripts/export-pdf.sh`   | Export slides to PDF           | Phase 6 (sharing)         |
+| File                            | Purpose                                                | Loaded When                  |
+| ------------------------------- | ------------------------------------------------------ | ---------------------------- |
+| `SKILL.md`                      | Core workflow and rules                                | Always (skill invocation)    |
+| `paintscout-brand.md`           | PaintScout brand rules, voice, color tokens, layouts   | Default (brand mode)         |
+| `paintscout-slide-library.html` | Master template with all 13 PaintScout layouts         | Default (brand mode)         |
+| `PROMPT.md`                     | PaintScout build workflow and constraints              | Default (brand mode)         |
+| `STYLE_PRESETS.md`              | 12 curated visual presets                              | Style discovery (off-brand)  |
+| `viewport-base.css`             | Mandatory responsive CSS                               | Generation                   |
+| `html-template.md`              | HTML structure and JS features                         | Generation                   |
+| `animation-patterns.md`         | CSS/JS animation reference                             | Generation                   |
+| `scripts/inline-fonts.mjs`      | Embed fonts so a deck is self-contained for artifacts  | Publishing a shareable link  |
+| `scripts/extract-pptx.py`       | PPT content extraction                                 | PPT conversion               |
+| `scripts/export-pdf.sh`         | Export slides to PDF                                   | Sharing                      |
+| `scripts/deploy.sh`             | Deploy to Vercel                                       | Sharing                      |
 
-This design follows [OpenAI's harness engineering](https://openai.com/index/harness-engineering/) principle: "give the agent a map, not a 1,000-page instruction manual."
-
-## Philosophy
-
-This skill was born from the belief that:
-
-1. **You don't need to be a designer to make beautiful things.** You just need to react to what you see.
-
-2. **Dependencies are debt.** A single HTML file will work in 10 years. A React project from 2019? Good luck.
-
-3. **Generic is forgettable.** Every presentation should feel custom-crafted, not template-generated.
-
-4. **Comments are kindness.** Code should explain itself to future-you (or anyone else who opens it).
+This follows [OpenAI's harness engineering](https://openai.com/index/harness-engineering/) principle: "give the agent a map, not a 1,000-page instruction manual."
 
 ## Sharing Your Presentations
 
-After creating a presentation, the skill offers two ways to share it:
-
-### Deploy to a Live URL
-
-One command deploys your slides to a permanent, shareable URL that works on any device — phones, tablets, laptops:
-
-```bash
-bash scripts/deploy.sh ./my-deck/
-# or
-bash scripts/deploy.sh ./presentation.html
-```
-
-Uses [Vercel](https://vercel.com) (free tier). The skill walks you through signup and login if it's your first time.
-
-### Export to PDF
-
-Convert your slides to a PDF for email, Slack, Notion, or printing:
-
-```bash
-bash scripts/export-pdf.sh ./my-deck/index.html
-bash scripts/export-pdf.sh ./presentation.html ./output.pdf
-```
-
-Uses [Playwright](https://playwright.dev) to capture each slide at 2× device pixel ratio (3840×2160 screenshots rendered into 1920×1080 PDF pages) for crisp, retina-quality output. Installs automatically if needed. Animations are not preserved (it's a static snapshot).
+- **Download** — The deck is a single self-contained `.html` file. Download it from Claude Code and double-click to open in any browser.
+- **Shareable link** — Ask for a link and the skill embeds the fonts and publishes the deck to a private claude.ai page you can open anywhere and share.
+- **PDF** — Ask to export a PDF (uses [Playwright](https://playwright.dev), installs automatically; animations become a static snapshot).
+- **Live URL (Vercel)** — Ask to deploy for a permanent public link on the free tier.
 
 ## Requirements
 
-- [Claude Code](https://claude.ai/claude-code) CLI
-- For PPT conversion: Python with `python-pptx` library
-- For URL deployment: Node.js + Vercel account (free)
-- For PDF export: Node.js (Playwright installs automatically)
+- [Claude Code](https://claude.ai/code) — on the web or local. **In the web version, everything runs in the cloud; there's nothing to install.**
+- For PPT conversion: Python with `python-pptx` (handled for you in the web container)
+- For PDF export / Vercel deploy: Node.js (Playwright installs automatically; Vercel needs a free account)
+
+## Philosophy
+
+1. **You don't need to be a designer to make beautiful things.** You just need to react to what you see.
+2. **Dependencies are debt.** A single HTML file will work in 10 years. A React project from 2019? Good luck.
+3. **Generic is forgettable.** Every presentation should feel custom-crafted, not template-generated.
+4. **Comments are kindness.** Code should explain itself to future-you.
 
 ## Credits
 
-Maintained by [@ColtonRhyason](https://github.com/ColtonRhyason). Originally created by [@zarazhangrui](https://github.com/zarazhangrui) with Claude Code.
-
-Inspired by the "Vibe Coding" philosophy — building beautiful things without being a traditional software engineer.
+Adapted for PaintScout from the open-source skill maintained by [@ColtonRhyason](https://github.com/ColtonRhyason), originally created by [@zarazhangrui](https://github.com/zarazhangrui) with Claude Code.
 
 ## License
 

@@ -82,19 +82,13 @@ Before delivering, figure out where you are running. This changes how you hand t
 
 ---
 
-## PaintScout Context Detection
+## PaintScout Branding (DEFAULT)
 
-**Check for PaintScout context BEFORE anything else.** Trigger when any of these are true:
+**The PaintScout brand is the default for every presentation.** Unless the user clearly asks for a different look (see "When to use a different style" below), build the deck on the PaintScout brand and slide library — do **not** run style discovery, and do **not** invent a new aesthetic.
 
-- User asks for a "PaintScout" deck, presentation, or workshop
-- User mentions painting contractors, estimating, or painting-business topics in a PaintScout context
-- User uploads PaintScout-branded source material (existing decks, logos, screenshots)
-- User identifies themselves as working at or consulting for PaintScout
-- Conversation memory indicates PaintScout work context
+**By default — for any new presentation:**
 
-**When PaintScout context is detected:**
-
-1. **Read both files in full before doing anything else:**
+1. **Read both files in full before generating:**
    - [`paintscout-brand.md`](paintscout-brand.md) — official brand rules, voice, color tokens, layout catalog
    - [`paintscout-slide-library.html`](paintscout-slide-library.html) — the authoritative template with all 13 layouts
 
@@ -104,7 +98,20 @@ Before delivering, figure out where you are running. This changes how you hand t
 
 4. **Never regenerate CSS or layouts from scratch** — clone the template and edit content only.
 
+5. **Tell the user, don't ask:** Briefly mention you're using the PaintScout brand, e.g. _"I'll build this on the PaintScout brand template — just say the word if you'd rather a different visual style."_ Do not block on a style question.
+
 > When a teammate installs this skill, `paintscout-brand.md`, `paintscout-slide-library.html`, and `PROMPT.md` are all included in the skill directory. No additional setup required.
+
+### When to use a different style instead (opt-out)
+
+Switch OFF the PaintScout default and use the general style path (Phase 2 style discovery + the presets in [STYLE_PRESETS.md](STYLE_PRESETS.md)) only when the user clearly signals it — for example:
+
+- They name a specific aesthetic, theme, or mood ("make it look retro / neon / like a children's book", "dark and minimal")
+- They ask for a non-PaintScout, non-painting topic where PaintScout branding would be inappropriate (e.g. a personal project, a different company, a creative/fun deck)
+- They explicitly say "not PaintScout branded", "generic", "unbranded", or pick a preset directly
+- They provide their own brand assets / a different brand to follow
+
+When opting out, ignore `paintscout-brand.md` / `paintscout-slide-library.html` / `PROMPT.md` entirely and follow the standard Phase 1 → Phase 2 → Phase 3 flow. If it's genuinely ambiguous whether they want PaintScout branding, default to PaintScout but say so, so they can redirect in one sentence.
 
 ---
 
@@ -170,6 +177,8 @@ If user provides an image folder:
 ---
 
 ## Phase 2: Style Discovery
+
+> **Skip this phase by default.** PaintScout branding is the default (see "PaintScout Branding (DEFAULT)" above) — go straight from Phase 1 to Phase 3 using the brand template. Only run Phase 2 when the user has opted out of PaintScout branding.
 
 **This is the "show, don't tell" phase.** Most people can't articulate design preferences in words.
 
