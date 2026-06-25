@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CX Update — PaintScout</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" crossorigin="anonymous">
+
+    <style>
+        /* ====================================================================
+           THEME — PAINTSCOUT BRAND TOKENS
+           ==================================================================== */
+        :root {
+            --ps-blue-50: #0559d2;
+            --ps-blue-55: #0766ee;
+            --ps-blue-60: #2377fd;
+            --ps-blue-65: #438aff;
+            --ps-blue-70: #639dfe;
+            --ps-blue-80: #98bffe;
+
+            --ps-n30: #1b2e4c;
+            --ps-n35: #283b5a;
+            --ps-n40: #2f4870;
+            --ps-n50: #4a648e;
+            --ps-n60: #6b81a5;
+            --ps-n70: #8e9fbb;
+            --ps-n80: #b3bfd2;
+            --ps-n90: #d8dee8;
+            --ps-n95: #ebeff5;
+            --ps-n98: #f6f9fc;
+            --ps-white: #ffffff;
+
+            --bg-light: var(--ps-n98);
+            --bg-light-alt: var(--ps-n95);
+            --bg-dark: var(--ps-n30);
+            --bg-blue: var(--ps-blue-55);
+            --text-primary: var(--ps-n30);
+            --text-secondary: var(--ps-n50);
+            --text-on-dark: #ffffff;
+            --text-on-blue: #ffffff;
+            --text-muted-on-dark: var(--ps-blue-80);
+            --accent: var(--ps-blue-55);
+
+            --font-display: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+            --title-size: clamp(2rem, 6vw, 5.5rem);
+            --h1-size: clamp(2rem, 5.5vw, 4.5rem);
+            --h2-size: clamp(1.5rem, 4vw, 3rem);
+            --h3-size: clamp(1.25rem, 3vw, 2rem);
+            --body-size: clamp(0.875rem, 1.5vw, 1.125rem);
+            --body-large: clamp(1rem, 1.8vw, 1.25rem);
+            --small-size: clamp(0.7rem, 1vw, 0.875rem);
+
+            --slide-padding: clamp(1.5rem, 4vw, 4rem);
+            --content-gap: clamp(0.75rem, 2vw, 2rem);
+            --element-gap: clamp(0.5rem, 1vw, 1rem);
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+            --duration-fast: 0.25s;
+        }
+
+        /* ====================================================================
+           BASE RESET
+           ==================================================================== */
+        *, *::before, *::after {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
+        body {
+            font-family: var(--font-body);
+            font-size: var(--body-size);
+            line-height: 1.4;
+            color: var(--text-primary);
+            background: var(--bg-light);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ====================================================================
+           VIEWPORT-BASE — every slide = 100vh, no scroll
+           ==================================================================== */
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+        }
+
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(1rem, 3vw, 2.5rem);
+                --content-gap: clamp(0.5rem, 1.5vw, 1.25rem);
+                --title-size: clamp(1.5rem, 5vw, 3.5rem);
+                --h1-size: clamp(1.5rem, 4.5vw, 3rem);
+                --h2-size: clamp(1.25rem, 3.5vw, 2.25rem);
+            }
+        }
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 2.5vw, 1.75rem);
+                --content-gap: clamp(0.4rem, 1.2vw, 1rem);
+                --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+                --body-size: clamp(0.75rem, 1.2vw, 1rem);
+            }
+            .nav-dots, .keyboard-hint, .decorative { display: none; }
+        }
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2vw, 1.25rem);
+                --title-size: clamp(1rem, 4vw, 2rem);
+                --body-size: clamp(0.7rem, 1vw, 0.875rem);
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ====================================================================
+           SHARED COMPONENTS
+           ==================================================================== */
+        .dotted-grid {
+            background-image: radial-gradient(circle, var(--ps-n80) 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-position: 0 0;
+            opacity: 0.35;
+        }
+        .subtle-grid {
+            background-image:
+                linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+        .bg-pattern {
+            position: absolute; inset: 0; pointer-events: none; z-index: 0;
+        }
+
+        .ps-logo-corner {
+            position: absolute;
+            bottom: clamp(1rem, 2.5vh, 2rem);
+            left: clamp(1rem, 2.5vw, 2.5rem);
+            height: clamp(1.5rem, 2.4vw, 2rem);
+            width: auto; z-index: 5;
+        }
+        .ps-logo-corner svg { height: 100%; width: auto; display: block; }
+
+        .pill-tag {
+            position: absolute;
+            top: clamp(1rem, 2.5vh, 2rem);
+            right: clamp(1rem, 2.5vw, 2.5rem);
+            background: var(--ps-white);
+            color: var(--ps-n30);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: var(--small-size);
+            padding: clamp(0.5rem, 1vw, 0.75rem) clamp(0.85rem, 1.5vw, 1.25rem);
+            border-radius: 999px;
+            box-shadow: 0 2px 12px rgba(27, 46, 76, 0.08);
+            z-index: 5;
+        }
+        .pill-tag.on-dark {
+            background: rgba(255,255,255,0.1);
+            color: var(--ps-white);
+            backdrop-filter: blur(6px);
+            box-shadow: none;
+        }
+
+        .blue-accent { color: var(--accent); }
+        .navy-accent { color: var(--ps-n30); }
+        .white-muted { color: var(--ps-blue-80); }
+        .green-accent { color: #17b991; }
+
+        h1, h2, h3, h4, .display, .eyebrow {
+            font-family: var(--font-display);
+            font-weight: 600;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+        }
+        .display { font-size: var(--title-size); letter-spacing: -0.04em; }
+        h1 { font-size: var(--h1-size); }
+        h2 { font-size: var(--h2-size); }
+        h3 { font-size: var(--h3-size); }
+
+        .eyebrow {
+            font-size: var(--small-size);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+        }
+        p, li { font-family: var(--font-body); font-weight: 400; }
+
+        /* ====================================================================
+           REVEAL ANIMATIONS
+           ==================================================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+        .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+        .slide.visible .reveal:nth-child(1) { transition-delay: 0.05s; }
+        .slide.visible .reveal:nth-child(2) { transition-delay: 0.15s; }
+        .slide.visible .reveal:nth-child(3) { transition-delay: 0.25s; }
+        .slide.visible .reveal:nth-child(4) { transition-delay: 0.35s; }
+        .slide.visible .reveal:nth-child(5) { transition-delay: 0.45s; }
+        .slide.visible .reveal:nth-child(6) { transition-delay: 0.55s; }
+
+        /* ====================================================================
+           SLIDE 1 — COVER
+           ==================================================================== */
+        .slide.cover { background: var(--bg-light); }
+        .cover-inner {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; padding: var(--slide-padding);
+            position: relative; z-index: 1;
+        }
+        .cover-eyebrow { margin-bottom: var(--element-gap); }
+        .cover-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(2.25rem, 7vw, 6rem);
+            line-height: 1; letter-spacing: -0.04em;
+            color: var(--ps-n30); max-width: 90%;
+        }
+        .cover-subtitle {
+            margin-top: var(--content-gap);
+            font-size: var(--body-large);
+            color: var(--text-secondary); max-width: 60ch;
+        }
+        .cover-date {
+            position: absolute;
+            bottom: clamp(1rem, 2.5vh, 2rem);
+            right: clamp(1rem, 2.5vw, 2.5rem);
+            font-size: var(--small-size);
+            color: var(--ps-n60);
+            font-family: var(--font-body);
+        }
+
+        /* ====================================================================
+           SECTION DIVIDERS
+           ==================================================================== */
+        .slide.section-divider-blue {
+            background: var(--bg-blue); color: var(--text-on-blue);
+            align-items: center; justify-content: center;
+        }
+        .slide.section-divider-navy {
+            background: var(--bg-dark); color: var(--text-on-dark);
+            align-items: center; justify-content: center;
+        }
+        .divider-inner {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center; padding: var(--slide-padding); z-index: 1;
+        }
+        .divider-number {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: clamp(2.5rem, 5vw, 3.75rem); height: clamp(2.5rem, 5vw, 3.75rem);
+            background: var(--ps-white); color: var(--accent);
+            border-radius: 12px; font-family: var(--font-display); font-weight: 700;
+            font-size: clamp(1.25rem, 2.5vw, 2rem); margin-bottom: var(--content-gap);
+        }
+        .slide.section-divider-navy .divider-number {
+            background: var(--accent); color: var(--ps-white);
+        }
+        .divider-title {
+            font-family: var(--font-display); font-weight: 700;
+            font-size: clamp(2.5rem, 7vw, 5.5rem);
+            line-height: 1; letter-spacing: -0.04em;
+        }
+
+        /* ====================================================================
+           STATS SLIDE (dark)
+           ==================================================================== */
+        .slide.stats { background: var(--bg-dark); color: var(--text-on-dark); }
+        .stats-inner {
+            flex: 1; display: flex; flex-direction: column; justify-content: center;
+            padding: var(--slide-padding); gap: var(--content-gap); z-index: 1;
+        }
+        .stats-header { text-align: center; max-width: 80ch; margin: 0 auto; }
+        .stats-header h2 { color: var(--text-on-dark); }
+        .stats-header p { margin-top: 0.5rem; color: var(--ps-n70); font-size: var(--body-size); }
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.75rem, 1.5vw, 1.25rem);
+            max-width: min(95vw, 1100px); margin: 0 auto; width: 100%;
+        }
+        .stats-grid.two-col { grid-template-columns: repeat(2, 1fr); max-width: min(70vw, 800px); }
+        .stat-card {
+            padding: clamp(1.25rem, 2.5vw, 2rem); border-radius: clamp(0.75rem, 1.5vw, 1.25rem);
+            display: flex; flex-direction: column; gap: clamp(0.4rem, 0.8vw, 0.75rem);
+            min-height: clamp(10rem, 20vh, 14rem);
+        }
+        .stat-card.variant-light { background: var(--ps-n95); color: var(--ps-n30); }
+        .stat-card.variant-outline { background: transparent; border: 1px solid var(--ps-blue-80); color: var(--ps-blue-80); }
+        .stat-card.variant-filled { background: var(--accent); color: var(--ps-white); }
+        .stat-card.variant-green { background: #0d9e7c; color: var(--ps-white); }
+        .stat-number {
+            font-family: var(--font-display); font-weight: 700;
+            font-size: clamp(2rem, 5.5vw, 4.5rem); line-height: 1; letter-spacing: -0.04em;
+        }
+        .stat-card.variant-light .stat-number { color: var(--accent); }
+        .stat-label { font-family: var(--font-body); font-size: var(--body-size); opacity: 0.9; line-height: 1.3; }
+        .stat-sublabel { font-size: var(--small-size); opacity: 0.7; margin-top: 0.25rem; }
+        .stat-trend {
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            font-family: var(--font-display); font-weight: 600;
+            font-size: var(--small-size); margin-top: auto;
+        }
+        .trend-up { color: #17b991; }
+        .trend-goal { color: var(--ps-blue-80); }
+        @media (max-width: 900px) { .stats-grid, .stats-grid.two-col { grid-template-columns: 1fr; } .stat-card { min-height: auto; } }
+
+        /* ====================================================================
+           CONTENT BULLETS SLIDE (light)
+           ==================================================================== */
+        .slide.content-light { background: var(--bg-light); }
+        .content-light-inner {
+            flex: 1; display: flex; flex-direction: column; justify-content: center;
+            padding: var(--slide-padding); gap: var(--content-gap); z-index: 1;
+            max-width: min(95vw, 1100px); margin: 0 auto; width: 100%;
+        }
+        .content-light-inner h2 { color: var(--ps-n30); }
+        .content-light-inner p { color: var(--text-secondary); font-size: var(--body-large); margin-bottom: var(--element-gap); }
+        .bullet-list {
+            list-style: none; display: flex; flex-direction: column;
+            gap: clamp(0.6rem, 1.2vw, 1rem);
+        }
+        .bullet-list li {
+            display: flex; align-items: flex-start; gap: clamp(0.75rem, 1.2vw, 1rem);
+            font-size: var(--body-large); color: var(--ps-n35); line-height: 1.4;
+        }
+        .bullet-icon {
+            flex-shrink: 0; width: clamp(1.5rem, 2.5vw, 2rem); height: clamp(1.5rem, 2.5vw, 2rem);
+            background: var(--ps-n95); border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            margin-top: 0.1em;
+        }
+        .bullet-icon svg { width: 60%; height: 60%; fill: var(--accent); }
+
+        /* Two-column team update layout */
+        .team-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: clamp(1rem, 2vw, 2rem);
+        }
+        .team-card {
+            background: var(--ps-white); border: 1px solid var(--ps-n90);
+            border-radius: clamp(0.75rem, 1.5vw, 1.25rem);
+            padding: clamp(1.25rem, 2.5vw, 2rem);
+            box-shadow: 0 4px 16px rgba(27,46,76,0.06);
+            display: flex; flex-direction: column; gap: 0.75rem;
+        }
+        .team-card-name {
+            font-family: var(--font-display); font-weight: 600;
+            font-size: clamp(1rem, 2vw, 1.5rem); color: var(--ps-n30);
+        }
+        .team-card-role {
+            font-size: var(--small-size); font-family: var(--font-display);
+            font-weight: 500; color: var(--accent); text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .team-card-desc {
+            font-size: var(--body-size); color: var(--ps-n50); line-height: 1.45;
+        }
+        .team-badge {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-family: var(--font-display); font-weight: 500;
+            font-size: var(--small-size); color: var(--ps-n30);
+            background: var(--ps-n95); padding: 0.35rem 0.75rem;
+            border-radius: 999px; width: fit-content;
+        }
+        @media (max-width: 900px) { .team-grid { grid-template-columns: 1fr; } }
+
+        /* ====================================================================
+           TTV CHART SLIDE
+           ==================================================================== */
+        .slide.ttv-slide { background: var(--bg-light); }
+        .ttv-inner {
+            flex: 1; display: flex; flex-direction: column; justify-content: center;
+            padding: var(--slide-padding); gap: var(--content-gap); z-index: 1;
+        }
+        .ttv-inner h2 { color: var(--ps-n30); }
+        .ttv-chart-wrap {
+            flex: 1; display: flex; flex-direction: column; justify-content: center;
+            max-height: 60vh;
+        }
+        .ttv-chart {
+            width: 100%; height: clamp(180px, 38vh, 340px);
+            position: relative;
+        }
+        /* SVG chart is inline — see HTML below */
+        .ttv-footnote {
+            font-size: var(--small-size); color: var(--ps-n60);
+            text-align: center; margin-top: 0.5rem;
+        }
+
+        /* ====================================================================
+           NPS SLIDE (dark with custom donut)
+           ==================================================================== */
+        .slide.nps-slide { background: var(--bg-dark); color: var(--text-on-dark); }
+        .nps-inner {
+            flex: 1; display: flex; flex-direction: column; justify-content: center;
+            padding: var(--slide-padding); gap: var(--content-gap); z-index: 1;
+        }
+        .nps-inner h2 { color: var(--text-on-dark); }
+        .nps-layout {
+            display: grid; grid-template-columns: 1fr 1.5fr;
+            gap: clamp(2rem, 4vw, 5rem); align-items: center;
+        }
+        .nps-score-block { text-align: center; }
+        .nps-score-number {
+            font-family: var(--font-display); font-weight: 700;
+            font-size: clamp(5rem, 14vw, 11rem); line-height: 0.9;
+            letter-spacing: -0.05em; color: var(--ps-white);
+        }
+        .nps-score-label {
+            font-size: var(--body-size); color: var(--ps-blue-80);
+            margin-top: 0.75rem; font-family: var(--font-display); font-weight: 500;
+        }
+        .nps-context {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; padding: 0.75rem 1rem; margin-top: 1rem;
+            font-size: var(--small-size); color: var(--ps-blue-80); line-height: 1.4;
+        }
+        .nps-bars { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.2vw, 1rem); }
+        .nps-bar-row { display: flex; align-items: center; gap: 1rem; }
+        .nps-bar-label {
+            font-family: var(--font-display); font-weight: 500;
+            font-size: var(--body-size); color: var(--ps-white);
+            min-width: clamp(5rem, 9vw, 8rem);
+        }
+        .nps-bar-track {
+            flex: 1; height: clamp(1.5rem, 3vw, 2.5rem);
+            background: rgba(255,255,255,0.08); border-radius: 6px; overflow: hidden;
+        }
+        .nps-bar-fill {
+            height: 100%; border-radius: 6px;
+            display: flex; align-items: center; padding-left: 0.75rem;
+            font-family: var(--font-display); font-weight: 600;
+            font-size: var(--small-size); color: var(--ps-white);
+            transition: width 1.2s var(--ease-out-expo);
+        }
+        .nps-bar-fill.promoter { background: #17b991; }
+        .nps-bar-fill.passive { background: var(--ps-n50); }
+        .nps-bar-fill.detractor { background: #e05252; }
+        .nps-bar-pct {
+            font-family: var(--font-display); font-weight: 600;
+            font-size: var(--body-size); color: var(--ps-white);
+            min-width: 3.5rem; text-align: right;
+        }
+        .nps-responses {
+            font-family: var(--font-display); font-weight: 500;
+            font-size: var(--body-size); color: var(--ps-blue-80);
+            margin-top: var(--element-gap);
+        }
+        @media (max-width: 900px) { .nps-layout { grid-template-columns: 1fr; } }
+
+        /* ====================================================================
+           QUOTES GRID SLIDES
+           ==================================================================== */
+        .slide.quotes-slide { background: var(--bg-light); }
+        .quotes-inner {
+            flex: 1; display: flex; flex-direction: column; justify-content: center;
+            padding: var(--slide-padding); gap: var(--content-gap); z-index: 1;
+        }
+        .quotes-inner h2 { color: var(--ps-n30); }
+        .quotes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.6rem, 1.2vw, 1rem);
+            flex: 1;
+        }
+        .quote-card {
+            background: var(--ps-white); border: 1px solid var(--ps-n90);
+            border-radius: clamp(0.6rem, 1.2vw, 1rem);
+            padding: clamp(0.875rem, 1.75vw, 1.5rem);
+            box-shadow: 0 2px 8px rgba(27,46,76,0.05);
+            display: flex; flex-direction: column; gap: 0.5rem;
+            position: relative;
+        }
+        .quote-card.feedback {
+            background: var(--ps-n95);
+            border-color: var(--ps-n80);
+        }
+        .quote-mark {
+            font-family: var(--font-display); font-weight: 700;
+            font-size: clamp(2rem, 4vw, 3rem); line-height: 0.8;
+            color: var(--accent); opacity: 0.25;
+        }
+        .quote-text {
+            font-family: var(--font-body); font-size: var(--small-size);
+            color: var(--ps-n35); line-height: 1.5; font-style: italic;
+        }
+        .quote-type {
+            margin-top: auto; font-family: var(--font-display); font-weight: 500;
+            font-size: calc(var(--small-size) * 0.9); text-transform: uppercase;
+            letter-spacing: 0.06em; color: var(--ps-n60);
+        }
+        .quote-type.positive { color: #0d9e7c; }
+        .quote-type.feedback { color: var(--ps-n50); }
+        @media (max-width: 900px) { .quotes-grid { grid-template-columns: 1fr; } }
+
+        /* ====================================================================
+           WHAT'S NEXT — NUMBERED LIST (DARK)
+           ==================================================================== */
+        .slide.numbered-list { background: var(--bg-dark); color: var(--text-on-dark); }
+        .numbered-list-inner {
+            flex: 1; display: flex; flex-direction: column; justify-content: center;
+            padding: var(--slide-padding); gap: var(--content-gap); z-index: 1;
+            max-width: min(90vw, 1100px); margin: 0 auto; width: 100%;
+        }
+        .numbered-list-inner h2 { color: var(--text-on-dark); margin-bottom: var(--element-gap); }
+        .numbered-list-items { display: flex; flex-direction: column; gap: clamp(0.75rem, 1.8vh, 1.5rem); }
+        .numbered-list-item {
+            display: flex; align-items: baseline;
+            gap: clamp(0.75rem, 1.5vw, 1.5rem);
+            font-family: var(--font-display); font-weight: 500;
+            font-size: clamp(1.1rem, 2.5vw, 2rem); letter-spacing: -0.02em; line-height: 1.15;
+        }
+        .numbered-list-item .num { color: var(--ps-blue-70); font-weight: 600; min-width: clamp(2rem, 4vw, 3.5rem); }
+        .numbered-list-item strong { font-weight: 700; color: var(--ps-white); }
+        .numbered-list-item span.detail { color: var(--ps-blue-80); font-weight: 400; font-size: 0.75em; margin-top: 0.15em; display: block; }
+
+        /* ====================================================================
+           CLOSING
+           ==================================================================== */
+        .slide.closing { background: var(--bg-dark); color: var(--text-on-dark); }
+        .closing-inner {
+            flex: 1; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; padding: var(--slide-padding); gap: var(--content-gap);
+            text-align: center; z-index: 1;
+        }
+        .closing-logomark { height: clamp(3rem, 6vw, 5rem); width: auto; }
+        .closing-title {
+            font-family: var(--font-display); font-weight: 700;
+            font-size: clamp(2.5rem, 7vw, 6rem); line-height: 1; letter-spacing: -0.04em;
+        }
+        .closing-subtitle { font-size: var(--body-large); color: var(--ps-n70); max-width: 60ch; }
+
+        /* ====================================================================
+           NAV DOTS & PROGRESS BAR
+           ==================================================================== */
+        .nav-dots {
+            position: fixed; right: clamp(0.75rem, 1.5vw, 1.5rem); top: 50%;
+            transform: translateY(-50%); display: flex; flex-direction: column;
+            gap: 0.5rem; z-index: 100;
+        }
+        .nav-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--ps-n80);
+            border: none; cursor: pointer; transition: all 0.2s ease; padding: 0;
+        }
+        .nav-dot:hover { background: var(--ps-blue-55); transform: scale(1.2); }
+        .nav-dot.active { background: var(--ps-blue-55); transform: scale(1.4); }
+
+        .progress-bar {
+            position: fixed; top: 0; left: 0; height: 3px;
+            background: var(--accent); z-index: 100; transition: width 0.2s ease; width: 0%;
+        }
+
+        /* ====================================================================
+           EDIT MODE
+           ==================================================================== */
+        .edit-hotzone { position: fixed; top: 0; left: 0; width: 80px; height: 80px; z-index: 10000; cursor: pointer; }
+        .edit-toggle {
+            position: fixed; top: clamp(0.75rem, 1.5vw, 1.25rem); left: clamp(0.75rem, 1.5vw, 1.25rem);
+            width: clamp(2.5rem, 4vw, 3rem); height: clamp(2.5rem, 4vw, 3rem);
+            border-radius: 50%; background: var(--ps-white); border: 1px solid var(--ps-n90);
+            box-shadow: 0 4px 16px rgba(27,46,76,0.15); cursor: pointer; z-index: 10001;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.2s ease;
+            font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+        }
+        .edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+        .edit-toggle.active { background: var(--accent); color: var(--ps-white); border-color: var(--accent); }
+        .edit-toggle:hover { transform: scale(1.08); }
+        body.edit-mode [data-editable] { outline: 2px dashed var(--accent); outline-offset: 4px; cursor: text; border-radius: 4px; }
+        body.edit-mode [data-editable]:focus { outline-style: solid; background: rgba(7,102,238,0.06); }
+        .edit-toast {
+            position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: var(--ps-n30); color: var(--ps-white); padding: 0.75rem 1.25rem;
+            border-radius: 999px; font-family: var(--font-display); font-weight: 500;
+            font-size: var(--small-size); z-index: 10002; transition: transform 0.3s var(--ease-out-expo);
+            pointer-events: none; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .edit-toast.show { transform: translateX(-50%) translateY(0); }
+        .keyboard-hint {
+            position: absolute; bottom: clamp(1rem, 2vh, 1.5rem); right: clamp(1rem, 2.5vw, 2.5rem);
+            font-size: var(--small-size); color: var(--ps-n60); font-family: var(--font-body); opacity: 0.8;
+        }
+        .keyboard-hint kbd { background: var(--ps-n95); border: 1px solid var(--ps-n90); border-radius: 4px; padding: 2px 6px; font-family: inherit; font-size: 0.9em; color: var(--ps-n40); }
+    </style>
+</head>
+<body>
+    <div class="progress-bar"></div>
+    <div class="edit-hotzone"></div>
+    <button class="edit-toggle" id="editToggle" title="Edit mode (E)">✏️</button>
+    <div class="edit-toast" id="editToast">Edit mode on — click any text</div>
+
+    <!-- =====================================================================
+         SLIDE 1 — COVER
+         ===================================================================== -->
+    <section class="slide cover">
+        <div class="bg-pattern dotted-grid"></div>
+        <div class="cover-inner">
+            <div class="eyebrow cover-eyebrow reveal" data-editable>Customer Experience</div>
+            <h1 class="cover-title reveal" data-editable>CX <span class="blue-accent">Update</span></h1>
+            <p class="cover-subtitle reveal" data-editable>Metrics, momentum, and what's next for the customer experience team.</p>
+        </div>
+        <!-- PaintScout horizontal logo -->
+        <div class="ps-logo-corner">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2117.59 432">
+                <g fill="#2c384d"><path d="M614.74,174.24c0,48.66-37.84,86.14-89.75,86.14h-32.8v83.62h-52.26V88.1h85.06c51.9,0,89.75,37.48,89.75,86.14ZM563.92,174.24c0-20.9-15.86-37.12-39.65-37.12h-32.08v74.25h32.08c23.79,0,39.65-16.22,39.65-37.12Z"/><path d="M694.93,159.82c24.87,0,43.97,12.62,51.9,24.15v-20.18h49.38v180.21h-49.38v-20.18c-7.93,11.53-27.03,24.15-51.9,24.15-47.94,0-84.7-42.89-84.7-94.07s36.76-94.07,84.7-94.07ZM705.39,204.88c-27.03,0-45.41,20.9-45.41,49.02s18.38,49.02,45.41,49.02,45.41-20.9,45.41-49.02-18.38-49.02-45.41-49.02Z"/><path d="M845.23,134.23c-16.94,0-31.36-14.06-31.36-31.36s14.42-31.36,31.36-31.36,31.72,14.06,31.72,31.36-14.06,31.36-31.72,31.36ZM820.72,163.79h49.38v180.21h-49.38v-180.21Z"/><path d="M894.25,163.79h49.38v20.54c9.37-14.42,28.11-24.51,51.54-24.51,43.61,0,69.56,31.72,69.56,78.57v105.61h-49.38v-97.32c0-25.95-11.17-41.81-31.72-41.81-22.71,0-40.01,16.58-40.01,51.18v87.94h-49.38v-180.21Z"/><path d="M1173.32,346.16c-38.21,0-68.84-21.26-68.84-65.24v-73.89h-36.4v-43.25h36.4v-50.1h49.38v50.1h50.82v43.25h-50.82v64.16c0,21.99,9.37,30.64,30.64,30.64,7.93,0,14.42-1.08,20.18-3.24v43.61c-7.93,2.52-17.66,3.96-31.36,3.96Z"/><path d="M1263.43,264.71c3.6,23.07,23.43,35.32,46.13,35.32,20.91,0,36.4-9.73,36.4-25.95,0-13.7-9.73-24.15-34.24-31l-27.03-7.93c-40.37-11.53-66.68-36.76-67.04-75.69-.36-47.22,34.6-75.69,85.78-75.69,55.15,0,87.94,39.65,89.75,77.85h-51.9c-5.77-21.62-22.71-29.55-37.84-29.55-18.38,0-32.8,8.65-33.16,23.79-.36,15.86,11.17,24.51,32.08,30.64l29.92,8.29c41.45,11.53,66.32,37.84,66.32,77.49,0,43.61-35.32,76.05-89.03,76.05-61.27,0-96.23-41.45-98.4-83.62h52.26Z"/><path d="M1503.83,347.96c-54.79,0-94.79-41.81-94.79-94.07s40.01-94.07,94.79-94.07c49.74,0,82.54,31.36,92.27,72.81h-51.18c-6.85-16.22-20.18-28.11-41.09-28.11-25.95,0-45.05,19.46-45.05,49.38s19.1,49.38,45.05,49.38c20.91,0,34.24-11.89,41.09-28.11h51.18c-9.73,41.45-42.53,72.81-92.27,72.81Z"/><path d="M1700.97,347.96c-52.26,0-94.79-41.45-94.79-94.07s42.53-94.07,94.79-94.07,94.79,41.45,94.79,94.07-42.53,94.07-94.79,94.07ZM1700.97,301.83c25.95,0,44.69-20.18,44.69-47.94s-18.74-47.94-44.69-47.94-45.05,20.18-45.05,47.94,19.1,47.94,45.05,47.94Z"/><path d="M2117.59,207.04v-43.25h-50.82v-50.1h-49.38v50.1h-91.87v87.94c0,34.96-15.14,51.18-37.12,51.18s-30.64-15.86-30.64-42.89v-96.23h-49.38v104.52c0,47.94,24.15,79.65,67.76,79.65,23.07,0,40.01-10.09,49.38-24.51v20.54h49.38v-136.96h42.49v73.89c0,43.97,30.64,65.24,68.84,65.24,13.7,0,23.43-1.44,31.36-3.96v-43.61c-5.77,2.16-12.25,3.24-20.18,3.24-21.26,0-30.64-8.65-30.64-30.64v-64.16h50.82Z"/></g>
+                <g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g>
+            </svg>
+        </div>
+        <div class="keyboard-hint decorative"><kbd>→</kbd> next · <kbd>E</kbd> edit</div>
+        <div class="cover-date" data-editable>June 2026</div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 2 — SECTION DIVIDER: CX METRICS
+         ===================================================================== -->
+    <section class="slide section-divider-blue">
+        <div class="bg-pattern subtle-grid"></div>
+        <div class="divider-inner">
+            <div class="divider-number reveal" data-editable>1</div>
+            <h1 class="divider-title reveal" data-editable>CX<br>Metrics</h1>
+        </div>
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 3 — CX METRICS: RESPONSE & CLOSE TIMES
+         ===================================================================== -->
+    <section class="slide stats">
+        <div class="bg-pattern subtle-grid"></div>
+        <span class="pill-tag on-dark" data-editable>Response & Resolution</span>
+        <div class="stats-inner">
+            <div class="stats-header reveal">
+                <h2 data-editable>Speed is trending the right way.</h2>
+                <p data-editable>First response time and time to close are both moving toward — and past — our goals.</p>
+            </div>
+            <div class="stats-grid reveal">
+                <div class="stat-card variant-light">
+                    <div class="stat-number" data-editable>~30 min</div>
+                    <div class="stat-label" data-editable>First response time — recent weeks</div>
+                    <div class="stat-sublabel" data-editable style="color: var(--ps-n50);">Was 110 min in April, 73 min avg overall</div>
+                    <div class="stat-trend trend-goal" data-editable>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        Goal: 15 min — getting there
+                    </div>
+                </div>
+                <div class="stat-card variant-outline">
+                    <div class="stat-number" data-editable>~1 hr</div>
+                    <div class="stat-label" data-editable>Time to close — recent weeks</div>
+                    <div class="stat-sublabel" data-editable>Trending down steadily</div>
+                    <div class="stat-trend trend-up" data-editable>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        Goal: 2 hrs — we're ahead
+                    </div>
+                </div>
+                <div class="stat-card variant-filled">
+                    <div class="stat-number" data-editable>346</div>
+                    <div class="stat-label" data-editable>Support tickets resolved this month</div>
+                    <div class="stat-sublabel" data-editable>With a growing team and faster close times</div>
+                </div>
+            </div>
+        </div>
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 4 — TEAM UPDATES
+         ===================================================================== -->
+    <section class="slide content-light">
+        <div class="bg-pattern dotted-grid"></div>
+        <span class="pill-tag" data-editable>Team</span>
+        <div class="content-light-inner">
+            <h2 class="reveal" data-editable>The team is growing.</h2>
+            <div class="team-grid reveal">
+                <div class="team-card">
+                    <div class="team-card-role" data-editable>Payments Specialist</div>
+                    <div class="team-card-name" data-editable>Emily</div>
+                    <p class="team-card-desc" data-editable>Fully transitioned into the Payments Specialist role this month. Measured on onboarding conversion, ticket resolution, and new merchant attachment.</p>
+                    <div class="team-badge" data-editable>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        Role fully active this month
+                    </div>
+                </div>
+                <div class="team-card">
+                    <div class="team-card-role" data-editable>Support</div>
+                    <div class="team-card-name" data-editable>Tyler</div>
+                    <p class="team-card-desc" data-editable>Joined the support team — our first ever referral hire. A strong signal that the team culture is worth sharing.</p>
+                    <div class="team-badge" data-editable>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent)"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                        First referral hire
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ps-logo-corner">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2117.59 432"><g fill="#2c384d"><path d="M614.74,174.24c0,48.66-37.84,86.14-89.75,86.14h-32.8v83.62h-52.26V88.1h85.06c51.9,0,89.75,37.48,89.75,86.14ZM563.92,174.24c0-20.9-15.86-37.12-39.65-37.12h-32.08v74.25h32.08c23.79,0,39.65-16.22,39.65-37.12Z"/><path d="M694.93,159.82c24.87,0,43.97,12.62,51.9,24.15v-20.18h49.38v180.21h-49.38v-20.18c-7.93,11.53-27.03,24.15-51.9,24.15-47.94,0-84.7-42.89-84.7-94.07s36.76-94.07,84.7-94.07ZM705.39,204.88c-27.03,0-45.41,20.9-45.41,49.02s18.38,49.02,45.41,49.02,45.41-20.9,45.41-49.02-18.38-49.02-45.41-49.02Z"/><path d="M845.23,134.23c-16.94,0-31.36-14.06-31.36-31.36s14.42-31.36,31.36-31.36,31.72,14.06,31.72,31.36-14.06,31.36-31.72,31.36ZM820.72,163.79h49.38v180.21h-49.38v-180.21Z"/><path d="M894.25,163.79h49.38v20.54c9.37-14.42,28.11-24.51,51.54-24.51,43.61,0,69.56,31.72,69.56,78.57v105.61h-49.38v-97.32c0-25.95-11.17-41.81-31.72-41.81-22.71,0-40.01,16.58-40.01,51.18v87.94h-49.38v-180.21Z"/></g><g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 5 — SECTION DIVIDER: CHURN & RETENTION
+         ===================================================================== -->
+    <section class="slide section-divider-navy">
+        <div class="bg-pattern subtle-grid"></div>
+        <div class="divider-inner">
+            <div class="divider-number reveal" data-editable>2</div>
+            <h1 class="divider-title reveal" data-editable>Churn &amp;<br><span class="white-muted">Retention</span></h1>
+        </div>
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 6 — CHURN METRICS
+         ===================================================================== -->
+    <section class="slide stats">
+        <div class="bg-pattern subtle-grid"></div>
+        <span class="pill-tag on-dark" data-editable>May Numbers</span>
+        <div class="stats-inner">
+            <div class="stats-header reveal">
+                <h2 data-editable>Churn is down. NRR is healthy.</h2>
+                <p data-editable>May gross churn improved month-over-month. NRR is slightly below 100% — stable and on track.</p>
+            </div>
+            <div class="stats-grid reveal">
+                <div class="stat-card variant-light">
+                    <div class="stat-number" data-editable>3.5%</div>
+                    <div class="stat-label" data-editable>May gross churn</div>
+                    <div class="stat-trend trend-up" data-editable>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        Down from 4.12% last month
+                    </div>
+                </div>
+                <div class="stat-card variant-outline">
+                    <div class="stat-number" data-editable>99.75%</div>
+                    <div class="stat-label" data-editable>Net Revenue Retention</div>
+                    <div class="stat-trend trend-goal" data-editable>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        Slight dip below 100%, still healthy
+                    </div>
+                </div>
+                <div class="stat-card variant-filled">
+                    <div class="stat-number" data-editable>31%</div>
+                    <div class="stat-label" data-editable>Top churn driver — payment failure</div>
+                    <div class="stat-sublabel" data-editable style="color:rgba(255,255,255,0.7)">Working on plans to bring this down</div>
+                </div>
+            </div>
+        </div>
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 7 — AYO JOINS AS CSM
+         ===================================================================== -->
+    <section class="slide content-light">
+        <div class="bg-pattern dotted-grid"></div>
+        <span class="pill-tag" data-editable>New Capacity</span>
+        <div class="content-light-inner">
+            <div class="eyebrow reveal" data-editable>Customer Success</div>
+            <h2 class="reveal" data-editable>Fresh capacity for customers at risk.</h2>
+            <div class="team-grid reveal" style="grid-template-columns: 1fr;">
+                <div class="team-card" style="max-width: 600px;">
+                    <div class="team-card-role" data-editable>Customer Success Manager</div>
+                    <div class="team-card-name" data-editable>Ayo</div>
+                    <p class="team-card-desc" data-editable>Joined the CS team this month, bringing fresh capacity and a new face for customers who need the most attention. More bandwidth means faster intervention on at-risk accounts.</p>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <div class="team-badge" data-editable>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            CSM — active now
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ps-logo-corner">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2117.59 432"><g fill="#2c384d"><path d="M614.74,174.24c0,48.66-37.84,86.14-89.75,86.14h-32.8v83.62h-52.26V88.1h85.06c51.9,0,89.75,37.48,89.75,86.14ZM563.92,174.24c0-20.9-15.86-37.12-39.65-37.12h-32.08v74.25h32.08c23.79,0,39.65-16.22,39.65-37.12Z"/><path d="M694.93,159.82c24.87,0,43.97,12.62,51.9,24.15v-20.18h49.38v180.21h-49.38v-20.18c-7.93,11.53-27.03,24.15-51.9,24.15-47.94,0-84.7-42.89-84.7-94.07s36.76-94.07,84.7-94.07ZM705.39,204.88c-27.03,0-45.41,20.9-45.41,49.02s18.38,49.02,45.41,49.02,45.41-20.9,45.41-49.02-18.38-49.02-45.41-49.02Z"/><path d="M845.23,134.23c-16.94,0-31.36-14.06-31.36-31.36s14.42-31.36,31.36-31.36,31.72,14.06,31.72,31.36-14.06,31.36-31.72,31.36ZM820.72,163.79h49.38v180.21h-49.38v-180.21Z"/></g><g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 8 — SECTION DIVIDER: TIME TO VALUE
+         ===================================================================== -->
+    <section class="slide section-divider-blue">
+        <div class="bg-pattern subtle-grid"></div>
+        <div class="divider-inner">
+            <div class="divider-number reveal" data-editable>3</div>
+            <h1 class="divider-title reveal" data-editable>Time to<br>Value</h1>
+        </div>
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 9 — TTV CHART
+         ===================================================================== -->
+    <section class="slide ttv-slide">
+        <div class="bg-pattern dotted-grid"></div>
+        <span class="pill-tag" data-editable>Onboarding Speed</span>
+        <div class="ttv-inner">
+            <div>
+                <div class="eyebrow reveal" data-editable>Time to Value</div>
+                <h2 class="reveal" data-editable>85 days down to <span class="blue-accent">10 days.</span></h2>
+                <p class="reveal" style="color: var(--ps-n50); font-size: var(--body-large); margin-top: 0.5rem;" data-editable>Stable for two months — customers are getting value faster, consistently.</p>
+            </div>
+            <div class="ttv-chart-wrap reveal">
+                <!-- Inline SVG TTV chart: shows steep drop from 85 → 10 days -->
+                <svg class="ttv-chart" viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                    <!-- Grid lines -->
+                    <line x1="60" y1="20" x2="60" y2="240" stroke="#d8dee8" stroke-width="1"/>
+                    <line x1="60" y1="240" x2="870" y2="240" stroke="#d8dee8" stroke-width="1"/>
+                    <!-- Subtle horizontal guides -->
+                    <line x1="60" y1="80" x2="870" y2="80" stroke="#ebeff5" stroke-width="1" stroke-dasharray="4,6"/>
+                    <line x1="60" y1="140" x2="870" y2="140" stroke="#ebeff5" stroke-width="1" stroke-dasharray="4,6"/>
+                    <line x1="60" y1="200" x2="870" y2="200" stroke="#ebeff5" stroke-width="1" stroke-dasharray="4,6"/>
+                    <!-- Y axis labels -->
+                    <text x="50" y="25" text-anchor="end" fill="#8e9fbb" font-size="13" font-family="Inter, sans-serif">85d</text>
+                    <text x="50" y="85" text-anchor="end" fill="#8e9fbb" font-size="13" font-family="Inter, sans-serif">60d</text>
+                    <text x="50" y="145" text-anchor="end" fill="#8e9fbb" font-size="13" font-family="Inter, sans-serif">35d</text>
+                    <text x="50" y="205" text-anchor="end" fill="#8e9fbb" font-size="13" font-family="Inter, sans-serif">10d</text>
+                    <!-- Area fill under curve -->
+                    <defs>
+                        <linearGradient id="ttv-grad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#0766ee" stop-opacity="0.18"/>
+                            <stop offset="100%" stop-color="#0766ee" stop-opacity="0.02"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M80,20 C160,22 260,60 350,120 C440,175 490,200 560,205 C660,207 760,205 860,205 L860,240 L80,240 Z" fill="url(#ttv-grad)"/>
+                    <!-- Main curve line -->
+                    <path d="M80,20 C160,22 260,60 350,120 C440,175 490,200 560,205 C660,207 760,205 860,205" fill="none" stroke="#0766ee" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Start point label -->
+                    <circle cx="80" cy="20" r="5" fill="#0766ee"/>
+                    <text x="80" y="12" text-anchor="middle" fill="#0766ee" font-size="14" font-weight="600" font-family="Poppins, sans-serif">85 days</text>
+                    <!-- End point — highlighted green plateau -->
+                    <circle cx="860" cy="205" r="7" fill="#17b991"/>
+                    <rect x="750" y="175" width="110" height="26" rx="6" fill="#17b991"/>
+                    <text x="805" y="193" text-anchor="middle" fill="#fff" font-size="13" font-weight="600" font-family="Poppins, sans-serif">~10 days</text>
+                    <!-- "Stable 2 months" annotation -->
+                    <line x1="660" y1="205" x2="850" y2="205" stroke="#17b991" stroke-width="2" stroke-dasharray="4,3" opacity="0.6"/>
+                    <text x="755" y="225" text-anchor="middle" fill="#17b991" font-size="12" font-family="Inter, sans-serif">stable ~2 months</text>
+                    <!-- X axis label -->
+                    <text x="80" y="258" text-anchor="middle" fill="#b3bfd2" font-size="12" font-family="Inter, sans-serif">Before</text>
+                    <text x="860" y="258" text-anchor="middle" fill="#b3bfd2" font-size="12" font-family="Inter, sans-serif">Today</text>
+                </svg>
+            </div>
+        </div>
+        <div class="ps-logo-corner">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2117.59 432"><g fill="#2c384d"><path d="M614.74,174.24c0,48.66-37.84,86.14-89.75,86.14h-32.8v83.62h-52.26V88.1h85.06c51.9,0,89.75,37.48,89.75,86.14ZM563.92,174.24c0-20.9-15.86-37.12-39.65-37.12h-32.08v74.25h32.08c23.79,0,39.65-16.22,39.65-37.12Z"/><path d="M694.93,159.82c24.87,0,43.97,12.62,51.9,24.15v-20.18h49.38v180.21h-49.38v-20.18c-7.93,11.53-27.03,24.15-51.9,24.15-47.94,0-84.7-42.89-84.7-94.07s36.76-94.07,84.7-94.07ZM705.39,204.88c-27.03,0-45.41,20.9-45.41,49.02s18.38,49.02,45.41,49.02,45.41-20.9,45.41-49.02-18.38-49.02-45.41-49.02Z"/><path d="M845.23,134.23c-16.94,0-31.36-14.06-31.36-31.36s14.42-31.36,31.36-31.36,31.72,14.06,31.72,31.36-14.06,31.36-31.72,31.36ZM820.72,163.79h49.38v180.21h-49.38v-180.21Z"/></g><g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 10 — SECTION DIVIDER: NPS
+         ===================================================================== -->
+    <section class="slide section-divider-navy">
+        <div class="bg-pattern subtle-grid"></div>
+        <div class="divider-inner">
+            <div class="divider-number reveal" data-editable>4</div>
+            <h1 class="divider-title reveal" data-editable>NPS:<br><span class="white-muted">A New Signal</span></h1>
+        </div>
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 11 — NPS RESULTS
+         ===================================================================== -->
+    <section class="slide nps-slide">
+        <div class="bg-pattern subtle-grid"></div>
+        <span class="pill-tag on-dark" data-editable>First Survey — 346 responses</span>
+        <div class="nps-inner">
+            <h2 class="reveal" data-editable>Our first NPS. A strong start.</h2>
+            <div class="nps-layout reveal">
+                <div class="nps-score-block">
+                    <div class="nps-score-number" data-editable>59</div>
+                    <div class="nps-score-label" data-editable>Net Promoter Score</div>
+                    <div class="nps-context" data-editable>SaaS average is 31–40. A score above 50 is considered excellent. This is one data point — we'll track it over time.</div>
+                </div>
+                <div>
+                    <div class="nps-bars">
+                        <div class="nps-bar-row">
+                            <div class="nps-bar-label" data-editable>Promoters</div>
+                            <div class="nps-bar-track">
+                                <div class="nps-bar-fill promoter" id="bar-promoter" style="width: 0%">72%</div>
+                            </div>
+                            <div class="nps-bar-pct" data-editable>72%</div>
+                        </div>
+                        <div class="nps-bar-row">
+                            <div class="nps-bar-label" data-editable>Passives</div>
+                            <div class="nps-bar-track">
+                                <div class="nps-bar-fill passive" id="bar-passive" style="width: 0%">14%</div>
+                            </div>
+                            <div class="nps-bar-pct" data-editable>14%</div>
+                        </div>
+                        <div class="nps-bar-row">
+                            <div class="nps-bar-label" data-editable>Detractors</div>
+                            <div class="nps-bar-track">
+                                <div class="nps-bar-fill detractor" id="bar-detractor" style="width: 0%">13%</div>
+                            </div>
+                            <div class="nps-bar-pct" data-editable>13%</div>
+                        </div>
+                    </div>
+                    <p class="nps-responses reveal" data-editable>346 total responses — first survey ever.</p>
+                </div>
+            </div>
+        </div>
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 12 — SECTION DIVIDER: CUSTOMER QUOTES
+         ===================================================================== -->
+    <section class="slide section-divider-blue">
+        <div class="bg-pattern subtle-grid"></div>
+        <div class="divider-inner">
+            <div class="divider-number reveal" data-editable>5</div>
+            <h1 class="divider-title reveal" data-editable>What Customers<br>Are Saying</h1>
+        </div>
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 13 — POSITIVE QUOTES (6)
+         ===================================================================== -->
+    <section class="slide quotes-slide">
+        <div class="bg-pattern dotted-grid"></div>
+        <span class="pill-tag" data-editable>From the NPS survey</span>
+        <div class="quotes-inner">
+            <h2 class="reveal" data-editable>Painting contractors love what we're building.</h2>
+            <div class="quotes-grid reveal">
+                <div class="quote-card">
+                    <div class="quote-mark">"</div>
+                    <p class="quote-text" data-editable>Amazing software that has sped up estimating significantly.</p>
+                    <div class="quote-type positive">Positive</div>
+                </div>
+                <div class="quote-card">
+                    <div class="quote-mark">"</div>
+                    <p class="quote-text" data-editable>The estimates and invoices look so clean compared to my QuickBooks estimates.</p>
+                    <div class="quote-type positive">Positive</div>
+                </div>
+                <div class="quote-card">
+                    <div class="quote-mark">"</div>
+                    <p class="quote-text" data-editable>It has increased my close rate and allowed me to present on the spot.</p>
+                    <div class="quote-type positive">Positive</div>
+                </div>
+                <div class="quote-card">
+                    <div class="quote-mark">"</div>
+                    <p class="quote-text" data-editable>Having estimating, work orders, project photos, sales tracking, and production scheduling all integrated into one system saves a tremendous amount of time.</p>
+                    <div class="quote-type positive">Positive</div>
+                </div>
+                <div class="quote-card">
+                    <div class="quote-mark">"</div>
+                    <p class="quote-text" data-editable>Customer support is stellar.</p>
+                    <div class="quote-type positive">Positive</div>
+                </div>
+                <div class="quote-card">
+                    <div class="quote-mark">"</div>
+                    <p class="quote-text" data-editable>Actually enjoyable to use the software.</p>
+                    <div class="quote-type positive">Positive</div>
+                </div>
+            </div>
+        </div>
+        <div class="ps-logo-corner">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2117.59 432"><g fill="#2c384d"><path d="M614.74,174.24c0,48.66-37.84,86.14-89.75,86.14h-32.8v83.62h-52.26V88.1h85.06c51.9,0,89.75,37.48,89.75,86.14ZM563.92,174.24c0-20.9-15.86-37.12-39.65-37.12h-32.08v74.25h32.08c23.79,0,39.65-16.22,39.65-37.12Z"/><path d="M694.93,159.82c24.87,0,43.97,12.62,51.9,24.15v-20.18h49.38v180.21h-49.38v-20.18c-7.93,11.53-27.03,24.15-51.9,24.15-47.94,0-84.7-42.89-84.7-94.07s36.76-94.07,84.7-94.07ZM705.39,204.88c-27.03,0-45.41,20.9-45.41,49.02s18.38,49.02,45.41,49.02,45.41-20.9,45.41-49.02-18.38-49.02-45.41-49.02Z"/></g><g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 14 — FEEDBACK QUOTES (4)
+         ===================================================================== -->
+    <section class="slide quotes-slide">
+        <div class="bg-pattern dotted-grid"></div>
+        <span class="pill-tag" data-editable>Feedback to act on</span>
+        <div class="quotes-inner">
+            <h2 class="reveal" data-editable>And feedback worth listening to.</h2>
+            <div class="quotes-grid reveal" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="quote-card feedback">
+                    <div class="quote-mark" style="color: var(--ps-n50);">"</div>
+                    <p class="quote-text" data-editable>For smaller businesses the price is high.</p>
+                    <div class="quote-type feedback">Feedback</div>
+                </div>
+                <div class="quote-card feedback">
+                    <div class="quote-mark" style="color: var(--ps-n50);">"</div>
+                    <p class="quote-text" data-editable>Putting together quotes involves toggling in and out of the library too much. Once a few updates are made, PaintScout will certainly be an industry leader.</p>
+                    <div class="quote-type feedback">Feedback</div>
+                </div>
+                <div class="quote-card feedback">
+                    <div class="quote-mark" style="color: var(--ps-n50);">"</div>
+                    <p class="quote-text" data-editable>It is the best estimating software. The CRM still needs work though.</p>
+                    <div class="quote-type feedback">Feedback</div>
+                </div>
+                <div class="quote-card feedback">
+                    <div class="quote-mark" style="color: var(--ps-n50);">"</div>
+                    <p class="quote-text" data-editable>Make the system usable offline.</p>
+                    <div class="quote-type feedback">Feedback</div>
+                </div>
+            </div>
+        </div>
+        <div class="ps-logo-corner">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2117.59 432"><g fill="#2c384d"><path d="M614.74,174.24c0,48.66-37.84,86.14-89.75,86.14h-32.8v83.62h-52.26V88.1h85.06c51.9,0,89.75,37.48,89.75,86.14ZM563.92,174.24c0-20.9-15.86-37.12-39.65-37.12h-32.08v74.25h32.08c23.79,0,39.65-16.22,39.65-37.12Z"/><path d="M694.93,159.82c24.87,0,43.97,12.62,51.9,24.15v-20.18h49.38v180.21h-49.38v-20.18c-7.93,11.53-27.03,24.15-51.9,24.15-47.94,0-84.7-42.89-84.7-94.07s36.76-94.07,84.7-94.07ZM705.39,204.88c-27.03,0-45.41,20.9-45.41,49.02s18.38,49.02,45.41,49.02,45.41-20.9,45.41-49.02-18.38-49.02-45.41-49.02Z"/></g><g fill="#0766ee"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 15 — SECTION DIVIDER: WHAT'S NEXT
+         ===================================================================== -->
+    <section class="slide section-divider-navy">
+        <div class="bg-pattern subtle-grid"></div>
+        <div class="divider-inner">
+            <div class="divider-number reveal" data-editable>6</div>
+            <h1 class="divider-title reveal" data-editable>What's<br><span class="white-muted">Next</span></h1>
+        </div>
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 16 — WHAT'S NEXT NUMBERED LIST
+         ===================================================================== -->
+    <section class="slide numbered-list">
+        <div class="bg-pattern subtle-grid"></div>
+        <span class="pill-tag on-dark" data-editable>Priorities</span>
+        <div class="numbered-list-inner">
+            <h2 class="reveal" data-editable>Three things on the horizon.</h2>
+            <div class="numbered-list-items">
+                <div class="numbered-list-item reveal">
+                    <span class="num" data-editable>01</span>
+                    <span>
+                        <strong data-editable>CS post-OB motion rebuild</strong>
+                        <span class="detail" data-editable>In progress — redesigning the post-onboarding customer journey</span>
+                    </span>
+                </div>
+                <div class="numbered-list-item reveal">
+                    <span class="num" data-editable>02</span>
+                    <span>
+                        <strong data-editable>Emily full-time as Payments Specialist</strong>
+                        <span class="detail" data-editable>Moving into the role full-time in June</span>
+                    </span>
+                </div>
+                <div class="numbered-list-item reveal">
+                    <span class="num" data-editable>03</span>
+                    <span>
+                        <strong data-editable>Get our new hires up and running</strong>
+                        <span class="detail" data-editable>Tyler and Ayo ramping up — building team capacity</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="ps-logo-corner" style="filter: brightness(0) invert(1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432"><g fill="#ffffff"><path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/><path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/><path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/></g></svg>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         SLIDE 17 — CLOSING
+         ===================================================================== -->
+    <section class="slide closing">
+        <div class="bg-pattern subtle-grid"></div>
+        <div class="closing-inner">
+            <svg class="closing-logomark reveal" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 432">
+                <g fill="#0766ee">
+                    <path d="M240,267.32l-.06-86.31-111.94,28v89.85c0,2.33,2.24,4.01,4.48,3.36l16.52-4.82c21-21.88,21-46.38,21-46.38v42s62.04-15.51,62.04-15.51c4.68-1.17,7.96-5.37,7.95-10.19Z"/>
+                    <path d="M240,135.52c0-1.94-1.56-3.51-3.5-3.51h-10.49c-14,0-28-4.88-28-24.5v-45.5c0-9.11-8.56-15.79-17.4-13.58h0c-6.23,1.56-10.61,7.16-10.61,13.58v45.5c0,17.17-7.54,35.28-28,45.5l-5.29,2.65c-5.34,2.67-8.71,8.12-8.71,14.09v21.77l111.94-28,.06-27.99Z"/>
+                    <path d="M184,0C82.38,0,0,80.59,0,180c0,164,184,252,184,252,0,0,184-88,184-252C368,80.59,285.62,0,184,0ZM184,344c-88.37,0-160-71.63-160-160S95.63,24,184,24s160,71.63,160,160-71.63,160-160,160Z"/>
+                </g>
+            </svg>
+            <h1 class="closing-title reveal" data-editable>Thanks.</h1>
+            <p class="closing-subtitle reveal" data-editable>Questions? Reach out anytime.</p>
+        </div>
+    </section>
+
+    <!-- Nav dots -->
+    <nav class="nav-dots" aria-label="Slide navigation"></nav>
+
+    <script>
+        /* =====================================================================
+           SLIDE CONTROLLER
+           ===================================================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = Array.from(document.querySelectorAll('.slide'));
+                this.currentSlide = 0;
+                this.progressBar = document.querySelector('.progress-bar');
+                this.navDotsContainer = document.querySelector('.nav-dots');
+                this.setupNavDots();
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupScrollTracking();
+                this.setupNPSAnimation();
+            }
+
+            setupNPSAnimation() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            setTimeout(() => {
+                                const p = document.getElementById('bar-promoter');
+                                const pa = document.getElementById('bar-passive');
+                                const d = document.getElementById('bar-detractor');
+                                if (p) p.style.width = '72%';
+                                if (pa) pa.style.width = '14%';
+                                if (d) d.style.width = '13%';
+                            }, 400);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                const npsSlide = document.querySelector('.nps-slide');
+                if (npsSlide) observer.observe(npsSlide);
+            }
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = this.slides.indexOf(entry.target);
+                            if (idx !== -1) { this.currentSlide = idx; this.updateNavDots(); }
+                        }
+                    });
+                }, { threshold: 0.5 });
+                this.slides.forEach(s => observer.observe(s));
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.target.getAttribute('contenteditable') === 'true') return;
+                    switch (e.key) {
+                        case 'ArrowDown': case 'ArrowRight': case ' ': case 'PageDown':
+                            e.preventDefault(); this.goToSlide(this.currentSlide + 1); break;
+                        case 'ArrowUp': case 'ArrowLeft': case 'PageUp':
+                            e.preventDefault(); this.goToSlide(this.currentSlide - 1); break;
+                        case 'Home': e.preventDefault(); this.goToSlide(0); break;
+                        case 'End': e.preventDefault(); this.goToSlide(this.slides.length - 1); break;
+                    }
+                });
+            }
+
+            setupTouchNav() {
+                let tY = 0;
+                document.addEventListener('touchstart', e => { tY = e.changedTouches[0].screenY; }, { passive: true });
+                document.addEventListener('touchend', e => {
+                    const d = tY - e.changedTouches[0].screenY;
+                    if (Math.abs(d) < 50) return;
+                    if (d > 0) this.goToSlide(this.currentSlide + 1);
+                    else this.goToSlide(this.currentSlide - 1);
+                }, { passive: true });
+            }
+
+            setupScrollTracking() {
+                window.addEventListener('scroll', () => {
+                    const pct = document.body.scrollHeight - window.innerHeight > 0
+                        ? (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100 : 0;
+                    this.progressBar.style.width = pct + '%';
+                }, { passive: true });
+            }
+
+            setupNavDots() {
+                this.slides.forEach((_, idx) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot';
+                    dot.setAttribute('aria-label', `Go to slide ${idx + 1}`);
+                    dot.addEventListener('click', () => this.goToSlide(idx));
+                    this.navDotsContainer.appendChild(dot);
+                });
+                this.updateNavDots();
+            }
+
+            updateNavDots() {
+                this.navDotsContainer.querySelectorAll('.nav-dot').forEach((dot, idx) => {
+                    dot.classList.toggle('active', idx === this.currentSlide);
+                });
+            }
+
+            goToSlide(idx) {
+                idx = Math.max(0, Math.min(idx, this.slides.length - 1));
+                this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        /* =====================================================================
+           INLINE EDITOR
+           ===================================================================== */
+        class InlineEditor {
+            constructor() {
+                this.isActive = false;
+                this.editableElements = document.querySelectorAll('[data-editable]');
+                this.toggleBtn = document.getElementById('editToggle');
+                this.hotzone = document.querySelector('.edit-hotzone');
+                this.toast = document.getElementById('editToast');
+                this.hideTimeout = null;
+                this.storageKey = 'cx-update-edits';
+                this.setupToggle();
+                this.setupHotzone();
+                this.setupKeyboard();
+                this.setupEditing();
+                this.loadSavedEdits();
+            }
+
+            setupToggle() { this.toggleBtn.addEventListener('click', () => this.toggleEditMode()); }
+
+            setupHotzone() {
+                this.hotzone.addEventListener('mouseenter', () => { clearTimeout(this.hideTimeout); this.toggleBtn.classList.add('show'); });
+                this.hotzone.addEventListener('mouseleave', () => { this.hideTimeout = setTimeout(() => { if (!this.isActive) this.toggleBtn.classList.remove('show'); }, 400); });
+                this.toggleBtn.addEventListener('mouseenter', () => clearTimeout(this.hideTimeout));
+                this.toggleBtn.addEventListener('mouseleave', () => { this.hideTimeout = setTimeout(() => { if (!this.isActive) this.toggleBtn.classList.remove('show'); }, 400); });
+                this.hotzone.addEventListener('click', () => this.toggleEditMode());
+            }
+
+            setupKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    if ((e.key === 'e' || e.key === 'E') && !e.target.getAttribute('contenteditable')) this.toggleEditMode();
+                    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); this.exportFile(); }
+                });
+            }
+
+            setupEditing() {
+                this.editableElements.forEach((el, idx) => {
+                    el.dataset.editId = idx;
+                    el.addEventListener('blur', () => this.saveEdit(idx, el.innerHTML));
+                    el.addEventListener('keydown', e => e.stopPropagation());
+                });
+            }
+
+            toggleEditMode() {
+                this.isActive = !this.isActive;
+                document.body.classList.toggle('edit-mode', this.isActive);
+                this.toggleBtn.classList.toggle('active', this.isActive);
+                this.editableElements.forEach(el => el.setAttribute('contenteditable', this.isActive));
+                this.showToast(this.isActive ? 'Edit mode on — click any text. Ctrl+S to export.' : 'Edit mode off — changes saved locally');
+                if (!this.isActive) this.toggleBtn.classList.remove('show');
+            }
+
+            saveEdit(idx, html) {
+                try { const s = JSON.parse(localStorage.getItem(this.storageKey) || '{}'); s[idx] = html; localStorage.setItem(this.storageKey, JSON.stringify(s)); } catch(e) {}
+            }
+
+            loadSavedEdits() {
+                try { const s = JSON.parse(localStorage.getItem(this.storageKey) || '{}'); this.editableElements.forEach((el, idx) => { if (s[idx] !== undefined) el.innerHTML = s[idx]; }); } catch(e) {}
+            }
+
+            showToast(msg) {
+                this.toast.textContent = msg;
+                this.toast.classList.add('show');
+                setTimeout(() => this.toast.classList.remove('show'), 2500);
+            }
+
+            exportFile() {
+                const clone = document.documentElement.cloneNode(true);
+                clone.querySelector('body').classList.remove('edit-mode');
+                clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+                const blob = new Blob(['<!DOCTYPE html>\n' + clone.outerHTML], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = 'cx-update.html'; a.click();
+                URL.revokeObjectURL(url);
+                this.showToast('Exported cx-update.html ✓');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { new SlidePresentation(); new InlineEditor(); });
+        if (document.readyState !== 'loading') { new SlidePresentation(); new InlineEditor(); }
+    </script>
+</body>
+</html>
